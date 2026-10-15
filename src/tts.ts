@@ -1,14 +1,14 @@
 import type { Config } from './config';
-import { gemini, sleep, withRetry } from './llm';
+import { gemini, sleep, withModels } from './llm';
 import type { Line } from './script';
 import { pcmToWav, SAMPLE_RATE } from './wav';
 
 /** Voice one chunk with both hosts in a single multi-speaker request. Returns a WAV buffer. */
 export async function speakChunk(config: Config, lines: Line[], label: string): Promise<Buffer> {
   const conversation = lines.map((l) => `${l.speaker}: ${l.text}`).join('\n');
-  const response = await withRetry(label, () =>
+  const response = await withModels(label, config.tts.models, (model) =>
     gemini().models.generateContent({
-      model: config.tts.model,
+      model,
       contents: `${config.tts.style}\n\n${conversation}`,
       config: {
         responseModalities: ['AUDIO'],

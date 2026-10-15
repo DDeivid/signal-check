@@ -59,7 +59,7 @@ export const configSchema = z.object({
     instruments: z.array(z.object({ label: z.string(), symbol: z.string() })),
   }),
   llm: z.object({
-    model: z.string(),
+    models: z.array(z.string()).min(1),
     temperature: z.number(),
     min_seconds_between_calls: z.number().min(0),
     fallback_model: z.string(),
@@ -73,7 +73,7 @@ export const configSchema = z.object({
     banned_phrases: z.array(z.string()),
   }),
   tts: z.object({
-    model: z.string(),
+    models: z.array(z.string()).min(1),
     max_chars_per_request: z.number().int().positive(),
     seconds_between_requests: z.number().min(0),
     style: z.string(),

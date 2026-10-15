@@ -1,6 +1,6 @@
 import type { Config } from '../config';
 import { fetchText, type FeedItem } from '../feeds';
-import { generateText, type Source } from '../llm';
+import { describeError, generateText, type Source } from '../llm';
 
 export interface Research {
   topic: string;
@@ -39,13 +39,17 @@ const SYSTEM =
   'You are a careful research assistant for a news podcast. Separate established facts from claims and speculation, ' +
   'name who says what, and give dates. Say plainly when something is unclear. Plain text, no markdown tables.';
 
+/** Set after the first failed web search, so the rest of the run doesn't keep paying for retries. */
+let searchUnavailable = false;
+
 async function research(config: Config, label: string, prompt: string): Promise<{ notes: string; sources: Source[] }> {
-  if (config.research.grounding) {
+  if (config.research.grounding && !searchUnavailable) {
     try {
       const { text, sources } = await generateText(config, { label, system: SYSTEM, prompt, grounding: true, temperature: 0.2 });
       return { notes: text, sources };
     } catch (err) {
-      console.warn(`[${label}] grounded research failed, continuing without search: ${(err as Error).message.slice(0, 200)}`);
+      searchUnavailable = true;
+      console.warn(`::warning::Web search unavailable, researching without it for the rest of this run: ${describeError(err)}`);
     }
   }
   const { text } = await generateText(config, { label, system: SYSTEM, prompt, temperature: 0.2 });

@@ -13,6 +13,7 @@
     "site": "tsx src/cli/build-site.ts",
     "voice-test": "tsx src/cli/voice-test.ts",
     "check-feeds": "tsx src/cli/check-feeds.ts",
+    "models": "tsx src/cli/list-models.ts",
     "notify": "tsx src/cli/notify.ts",
     "jingle": "tsx src/cli/make-jingle.ts",
     "cover": "tsx src/cli/make-cover.ts",

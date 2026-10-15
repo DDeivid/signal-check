@@ -3,7 +3,8 @@ import { loadConfig } from '../src/config';
 import { buildFeed, hms, markdownToHtml } from '../src/feed';
 import { normalizeUrl, prepareItems } from '../src/feeds';
 import type { EpisodeRecord } from '../src/history';
-import { extractJson } from '../src/llm';
+import { ApiError } from '@google/genai';
+import { classify, describeError, extractJson, withModels } from '../src/llm';
 import { parseChart, quotesTable, type Quote } from '../src/markets';
 import { chunkForTts, type Section } from '../src/script';
 import { htmlToText } from '../src/stages/research';
@@ -193,5 +194,34 @@ describe('feed', () => {
     expect(xml).toContain('<itunes:duration>00:12:11</itunes:duration>');
     expect(xml).not.toContain('<itunes:email>');
     expect(xml).not.toMatch(/\]\]>[^<\s]/);
+  });
+});
+
+describe('model fallback', () => {
+  const apiError = (status: number, message: string) => new ApiError({ status, message });
+
+  it('classifies API errors', () => {
+    expect(classify(apiError(503, 'high demand'))).toBe('retry');
+    expect(classify(apiError(429, '{"retryDelay": "20s"}'))).toBe('retry');
+    expect(classify(apiError(429, 'Quota exceeded for metric: x, limit: 0, model: y'))).toBe('next-model');
+    expect(classify(apiError(429, '"quotaId": "GenerateRequestsPerDayPerProjectPerModel-FreeTier"'))).toBe('next-model');
+    expect(classify(apiError(404, 'models/foo is not found'))).toBe('next-model');
+    expect(classify(apiError(400, 'Invalid JSON payload'))).toBe('fatal');
+  });
+
+  it('moves to the next model when one has no quota', async () => {
+    const tried: string[] = [];
+    const result = await withModels('t', ['a', 'b'], async (model) => {
+      tried.push(model);
+      if (model === 'a') throw apiError(429, 'limit: 0');
+      return model;
+    });
+    expect(result).toBe('b');
+    expect(tried).toEqual(['a', 'b']);
+  });
+
+  it('names the exhausted quota', () => {
+    const err = apiError(429, '{"error":{"message":"You exceeded your current quota","details":[{"quotaId":"GoogleSearchGroundingPerDay"}]}}');
+    expect(describeError(err)).toBe('429 You exceeded your current quota [quota: GoogleSearchGroundingPerDay]');
   });
 });

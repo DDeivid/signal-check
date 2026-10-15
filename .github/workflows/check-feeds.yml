@@ -20,3 +20,8 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run check-feeds
+      - name: List Gemini models
+        if: always()
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: '[ -n "$GEMINI_API_KEY" ] && npm run models || echo "GEMINI_API_KEY not set; skipping"'

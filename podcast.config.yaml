@@ -155,8 +155,9 @@ markets:
     - { label: Brent oil, symbol: "BZ=F" }
 
 llm:
-  # Text stages. "gemini-flash-latest" follows Google's newest Flash; pin it once episodes sound good.
-  model: gemini-flash-latest
+  # Text stages. Tried in order: a busy or rate-limited model falls through to the next.
+  # "Check feeds" lists the models your key can use. Pin versions once episodes sound good.
+  models: [gemini-flash-latest]
   temperature: 0.7
   # Spacing between LLM calls, to stay inside free-tier rate limits.
   min_seconds_between_calls: 5
@@ -185,7 +186,7 @@ quality:
     - "stay tuned"
 
 tts:
-  model: gemini-3.1-flash-tts-preview
+  models: [gemini-3.1-flash-tts-preview]
   # Both hosts go in one request; the script is split into chunks of about this size.
   max_chars_per_request: 3000
   seconds_between_requests: 25
