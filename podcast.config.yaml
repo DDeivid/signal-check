@@ -39,7 +39,7 @@ hosts:
       Curious generalist and the guide. Sets up each story in plain language,
       connects it to earlier episodes, asks the questions a smart listener would.
   - name: Theo
-    voice: Charon
+    voice: Iapetus
     persona: >-
       Sharp skeptic. Pushes on claims, asks who benefits and what's missing,
       separates what is known from what is speculation. Dry, never cynical.

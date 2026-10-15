@@ -28,4 +28,4 @@ Automated weekday news podcast. TypeScript (Node 22, ESM, run with `tsx`, no bui
 
 ## Not yet verified live
 
-Gemini model IDs (`gemini-flash-latest`, `gemini-3.1-flash-tts-preview`), voice names (Aoede, Charon), free-tier rate limits, and grounding availability on the free tier. Feeds and market symbols were checked on 2026-10-15.
+Gemini model IDs (`gemini-flash-latest`, `gemini-3.1-flash-tts-preview`), free-tier rate limits, and grounding availability on the free tier. Feeds and market symbols were checked on 2026-10-15.
