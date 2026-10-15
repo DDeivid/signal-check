@@ -157,7 +157,7 @@ markets:
 llm:
   # Text stages. Tried in order: a busy or rate-limited model falls through to the next.
   # "Check feeds" lists the models your key can use. Pin versions once episodes sound good.
-  models: [gemini-flash-latest, gemini-3.5-flash, gemini-2.5-flash, gemini-flash-lite-latest]
+  models: [gemini-flash-latest, gemini-3.7-flash, gemini-3.5-flash, gemini-flash-lite-latest]
   temperature: 0.7
   # Spacing between LLM calls, to stay inside free-tier rate limits.
   min_seconds_between_calls: 5
@@ -165,8 +165,9 @@ llm:
   fallback_model: ""
 
 research:
-  # Let the research stage search the web (Gemini grounding). Falls back to no search on error.
-  grounding: true
+  # Let the research stage search the web (Gemini grounding). Off: the free tier had no search
+  # quota on 2026-10-15 (429 on every model). Turn on if the key gets paid quota.
+  grounding: false
   # Characters of article text fetched per story.
   article_chars: 6000
 

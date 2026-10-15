@@ -36,7 +36,7 @@ Two AI hosts:
 
 How it sounds:
 - A real conversation between two people who read the news closely. Short turns, mostly 1-4 sentences. They react to each other, disagree sometimes, and hand off naturally.
-- Plain spoken English. No headings read aloud, no stage directions, no sound effects, no emojis, no markdown.
+- Spoken English, the way people actually talk: contractions (it's, they're, we'll), "the US" not "the United States" every time, no "let us examine". No headings read aloud, no stage directions, no sound effects, no emojis, no markdown.
 - Attribute claims ("according to the BBC", "the company says"). Separate what is known from what is claimed or guessed.
 - Use only facts from the materials. If the materials don't say it, the hosts don't say it as fact. Never invent numbers, quotes, names or dates.
 - Market numbers come only from the market table, written as digits. Never give investment advice.
@@ -49,11 +49,11 @@ Return only JSON.`;
 export function writerPrompt(config: Config, brief: Brief): string {
   const budget = wordBudget(brief.targetWords);
   const segment = config.segments[brief.segment];
-  return `Write the script for ${brief.weekday}, ${brief.date}. Target length: about ${brief.targetWords} spoken words in total.
+  return `Write the script for ${brief.weekday}, ${brief.date}. Length matters: about ${brief.targetWords} spoken words in total. Each section's word count below is a minimum, not a ceiling; a short script is the most common failure, so use the detail in the materials.
 The fixed opening and closing lines are added separately; start right after the hosts have introduced themselves.
 
 Sections, in this order (id, then target words):
-1. headlines (~${budget.headlines}): a fast rundown of the headline stories, one or two sentences each, tease the main stories.
+1. headlines (~${budget.headlines}): a fast rundown, one or two sentences each. Only tease stories that are covered later in this episode.
 2. main_1 (~${budget.main_1}): first main story.
 3. main_2 (~${budget.main_2}): second main story.
 4. segment (~${budget.segment}): "${segment.title}". ${segment.brief}

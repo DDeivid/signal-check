@@ -225,3 +225,13 @@ describe('model fallback', () => {
     expect(describeError(err)).toBe('429 You exceeded your current quota [quota: GoogleSearchGroundingPerDay]');
   });
 });
+
+describe('market numbers in instrument names', () => {
+  it('ignores the 500 in S&P 500 and the 100 in Nasdaq 100', () => {
+    const quotes: Quote[] = [
+      { label: 'S&P 500', symbol: '^GSPC', currency: 'USD', date: '2026-10-15', close: 7722.24, dayChangePct: 0.04, weekChangePct: -0.56 },
+      { label: 'Nasdaq 100', symbol: '^NDX', currency: 'USD', date: '2026-10-15', close: 29761.03, dayChangePct: -0.63, weekChangePct: -3.14 },
+    ];
+    expect(unmatchedMarketNumbers('The S&P 500 closed at 7722.24 and the Nasdaq 100 fell 0.63 percent.', quotes)).toEqual([]);
+  });
+});

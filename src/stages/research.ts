@@ -52,7 +52,8 @@ async function research(config: Config, label: string, prompt: string): Promise<
       console.warn(`::warning::Web search unavailable, researching without it for the rest of this run: ${describeError(err)}`);
     }
   }
-  const { text } = await generateText(config, { label, system: SYSTEM, prompt, temperature: 0.2 });
+  const offline = `${prompt}\n\nYou have no web access. Use only the article text above for anything recent. Add background only where it is well established and older than the story; never guess at recent developments.`;
+  const { text } = await generateText(config, { label, system: SYSTEM, prompt: offline, temperature: 0.2 });
   return { notes: `(Written without web search; treat as background only.)\n${text}`, sources: [] };
 }
 
