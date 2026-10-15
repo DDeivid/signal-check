@@ -34,6 +34,9 @@ export function assembleSections(config: Config, draft: Draft, spoken: { weekday
 export function unmatchedMarketNumbers(text: string, quotes: Quote[]): string[] {
   // Numbers inside instrument names ("S&P 500", "Nasdaq 100") aren't market figures.
   for (const q of quotes) text = text.replaceAll(q.label, ' ');
+  // Nor are dates ("October 15", "15 October").
+  const month = '(?:January|February|March|April|May|June|July|August|September|October|November|December)';
+  text = text.replace(new RegExp(`${month}\\s+\\d{1,2}(?:st|nd|rd|th)?|\\d{1,2}(?:st|nd|rd|th)?\\s+${month}`, 'g'), ' ');
   const values = quotes.flatMap((q) => [q.close, q.dayChangePct, q.weekChangePct].filter((v): v is number => v !== null).map(Math.abs));
   const tokens = text.match(/\d[\d,]*(?:\.\d+)?/g) ?? [];
   return tokens.filter((token) => {

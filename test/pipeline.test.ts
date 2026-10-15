@@ -233,5 +233,7 @@ describe('market numbers in instrument names', () => {
       { label: 'Nasdaq 100', symbol: '^NDX', currency: 'USD', date: '2026-10-15', close: 29761.03, dayChangePct: -0.63, weekChangePct: -3.14 },
     ];
     expect(unmatchedMarketNumbers('The S&P 500 closed at 7722.24 and the Nasdaq 100 fell 0.63 percent.', quotes)).toEqual([]);
+    expect(unmatchedMarketNumbers('Looking at the table for Thursday, October 15 (or 15 October).', quotes)).toEqual([]);
+    expect(unmatchedMarketNumbers('Shares rose 15 percent on October 15.', quotes)).toEqual(['15']);
   });
 });
