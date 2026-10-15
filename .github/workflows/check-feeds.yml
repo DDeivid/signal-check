@@ -1,0 +1,22 @@
+name: Check feeds
+
+on:
+  workflow_dispatch:
+  schedule:
+    # Sundays, so a dead feed shows up before the week starts.
+    - cron: '0 6 * * 0'
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - run: npm run check-feeds

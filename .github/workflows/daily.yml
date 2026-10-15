@@ -1,0 +1,143 @@
+name: Daily episode
+
+on:
+  schedule:
+    # 05:00 UTC = 08:00 Tallinn in summer, 07:00 in winter. Mon–Fri.
+    - cron: '0 5 * * 1-5'
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: Dry run (write and review the script only; no voices, nothing published)
+        type: boolean
+        default: false
+      weekday:
+        description: Use this weekday's format
+        type: choice
+        options: [auto, monday, tuesday, wednesday, thursday, friday]
+        default: auto
+      minutes:
+        description: Target length in minutes (empty = from config)
+        type: string
+        default: ''
+      notes:
+        description: Producer notes for today (e.g. "lead with the Estonian election")
+        type: string
+        default: ''
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: signal-check
+  cancel-in-progress: false
+
+jobs:
+  produce:
+    runs-on: ubuntu-latest
+    timeout-minutes: 75
+    outputs:
+      published: ${{ steps.produce.outputs.published }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - name: Install ffmpeg
+        run: command -v ffmpeg || (sudo apt-get update -q && sudo apt-get install -y -q ffmpeg)
+
+      - name: Produce episode
+        id: produce
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          SC_DRY_RUN: ${{ inputs.dry_run && 'true' || 'false' }}
+          SC_WEEKDAY: ${{ inputs.weekday || 'auto' }}
+          SC_MINUTES: ${{ inputs.minutes }}
+          SC_NOTES: ${{ inputs.notes }}
+        run: npm run produce
+
+      - name: Keep script, review and transcript
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: episode-${{ github.run_id }}
+          path: |
+            out/
+            !out/audio/
+          retention-days: 14
+          if-no-files-found: ignore
+
+      - name: Attach MP3 to a release
+        if: steps.produce.outputs.published == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ steps.produce.outputs.tag }}
+          FILE: ${{ steps.produce.outputs.file }}
+          TITLE: ${{ steps.produce.outputs.title }}
+        run: |
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release upload "$TAG" "out/$FILE" --clobber
+          else
+            gh release create "$TAG" "out/$FILE" --title "$TITLE" --notes-file out/notes.md
+          fi
+
+      - name: Register episode
+        if: steps.produce.outputs.published == 'true'
+        run: npm run register
+
+      - name: Commit history
+        if: steps.produce.outputs.published == 'true'
+        run: |
+          git config user.name "signal-check-bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data
+          git commit -m "Episode $(jq -r .date out/meta.json): $(jq -r .title out/meta.json)"
+          git pull --rebase
+          git push
+
+  site:
+    needs: produce
+    if: needs.produce.outputs.published == 'true'
+    uses: ./.github/workflows/pages.yml
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+
+  notify:
+    needs: [produce, site]
+    if: always()
+    runs-on: ubuntu-latest
+    env:
+      TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+      TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+      NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
+    steps:
+      - name: Check for notification secrets
+        id: enabled
+        run: echo "on=${{ env.TELEGRAM_BOT_TOKEN != '' || env.NTFY_TOPIC != '' }}" >> "$GITHUB_OUTPUT"
+      - uses: actions/checkout@v7
+        if: steps.enabled.outputs.on == 'true'
+      - uses: actions/setup-node@v7
+        if: steps.enabled.outputs.on == 'true'
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+        if: steps.enabled.outputs.on == 'true'
+      - uses: actions/download-artifact@v8
+        if: steps.enabled.outputs.on == 'true'
+        continue-on-error: true
+        with:
+          name: episode-${{ github.run_id }}
+          path: out
+      - name: Send
+        if: steps.enabled.outputs.on == 'true'
+        run: >-
+          npm run notify --
+          ${{ (needs.produce.result != 'success' || needs.site.result == 'failure') && 'failure'
+          || (needs.produce.outputs.published == 'true' && 'success' || 'dry') }}

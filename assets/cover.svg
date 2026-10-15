@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="3000" height="3000" viewBox="0 0 3000 3000">
+  <rect width="3000" height="3000" fill="#FFD21F"/>
+  <path d="M300 1000 C425 640 575 640 700 1000 S975 1360 1100 1000 S1400 905 1500 1000 L1900 1380 L2700 420"
+        fill="none" stroke="#0E1A3A" stroke-width="170" stroke-linecap="round" stroke-linejoin="round"/>
+  <g font-family="Archivo Black" font-size="600" fill="#0E1A3A">
+    <text x="300" y="2180" textLength="2400" lengthAdjust="spacingAndGlyphs">SIGNAL</text>
+    <text x="300" y="2720" textLength="2400" lengthAdjust="spacingAndGlyphs">CHECK</text>
+  </g>
+</svg>

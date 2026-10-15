@@ -1,0 +1,202 @@
+# Signal Check — show configuration.
+# Edit this file on GitHub to change the show. Every run reads it fresh.
+
+show:
+  title: Signal Check
+  tagline: Your weekday briefing, checked twice.
+  description: >-
+    A short weekday news podcast for curious technologists: AI and software,
+    self-hosting and hardware, world news, Estonia, markets and games, plus a
+    weekly look at something completely outside the bubble. Signal Check is
+    produced with AI: Mia and Theo are AI-generated hosts.
+  # Public URL of the GitHub Pages site, no trailing slash. Fill in after enabling Pages.
+  site_url: https://ddeivid.github.io/signal-check
+  language: en
+  author: Signal Check
+  owner_name: Deivid
+  # Spotify sends a verification code to this address. Set it only while
+  # verifying, then blank it again so it isn't published in the feed.
+  owner_email: ""
+  categories: [News, Technology]
+  explicit: false
+  timezone: Europe/Tallinn
+  # Spoken at the top of every episode, word for word.
+  opening:
+    - speaker: Mia
+      text: "Good morning, this is Signal Check for {weekday}, {date}. I'm Mia."
+    - speaker: Theo
+      text: "And I'm Theo. Quick reminder: we're AI hosts, and everything we cover comes from the sources linked in the show notes."
+  closing:
+    - speaker: Mia
+      text: "That's Signal Check for today. Sources and the full transcript are in the show notes."
+    - speaker: Theo
+      text: "See you tomorrow."
+
+hosts:
+  - name: Mia
+    voice: Aoede
+    persona: >-
+      Curious generalist and the guide. Sets up each story in plain language,
+      connects it to earlier episodes, asks the questions a smart listener would.
+  - name: Theo
+    voice: Charon
+    persona: >-
+      Sharp skeptic. Pushes on claims, asks who benefits and what's missing,
+      separates what is known from what is speculation. Dry, never cynical.
+
+# What gets covered. Feeds below point at these topic ids.
+topics:
+  core:
+    - id: ai_software
+      label: AI and software engineering, including frontend
+    - id: selfhosting
+      label: Self-hosting, hardware and maker projects
+    - id: world
+      label: World news and politics
+    - id: estonia
+      label: Estonia and the Baltics
+    - id: markets
+      label: Stock markets and the economy
+    - id: gaming
+      label: Gaming
+  # Share of the episode drawn from core topics; the rest comes from outside them.
+  core_share: 0.75
+
+episode:
+  words_per_minute: 150
+  headlines: 5
+  main_stories: 2
+  quick_hits: 4
+
+schedule:
+  # The news window runs from the last published episode, capped at this many days.
+  window_cap_days: 4
+  # Window for the very first episode.
+  first_run_hours: 30
+  weekdays:
+    monday: { segment: look_back, minutes: 15 }
+    tuesday: { segment: deep_dive, minutes: 12 }
+    wednesday: { segment: far_field, minutes: 12 }
+    thursday: { segment: markets, minutes: 12 }
+    friday: { segment: prediction_check, minutes: 12 }
+
+segments:
+  look_back:
+    title: The look-back
+    brief: >-
+      Weekend roundup of what happened since Friday, a short review of last
+      week's episodes, and "still developing": stories from last week that moved.
+  deep_dive:
+    title: Deep dive
+    brief: >-
+      Go deep on the first main story: background, how we got here, the
+      strongest arguments on each side, and what to watch next.
+  far_field:
+    title: Far field
+    brief: >-
+      One story from well outside the usual topics (science, culture, nature,
+      history, health). Explain why it matters to someone who never reads about it.
+  markets:
+    title: Markets and numbers
+    brief: >-
+      Read the market table: what moved this week and by how much. Numbers come
+      only from the table. Explain context from the news, never give advice.
+  prediction_check:
+    title: Prediction check and weekend picks
+    brief: >-
+      Grade this week's predictions from earlier episodes (right, wrong, too
+      early), then give two or three weekend picks from the week's stories.
+
+feeds:
+  # AI and software
+  - { name: Hacker News (150+ points), url: "https://hnrss.org/frontpage?points=150", topic: ai_software }
+  - { name: Simon Willison, url: "https://simonwillison.net/atom/everything/", topic: ai_software }
+  - { name: The Verge AI, url: "https://www.theverge.com/rss/ai-artificial-intelligence/index.xml", topic: ai_software }
+  - { name: Ars Technica, url: "https://feeds.arstechnica.com/arstechnica/index", topic: ai_software }
+  - { name: Smashing Magazine, url: "https://www.smashingmagazine.com/feed/", topic: ai_software }
+  - { name: JavaScript Weekly, url: "https://cprss.s3.amazonaws.com/javascriptweekly.com.xml", topic: ai_software }
+  # Self-hosting, hardware, maker
+  - { name: Hackaday, url: "https://hackaday.com/blog/feed/", topic: selfhosting }
+  - { name: selfh.st, url: "https://selfh.st/rss/", topic: selfhosting }
+  - { name: CNX Software, url: "https://www.cnx-software.com/feed/", topic: selfhosting }
+  - { name: Tom's Hardware, url: "https://www.tomshardware.com/feeds/all", topic: selfhosting }
+  # World news and politics
+  - { name: BBC World, url: "https://feeds.bbci.co.uk/news/world/rss.xml", topic: world }
+  - { name: NPR World, url: "https://feeds.npr.org/1004/rss.xml", topic: world }
+  - { name: The Guardian World, url: "https://www.theguardian.com/world/rss", topic: world }
+  - { name: DW, url: "https://rss.dw.com/rdf/rss-en-all", topic: world }
+  # Estonia and the Baltics
+  - { name: ERR News, url: "https://news.err.ee/rss", topic: estonia }
+  - { name: LSM English, url: "https://eng.lsm.lv/rss/", topic: estonia }
+  # Markets
+  - { name: CNBC Markets, url: "https://www.cnbc.com/id/10000664/device/rss/rss.html", topic: markets }
+  - { name: MarketWatch, url: "https://feeds.content.dowjones.io/public/rss/mw_topstories", topic: markets }
+  # Gaming
+  - { name: Rock Paper Shotgun, url: "https://www.rockpapershotgun.com/feed", topic: gaming }
+  - { name: GamesIndustry.biz, url: "https://www.gamesindustry.biz/feed", topic: gaming }
+  - { name: Polygon, url: "https://www.polygon.com/rss/index.xml", topic: gaming }
+  # Outside the bubble (any topic id not listed under topics.core counts as outside)
+  - { name: Quanta Magazine, url: "https://api.quantamagazine.org/feed/", topic: science }
+  - { name: BBC Science, url: "https://feeds.bbci.co.uk/news/science_and_environment/rss.xml", topic: science }
+  - { name: Nature News, url: "https://www.nature.com/nature.rss", topic: science }
+  - { name: Grist, url: "https://grist.org/feed/", topic: climate }
+  - { name: Aeon, url: "https://aeon.co/feed.rss", topic: culture }
+  - { name: Atlas Obscura, url: "https://www.atlasobscura.com/feeds/latest", topic: culture }
+
+markets:
+  # Yahoo Finance chart API (no key). Numbers in the show come only from here.
+  instruments:
+    - { label: S&P 500, symbol: "^GSPC" }
+    - { label: Nasdaq 100, symbol: "^NDX" }
+    - { label: DAX, symbol: "^GDAXI" }
+    - { label: EUR/USD, symbol: "EURUSD=X" }
+    - { label: Bitcoin, symbol: "BTC-USD" }
+    - { label: Gold, symbol: "GC=F" }
+    - { label: Brent oil, symbol: "BZ=F" }
+
+llm:
+  # Text stages. "gemini-flash-latest" follows Google's newest Flash; pin it once episodes sound good.
+  model: gemini-flash-latest
+  temperature: 0.7
+  # Spacing between LLM calls, to stay inside free-tier rate limits.
+  min_seconds_between_calls: 5
+  # Optional fallback when Gemini keeps failing. Needs OPENROUTER_API_KEY; empty model = off.
+  fallback_model: ""
+
+research:
+  # Let the research stage search the web (Gemini grounding). Falls back to no search on error.
+  grounding: true
+  # Characters of article text fetched per story.
+  article_chars: 6000
+
+quality:
+  # Fact-check and rules run first; the script is revised up to this many times.
+  max_revisions: 2
+  # What to do if blocking issues remain after the last revision: stop | publish
+  on_unresolved: stop
+  # Allowed deviation from the target word count before it counts as an issue.
+  length_tolerance: 0.2
+  max_line_words: 80
+  banned_phrases:
+    - "buckle up"
+    - "game-changer"
+    - "in today's fast-paced world"
+    - "let's dive in"
+    - "stay tuned"
+
+tts:
+  model: gemini-3.1-flash-tts-preview
+  # Both hosts go in one request; the script is split into chunks of about this size.
+  max_chars_per_request: 3000
+  seconds_between_requests: 25
+  style: >-
+    Read this as a relaxed, quick-moving morning news podcast between two
+    friends. Natural pace, clear diction, light warmth, no radio-announcer voice.
+
+audio:
+  bitrate: 128k
+  gap_ms: 300
+  intro: assets/intro.wav
+  outro: assets/outro.wav
+  # Real audio length vs target; outside this range only logs a warning.
+  length_warning_tolerance: 0.25
