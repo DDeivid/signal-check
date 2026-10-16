@@ -23,3 +23,5 @@ jobs:
         run: command -v ffmpeg || (sudo apt-get update -q && sudo apt-get install -y -q ffmpeg)
       - run: npm run typecheck
       - run: npm test
+      - name: Rehearsal (whole pipeline offline with fake AI, safety gates included)
+        run: npm run rehearsal
