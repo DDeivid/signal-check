@@ -131,12 +131,12 @@ const factCheckSchema = z.object({ issues: z.array(issueSchema) });
 
 export async function factCheck(config: Config, brief: Brief, sections: Section[]): Promise<Issue[]> {
   const system = 'You are a strict fact-checker and editor for a news podcast. You compare scripts against source material and return only JSON.';
-  const prompt = `Check this podcast script against the materials. The script may only state as fact what the materials support.
+  const prompt = `Check this podcast script against the materials. Claims about the news itself must be supported by the materials; well-established general background (what a well-known product is, standard scientific terms, widely known history) may come from general knowledge.
 
 Report:
-- critical: a claim contradicted by the materials, a number, name, date or quote not in the materials, or a claim attributed to the wrong source.
-- major: speculation presented as fact, a missing caveat that changes the meaning, one-sided framing of a contested story, or investment advice.
-- minor: clarity or flow problems worth fixing.
+- critical: a claim about the news that the materials contradict; getting the story wrong (who did what, what an article is actually about); a claim attributed to the wrong source; or a number, quote, name or date about the news event that isn't in the materials.
+- major: speculation presented as fact, a missing caveat that changes the meaning, one-sided framing of a contested story, investment advice, or a specific background number (a price, a count, a percentage) that isn't in the materials.
+- minor: well-established background that simply isn't in the materials (note it, don't block on it), and clarity or flow problems worth fixing.
 Ignore the fixed opening and closing lines. Don't report things that are fine. Each issue gives the line number, the problem and a concrete fix.
 
 MATERIALS

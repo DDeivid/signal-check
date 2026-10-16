@@ -181,7 +181,7 @@ research:
 
 quality:
   # Fact-check and rules run first; the script is revised up to this many times.
-  max_revisions: 2
+  max_revisions: 3
   # What to do if blocking issues remain after the last revision: stop | publish
   on_unresolved: stop
   # Allowed deviation from the target word count before it counts as an issue.
