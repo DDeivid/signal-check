@@ -7,6 +7,10 @@ on:
         description: Voice pairs as Mia+Theo, comma-separated (empty = five default pairs)
         type: string
         default: ''
+      model:
+        description: Only this TTS model, no fallback (empty = the configured list)
+        type: string
+        default: ''
 
 permissions:
   contents: read
@@ -28,8 +32,9 @@ jobs:
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           SC_VOICES: ${{ inputs.voices }}
+          SC_TTS_MODEL: ${{ inputs.model }}
         run: npm run voice-test
       - uses: actions/upload-artifact@v7
         with:
-          name: voice-samples
+          name: voice-samples-${{ inputs.model || 'configured' }}
           path: out/voices/
