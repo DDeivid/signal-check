@@ -29,6 +29,7 @@ const script: SavedScript = {
   open_threads: ['O'],
   story_summaries: [],
   predictionGrades: [{ text: 'Q', by: 'Mia', episode: 3, verdict: 'too_early', evidence: 'e', attempt: 1 }],
+  textModels: [{ role: 'Script', models: ['gemini-3.7-flash'] }],
 };
 
 /** A folder like an earlier run's out/: script.json and, optionally, notes.md. */

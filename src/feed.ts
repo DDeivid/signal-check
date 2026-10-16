@@ -1,5 +1,6 @@
 import type { Config } from './config';
 import type { EpisodeRecord } from './history';
+import { badgeLine } from './models';
 
 export const escapeXml = (s: string) =>
   s.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;').replaceAll("'", '&apos;');
@@ -33,6 +34,9 @@ export function hms(seconds: number): string {
   return [h, m, s].map((n) => String(n).padStart(2, '0')).join(':');
 }
 
+/** Show notes plus a "Models: ..." line, when the episode recorded its models. */
+export const withModels = (notes: string, e: EpisodeRecord) => (e.models?.length ? `${notes}\n\nModels: ${badgeLine(e.models)}` : notes);
+
 export const episodePath = (e: EpisodeRecord) => `episodes/${e.date}.html`;
 
 export function buildFeed(config: Config, episodes: EpisodeRecord[], notes: (e: EpisodeRecord) => string): string {
@@ -46,7 +50,7 @@ export function buildFeed(config: Config, episodes: EpisodeRecord[], notes: (e: 
       <link>${site}/${episodePath(e)}</link>
       <guid isPermaLink="false">signal-check-${e.date}</guid>
       <pubDate>${new Date(e.publishedAt).toUTCString()}</pubDate>
-      <description><![CDATA[${markdownToHtml(notes(e)).replaceAll(']]>', ']]&gt;')}]]></description>
+      <description><![CDATA[${markdownToHtml(withModels(notes(e), e)).replaceAll(']]>', ']]&gt;')}]]></description>
       <itunes:summary>${escapeXml(e.description)}</itunes:summary>
       <enclosure url="${escapeXml(e.audioUrl)}" length="${e.audioBytes}" type="audio/mpeg"/>
       <itunes:duration>${hms(e.durationSeconds)}</itunes:duration>

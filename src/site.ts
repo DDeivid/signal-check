@@ -3,6 +3,7 @@ import { join } from 'node:path';
 import type { Config } from './config';
 import { buildFeed, episodePath, escapeXml as esc, markdownToHtml } from './feed';
 import type { EpisodeRecord } from './history';
+import { modelLabel } from './models';
 
 const STYLE = `
 :root { --ink: #0E1A3A; --signal: #FFD21F; --paper: #FFFBEA; --muted: #4A5370; }
@@ -20,6 +21,9 @@ a { color: var(--ink); }
 .ep { border-top: 2px solid var(--ink); padding: 20px 0; }
 .meta { color: var(--muted); font-size: 14px; }
 audio { width: 100%; margin: 8px 0; }
+.badges { display: flex; flex-wrap: wrap; gap: 6px; margin: 6px 0 2px; padding: 0; list-style: none; }
+.badge { font-size: 12px; line-height: 1.4; padding: 2px 8px; border-radius: 999px; background: var(--ink); color: var(--paper); }
+.badge b { font-weight: 600; color: var(--signal); }
 .cover { width: 112px; height: 112px; border-radius: 8px; float: right; margin-left: 16px; }
 @media (max-width: 520px) { h1 { font-size: 30px; } .cover { width: 72px; height: 72px; } }
 `;
@@ -51,6 +55,14 @@ ${body}
 `;
 }
 
+/** Small pills: "Script Gemini 3.7 Flash", "Voices Gemini 3.1 Flash TTS preview". Nothing for early episodes. */
+export const badges = (e: EpisodeRecord) =>
+  e.models?.length
+    ? `<ul class="badges" aria-label="Models used">${e.models
+        .map((b) => `<li class="badge"><b>${esc(b.role)}</b> ${esc(b.models.map(modelLabel).join(', '))}</li>`)
+        .join('')}</ul>`
+    : '';
+
 const when = (e: EpisodeRecord) =>
   `${new Date(`${e.date}T12:00:00Z`).toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })} · ${Math.round(e.durationSeconds / 60)} min`;
 
@@ -65,6 +77,7 @@ export function buildSite(config: Config, episodes: EpisodeRecord[], outDir: str
       (e) => `<article class="ep">
 <h2><a href="${episodePath(e)}">${esc(e.title)}</a></h2>
 <div class="meta">Episode ${e.number} · ${when(e)}</div>
+${badges(e)}
 <audio controls preload="none" src="${esc(e.audioUrl)}"></audio>
 <p>${esc(e.description)}</p>
 </article>`,
@@ -80,6 +93,7 @@ export function buildSite(config: Config, episodes: EpisodeRecord[], outDir: str
         `${e.title} · ${config.show.title}`,
         `<h2>${esc(e.title)}</h2>
 <div class="meta">Episode ${e.number} · ${when(e)}</div>
+${badges(e)}
 <audio controls preload="none" src="${esc(e.audioUrl)}"></audio>
 ${markdownToHtml(notes(e))}
 <p><a href="../transcripts/${e.date}.html">Read the transcript</a></p>`,

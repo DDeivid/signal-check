@@ -11,6 +11,8 @@ export interface Source {
 export interface TextResult {
   text: string;
   sources: Source[];
+  /** The exact model version Gemini reports. */
+  modelVersion?: string;
 }
 
 export interface CallOptions {
@@ -197,6 +199,8 @@ function noteSuccess(model: string): void {
 export interface ModelUse {
   label: string;
   model: string;
+  /** The exact model that answered, when the API says (an alias like gemini-flash-latest doesn't). */
+  version?: string;
   fallbacks: string[];
 }
 
@@ -236,7 +240,8 @@ export async function withModelsNamed<T>(
     try {
       const result = await withRetry(`${label}@${model}`, () => fn(model), attemptsPerModel);
       noteSuccess(model);
-      uses.push({ label, model, fallbacks });
+      const version = (result as { modelVersion?: unknown } | null)?.modelVersion;
+      uses.push({ label, model, fallbacks, ...(typeof version === 'string' && version ? { version } : {}) });
       return { result, model };
     } catch (err) {
       noteFailure(model, err);
@@ -281,7 +286,7 @@ async function callGemini(config: Config, model: string, opts: CallOptions, json
   const text = responseText(response);
   const chunks = response.candidates?.[0]?.groundingMetadata?.groundingChunks ?? [];
   const sources = chunks.flatMap((c) => (c.web?.uri ? [{ title: c.web.title ?? c.web.uri, url: c.web.uri }] : []));
-  return { text, sources };
+  return { text, sources, ...(response.modelVersion ? { modelVersion: response.modelVersion } : {}) };
 }
 
 async function callOpenRouter(config: Config, opts: CallOptions, json: boolean): Promise<TextResult> {
