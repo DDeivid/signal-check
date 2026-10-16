@@ -19,15 +19,13 @@ export const ART_RULES = [
   'Place the main subject in the right third of the frame. Keep the left third calm and low in detail, because text is laid over it.',
   'No text of any kind: no letters, numbers, captions, signs, logos or watermarks.',
   'Do not depict any real, recognisable person. Show people only as anonymous silhouettes or small distant figures; tell the story through places, objects and symbols.',
+  'Show one ordinary, concrete scene from the story, as it could really look. No glowing effects, sparkles, particles, holograms, floating code, light beams or surreal mash-ups of several ideas.',
   'No gore or graphic violence.',
 ];
 
-export function artPrompt(config: Config, title: string, lead: Pick<StoryRecord, 'title' | 'summary'>): string {
-  return [
-    config.art.style.trim(),
-    ART_RULES.join(' '),
-    `The illustration is for a news podcast episode titled "${title}". Show its lead story: ${lead.title}. ${lead.summary}`.trim(),
-  ].join('\n\n');
+/** Only the lead story: the episode title mixes several stories, which invites a mash-up. */
+export function artPrompt(config: Config, lead: Pick<StoryRecord, 'title' | 'summary'>): string {
+  return [config.art.style.trim(), ART_RULES.join(' '), `The story: ${lead.title}. ${lead.summary}`.trim()].join('\n\n');
 }
 
 /** The image part of a response, or a ModelOutputError (blocked, cut off, or text only). */
@@ -76,7 +74,6 @@ export async function processArt(config: Config, image: Buffer): Promise<{ webp:
  */
 export async function makeArt(
   config: Config,
-  title: string,
   lead: Pick<StoryRecord, 'title' | 'summary'> | undefined,
   path: string,
 ): Promise<{ color: string; model: string } | undefined> {
@@ -87,7 +84,7 @@ export async function makeArt(
   }
   try {
     const { webp, color, model } = await withTimeout(ART_DEADLINE_MS, async () => {
-      const { image, model } = await generateArt(config, artPrompt(config, title, lead));
+      const { image, model } = await generateArt(config, artPrompt(config, lead));
       return { ...(await processArt(config, image)), model };
     });
     writeFileSync(path, webp);
