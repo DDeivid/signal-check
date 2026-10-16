@@ -1,0 +1,29 @@
+[
+  {
+    "index": 1,
+    "words": 365,
+    "chars": 2425,
+    "seconds": 136.5,
+    "ratio": 0.93,
+    "model": "gemini-3.1-flash-tts-preview",
+    "finishReason": "STOP"
+  },
+  {
+    "index": 2,
+    "words": 302,
+    "chars": 1908,
+    "seconds": 109.2,
+    "ratio": 0.9,
+    "model": "gemini-3.1-flash-tts-preview",
+    "finishReason": "STOP"
+  },
+  {
+    "index": 3,
+    "words": 341,
+    "chars": 2056,
+    "seconds": 135.8,
+    "ratio": 1,
+    "model": "gemini-3.1-flash-tts-preview",
+    "finishReason": "STOP"
+  }
+]
