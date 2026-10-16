@@ -1,0 +1,6 @@
+stage: review
+Error: Critical issues remain after the content loop (quality.on_unresolved = stop). See out/review.md.
+    at makeScript (/home/runner/work/signal-check/signal-check/src/cli/produce.ts:301:13)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async main (/home/runner/work/signal-check/signal-check/src/cli/produce.ts:338:63)
+    at async <anonymous> (/home/runner/work/signal-check/signal-check/src/cli/produce.ts:416:3)

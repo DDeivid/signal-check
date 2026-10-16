@@ -1,0 +1,377 @@
+{
+  "date": "2026-10-16",
+  "weekday": "friday",
+  "segment": "prediction_check",
+  "targetMinutes": 12,
+  "title": "Linus Torvalds Tests AI Code and Estonia Targets Gas Transit",
+  "description": "Linus Torvalds submits his first LLM-assisted patch to a Linux development branch, while Estonia pushes Latvia to permanently close a Russian gas transit route. Plus, weekend picks on fungal soil networks and hidden radio chips.",
+  "sections": [
+    {
+      "id": "opening",
+      "title": "Opening",
+      "lines": [
+        {
+          "speaker": "Mia",
+          "text": "Good morning, this is Signal Check for Friday, October 16. I'm Mia."
+        },
+        {
+          "speaker": "Theo",
+          "text": "And I'm Theo. Quick reminder: we're AI hosts, and everything we cover comes from the sources linked in the show notes."
+        }
+      ]
+    },
+    {
+      "id": "headlines",
+      "title": "Headlines",
+      "lines": [
+        {
+          "speaker": "Mia",
+          "text": "Today on Signal Check: the creator of Linux tries out an AI-assisted patch to fix a stubborn kernel bottleneck, and reports a massive synthetic speedup."
+        },
+        {
+          "speaker": "Theo",
+          "text": "Emphasis on synthetic. We will dig into what Linus Torvalds actually posted, what the numbers mean, and the very real difference between an expert prompt and automated spam.",
+          "delivery": "dry"
+        },
+        {
+          "speaker": "Mia",
+          "text": "Then, Estonia wants to shut down Russian gas transit infrastructure running through the Baltics for good, following revelations that an unused pipeline to Kaliningrad was quietly maintained."
+        },
+        {
+          "speaker": "Theo",
+          "text": "Estonian valves are shut, but the rest of the pipe sits in Latvia. We will separate the policy goals from what the neighbors have actually agreed to do."
+        },
+        {
+          "speaker": "Mia",
+          "text": "For our Friday segment, we have no pending predictions to grade, so we are taking full advantage of the time to bring you our weekend reading picks."
+        },
+        {
+          "speaker": "Theo",
+          "text": "We are looking at how brainless fungal networks negotiate trade deals in soil, and how hackers unlocked a hidden radio inside a ubiquitous wireless chip."
+        },
+        {
+          "speaker": "Mia",
+          "text": "And in our quick hits: jailbroken PlayStations running local language models, strike votes ahead of the next Call of Duty, and EU cash for border drones."
+        }
+      ]
+    },
+    {
+      "id": "main_1",
+      "title": "Linus Torvalds and the Linux Kernel's First AI Patch",
+      "lines": [
+        {
+          "speaker": "Mia",
+          "text": "Let's start with open-source software, where Linus Torvalds has crossed a notable personal milestone. According to Tom's Hardware, the creator of Linux has authored and posted his very first LLM-assisted patch to a kernel development branch."
+        },
+        {
+          "speaker": "Theo",
+          "text": "And before anyone assumes the entire operating system just got handed over to a chatbot, let's look at the specifics. This is not merged into the mainline kernel. It is sitting in a development branch."
+        },
+        {
+          "speaker": "Mia",
+          "text": "Right, but the problem he is targeting is a classic headache. It is an issue with massive cache contention when multiple CPUs try to read the same file at the exact same time. Think web servers, large databases, or shared libraries all pulling identical files under heavy load."
+        },
+        {
+          "speaker": "Theo",
+          "text": "Developers have tried to patch that specific bottleneck for years with mixed success. Torvalds actually wrote his own draft fix back in early 2024 and had been running it on his personal laptop. But he decided recently to use an LLM to try and solve the problem more definitively."
+        },
+        {
+          "speaker": "Mia",
+          "text": "And the benchmark number he posted turned a lot of heads. In a dedicated synthetic test, Torvalds reported a 23-fold performance leap. Twenty-three times faster!"
+        },
+        {
+          "speaker": "Theo",
+          "text": "Yes, but listen to what Torvalds himself immediately added. He explicitly cautioned that real-world workloads will see nowhere near those gains, saying that quote, 'no real load' will witness those figures. Synthetic tests isolate one narrow mechanism under artificial pressure. In normal computing, other bottlenecks take over.",
+          "delivery": "measured"
+        },
+        {
+          "speaker": "Mia",
+          "text": "Still, Tom's Hardware pointed out this could offer meaningful efficiency gains for server workloads, even if desktop users never notice. What makes this fascinating to me is Torvalds' evolving stance on AI tooling in general."
+        },
+        {
+          "speaker": "Theo",
+          "text": "He has definitely pushed back against blanket anti-AI sentiment. Back in July, he said he was willing to put his foot down on AI critics. His argument is purely pragmatic: if an automated review tool catches basic programming mistakes better than a human reviewer—which he claims it does—developers should use it."
+        },
+        {
+          "speaker": "Mia",
+          "text": "The Linux kernel team even dropped the requirement that contributors disclose whether they used an AI tool to write their code. Torvalds essentially views large language models as just another developer tool, like a compiler or an editor. What matters is code quality, not how you typed it."
+        },
+        {
+          "speaker": "Theo",
+          "text": "That sounds great in theory, but the reality on the ground has been messy. Earlier this year, AI agents scanning code for vulnerability patterns flooded the Linux security mailing list until maintainers called it unmanageable. The kernel has been patching around 2,000 CVEs per release, to the point where maintainers had to abandon older hardware drivers just to escape the review overhead."
+        },
+        {
+          "speaker": "Mia",
+          "text": "So there is a massive gap between Linus Torvalds using an LLM to refine an intricate patch he already understands, and novice coders prompting an AI to generate kernel submissions."
+        },
+        {
+          "speaker": "Theo",
+          "text": "Exactly. Bruno Ferreira at Tom's Hardware highlighted that contrast perfectly. An expert auditing AI output is very different from an amateur submitting unchecked machine output. Plus, we still do not know what model Torvalds ran, what prompts he used, or whether maintainers will spot subtle corner cases during code review."
+        }
+      ]
+    },
+    {
+      "id": "main_2",
+      "title": "Estonia Seeks Permanent End to Baltic Gas Transit",
+      "lines": [
+        {
+          "speaker": "Mia",
+          "text": "Turning to Baltic energy security, Estonia wants to permanently eliminate the infrastructure used for Russian natural gas transit through the region. Public broadcaster ERR reports that Estonian Energy and Environment Minister Erkki Keldo plans to meet his Latvian counterpart to negotiate a permanent shutdown."
+        },
+        {
+          "speaker": "Theo",
+          "text": "This comes right after an investigative story from the newspaper Eesti Ekspress caused quite a stir domestically. They revealed that Estonia has still been maintaining a natural gas pipeline in Võru County, in the southeastern part of the country, that could technically transit gas to Russia's exclave of Kaliningrad."
+        },
+        {
+          "speaker": "Mia",
+          "text": "And what caught the public off guard was that previous Estonian politicians responsible for the energy sector admitted they did not even know that maintenance arrangement was happening. How did that slip through?"
+        },
+        {
+          "speaker": "Theo",
+          "text": "The pipe is owned by the state grid operator, Elering. Keldo clarified that the section is used exclusively for transit; it cannot route gas into Estonia's domestic network. Furthermore, Estonia's physical valve has been turned off, and no Russian gas has flowed through that corridor for over two years."
+        },
+        {
+          "speaker": "Mia",
+          "text": "So why the urgency now?"
+        },
+        {
+          "speaker": "Theo",
+          "text": "Because the physical connection still exists, and keeping it operational contradicts Estonia's policy of completely severing energy ties with Moscow. Keldo said that even if nothing is moving today, keeping transit capacity viable for the future is simply not right."
+        },
+        {
+          "speaker": "Mia",
+          "text": "The catch is that Estonia cannot act alone. Keldo explained that the connected pipeline sections and valves sit across the border, operated by a Latvian state-owned company. Any permanent decommissioning requires an agreement with Latvia and Lithuania."
+        },
+        {
+          "speaker": "Theo",
+          "text": "And we should be precise here: we do not know Latvia's position yet. Keldo declined to speculate on how Riga will respond, as Latvia is currently forming a new government. Keldo did say Estonia would look at other options, including sanctions, if talks fail, but for now, it is an open negotiation, not a diplomatic fight.",
+          "delivery": "dry"
+        },
+        {
+          "speaker": "Mia",
+          "text": "The regional context makes this sensitive. Back in February 2025, the Baltic states completely desynchronized from the Russian electricity grid. That move turned Kaliningrad into an energy island, leaving it heavily dependent on gas-fired thermal plants for power."
+        },
+        {
+          "speaker": "Theo",
+          "text": "Which explains why the physical pipeline matters strategically. If the Baltic states permanently sever that pipe, Russia has to rely entirely on maritime shipments or alternative logistics to fuel Kaliningrad's power plants. We will see what happens once the Latvian ministers take office and sit down at the table."
+        }
+      ]
+    },
+    {
+      "id": "segment",
+      "title": "Prediction check and weekend picks",
+      "lines": [
+        {
+          "speaker": "Mia",
+          "text": "It's time for our Friday segment, Prediction check and weekend picks. We don't have any pending predictions to grade this week, so we're diving straight into weekend reading."
+        },
+        {
+          "speaker": "Theo",
+          "text": "Before we do, I will put a fresh checkable call on the board right now. On that Linux patch we talked about: I predict Linus Torvalds will not merge that LLM-assisted cache patch into the mainline kernel before the next release window closes. Maintainers will want extensive real-world testing first."
+        },
+        {
+          "speaker": "Mia",
+          "text": "Noted. We will hold you to that. Now, onto our first weekend pick. Over at Quanta Magazine, there is a fascinating feature interview with evolutionary biologist Toby Kiers about how fungal networks keep the planet healthy."
+        },
+        {
+          "speaker": "Theo",
+          "text": "This is genuinely great science writing. Kiers studies fungal networks in soil—the massive networks living underground that interact with plant roots. What is mind-bending is that these fungi actively barter and trade resources with plants without having a central nervous system or a brain."
+        },
+        {
+          "speaker": "Mia",
+          "text": "They act almost like an underground marketplace, trading nutrients to plant roots in exchange for carbon and striking bargains depending on local conditions."
+        },
+        {
+          "speaker": "Theo",
+          "text": "It completely recontextualizes how carbon sequestration actually works. We often think of trees simply pulling carbon into their trunks and leaves, but a huge fraction gets funneled underground to pay off fungal trading partners. If you want a deep dive into biological complexity that challenges how you think about intelligence, it is well worth a read."
+        },
+        {
+          "speaker": "Mia",
+          "text": "My pick is a hardware deep dive from Hackaday on everyone's favorite cheap wireless chip, the ESP32. It turns out someone discovered a hidden baseband mode inside the chip that essentially turns it into a software-defined radio, or SDR."
+        },
+        {
+          "speaker": "Theo",
+          "text": "For people outside the hardware tinkering world, why is that such a big deal?",
+          "delivery": "curious"
+        },
+        {
+          "speaker": "Mia",
+          "text": "Because the ESP32 is a ubiquitous, widely used wireless chip. Turning it into a software-defined radio via a hidden baseband mode allows reverse engineers to capture and manipulate raw radio signals."
+        },
+        {
+          "speaker": "Theo",
+          "text": "It effectively turns a mass-produced consumer chip into flexible RF test gear. It is a fantastic reminder of how much undocumented capability gets quietly baked into commercial silicon and left dormant until curious hackers start probing the registers. Both pieces are linked in our show notes."
+        }
+      ]
+    },
+    {
+      "id": "quick_hits",
+      "title": "Quick Hits",
+      "lines": [
+        {
+          "speaker": "Mia",
+          "text": "Let's run through the quick hits. First up: jailbroken PlayStation 5 consoles can now run local AI models at blistering speeds. Tom's Hardware reports that a native fork of PS5LM allows the console's GPU and unified RAM to run models at over 100 tokens per second, and even runs Qwen3.8-27B at 20 tokens per second."
+        },
+        {
+          "speaker": "Theo",
+          "text": "Next, the European Commission has granted preliminary approval for nearly 32 million euros toward Estonia's eastern border drone surveillance system. ERR reports the funds will support what officials call the free world's first line of defense."
+        },
+        {
+          "speaker": "Mia",
+          "text": "In the gaming industry, unionized quality assurance workers at Activision have voted to authorize a strike just ahead of next week's launch of Call of Duty: Modern Warfare 4. Rock Paper Shotgun notes the union represents nearly 600 QA workers demanding changes from the publisher."
+        },
+        {
+          "speaker": "Theo",
+          "text": "And finally, a sobering investigation from Grist shows that toxic heavy metals are lingering in the bodies of Maui residents long after the devastating wildfires. Researchers found the exposures were compounded by the island's history of plantation agriculture and development."
+        }
+      ]
+    },
+    {
+      "id": "closing",
+      "title": "Closing",
+      "lines": [
+        {
+          "speaker": "Mia",
+          "text": "That's Signal Check for today. Sources and the full transcript are in the show notes."
+        },
+        {
+          "speaker": "Theo",
+          "text": "See you tomorrow."
+        }
+      ]
+    }
+  ],
+  "stories": [
+    {
+      "title": "Linus Torvalds posts his first AI-assisted patch to the Linux kernel, synthetic test clocks 23x performance leap",
+      "url": "https://www.tomshardware.com/software/linux/linus-torvalds-posts-his-first-llm-assisted-patch-to-the-linux-kernel-after-issuing-clear-pro-ai-directives-the-bossman-makes-use-of-ai-tooling-himself",
+      "topic": "selfhosting",
+      "summary": "Linus Torvalds posted an LLM-assisted patch to a Linux development branch to resolve a CPU cache contention bottleneck, reporting a 23x synthetic speedup."
+    },
+    {
+      "title": "Estonia wants to block Russian gas transit through Baltics for good",
+      "url": "https://news.err.ee/1610168398/estonia-wants-to-block-russian-gas-transit-through-baltics-for-good",
+      "topic": "estonia",
+      "summary": "Estonian Energy Minister Erkki Keldo announced plans to negotiate with Latvia to permanently decommission a Baltic transit pipeline capable of supplying Russian gas to Kaliningrad."
+    },
+    {
+      "title": "Zelensky rallies EU support as Trump says Ukraine leader 'more difficult to deal with than Putin'",
+      "url": "https://www.bbc.co.uk/news/articles/c58jz174w89ro?at_medium=RSS&at_campaign=rss",
+      "topic": "world",
+      "summary": "The US president launches a new wave of blistering criticism at Volodymyr Zelensky ahead of a meeting of EU leaders in Brussels."
+    },
+    {
+      "title": "Sega and Creative Assembly remove Total War: Shogun 2 remaster from sale as it \"falls short of both your expectations and our own standards\"",
+      "url": "https://www.gamesindustry.biz/sega-and-creative-assembly-remove-total-war-shogun-2-remaster-from-sale-as-it-falls-short-of-both-your-expectations-and-our-own-standards",
+      "topic": "gaming",
+      "summary": "Sega and Creative Assembly have temporarily withdrawn Total War: Shogun 2 – Complete Edition from sale in response to concerns about AI upscaling and other performance issues. Read more"
+    },
+    {
+      "title": "Trump just effectively killed a popular solar energy program for rural America",
+      "url": "https://grist.org/food-and-agriculture/solar-panels-farms-trump-reap-rural-energy-for-america-program-changes/",
+      "topic": "climate",
+      "summary": "Solar panels can be an economic lifeline for farmers. Now they're going to be a lot harder to build."
+    },
+    {
+      "title": "How Do Fungi Keep the Planet Healthy?",
+      "url": "https://www.quantamagazine.org/how-do-fungi-keep-the-planet-healthy-20261015/",
+      "topic": "science",
+      "summary": "Quanta Magazine profiled biologist Toby Kiers on how brainless mycorrhizal fungal networks trade nutrients and sequester carbon in soil."
+    },
+    {
+      "title": "Another Wireless Chip has a Hidden SDR Revealed",
+      "url": "https://hackaday.com/2026/10/15/another-wireless-chip-has-a-hidden-sdr-revealed/",
+      "topic": "selfhosting",
+      "summary": "Hackaday covered the discovery of an undocumented baseband mode that turns the popular ESP32 microcontroller into a software-defined radio."
+    },
+    {
+      "title": "Jailbroken PS5s can now run local AI models at over 100+ tokens per second",
+      "url": "https://www.tomshardware.com/video-games/playstation/jailbroken-ps5s-can-now-run-local-ai-models-at-over-100-tokens-per-second-fork-of-ps5lm-goes-native-and-accesses-gpu-and-more-ram",
+      "topic": "selfhosting",
+      "summary": "A native fork of PS5LM allows jailbroken PlayStation 5 consoles to run local LLMs at over 100 tokens per second using the console's GPU and RAM."
+    },
+    {
+      "title": "Estonia gets €32m EU funding for 'free world's first line of defense' surveillance",
+      "url": "https://news.err.ee/1610168431/estonia-gets-32m-eu-funding-for-free-world-s-first-line-of-defense-surveillance",
+      "topic": "estonia",
+      "summary": "Estonia secured preliminary approval for nearly €32 million in EU funding for a drone surveillance network along its eastern border."
+    },
+    {
+      "title": "Ahead of Call of Duty: Modern Warfare 4's launch next week, unionised Activision testers have voted to authorise a strike",
+      "url": "https://www.rockpapershotgun.com/ahead-of-call-of-duty-modern-warfare-4s-launch-next-week-unionised-activision-testers-have-voted-to-authorise-a-strike",
+      "topic": "gaming",
+      "summary": "Nearly 600 unionized QA testers at Activision voted to authorize a strike just days before Call of Duty: Modern Warfare 4 launches."
+    },
+    {
+      "title": "Long after the Maui fires, toxic metals linger in residents’ bodies",
+      "url": "https://grist.org/indigenous/long-after-the-maui-fires-toxic-metals-linger-in-residents-bodies/",
+      "topic": "climate",
+      "summary": "A Grist report revealed that toxic heavy metals linger in Maui residents following wildfires, exacerbated by historical plantation agriculture."
+    }
+  ],
+  "predictions": [
+    {
+      "text": "Linus Torvalds will not merge his LLM-assisted cache patch into the mainline kernel before the next release window closes.",
+      "by": "Theo"
+    }
+  ],
+  "open_threads": [
+    "Negotiations between Estonia, Latvia, and Lithuania over permanently closing the Kaliningrad gas transit pipeline.",
+    "Potential strike action by Activision QA workers ahead of the Call of Duty: Modern Warfare 4 release.",
+    "Community feedback and kernel mailing list review on Linus Torvalds' cache contention patch."
+  ],
+  "story_summaries": [
+    {
+      "id": "s51",
+      "summary": "Linus Torvalds posted an LLM-assisted patch to a Linux development branch to resolve a CPU cache contention bottleneck, reporting a 23x synthetic speedup."
+    },
+    {
+      "id": "s34",
+      "summary": "Estonian Energy Minister Erkki Keldo announced plans to negotiate with Latvia to permanently decommission a Baltic transit pipeline capable of supplying Russian gas to Kaliningrad."
+    },
+    {
+      "id": "s236",
+      "summary": "Quanta Magazine profiled biologist Toby Kiers on how brainless mycorrhizal fungal networks trade nutrients and sequester carbon in soil."
+    },
+    {
+      "id": "s126",
+      "summary": "Hackaday covered the discovery of an undocumented baseband mode that turns the popular ESP32 microcontroller into a software-defined radio."
+    },
+    {
+      "id": "s71",
+      "summary": "A native fork of PS5LM allows jailbroken PlayStation 5 consoles to run local LLMs at over 100 tokens per second using the console's GPU and RAM."
+    },
+    {
+      "id": "s93",
+      "summary": "Estonia secured preliminary approval for nearly €32 million in EU funding for a drone surveillance network along its eastern border."
+    },
+    {
+      "id": "s163",
+      "summary": "Nearly 600 unionized QA testers at Activision voted to authorize a strike just days before Call of Duty: Modern Warfare 4 launches."
+    },
+    {
+      "id": "s89",
+      "summary": "A Grist report revealed that toxic heavy metals linger in Maui residents following wildfires, exacerbated by historical plantation agriculture."
+    }
+  ],
+  "textModels": [
+    {
+      "role": "Research",
+      "models": [
+        "gemini-3.8-flash"
+      ]
+    },
+    {
+      "role": "Script",
+      "models": [
+        "gemini-3.8-flash"
+      ]
+    },
+    {
+      "role": "Fact-check",
+      "models": [
+        "gemini-3.8-flash"
+      ]
+    }
+  ]
+}
