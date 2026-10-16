@@ -13,13 +13,15 @@ const env = process.env;
 const outDir = env.SC_OUT ?? 'out';
 const runUrl = env.GITHUB_RUN_ID ? `${env.GITHUB_SERVER_URL}/${env.GITHUB_REPOSITORY}/actions/runs/${env.GITHUB_RUN_ID}` : '';
 const meta = existsSync(join(outDir, 'meta.json')) ? JSON.parse(readFileSync(join(outDir, 'meta.json'), 'utf8')) : undefined;
+const errorFile = join(outDir, 'error.txt');
+const reason = existsSync(errorFile) ? readFileSync(errorFile, 'utf8').trim().split('\n')[0]!.slice(0, 300) : '';
 
 const text =
   status === 'success' && meta
     ? `${config.show.title} is ready: ${meta.title} (${Math.round(meta.durationSeconds / 60)} min)\n${config.show.site_url}/episodes/${meta.date}.html`
     : status === 'dry'
       ? `${config.show.title} dry run finished. Review and transcript: ${runUrl}`
-      : `${config.show.title} run failed. ${runUrl}`;
+      : `${config.show.title} run failed${reason ? `: ${reason}` : '.'}\n${runUrl}`;
 
 const sends: Promise<Response>[] = [];
 if (env.TELEGRAM_BOT_TOKEN && env.TELEGRAM_CHAT_ID) {

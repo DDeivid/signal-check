@@ -1,6 +1,6 @@
 import type { Config, SegmentId } from '../config';
 import { generateJson } from '../llm';
-import { type Draft, draftSchema, SECTION_IDS } from '../script';
+import { type Draft, draftSchema, numberedScript, SECTION_IDS, type Section } from '../script';
 
 export interface Brief {
   weekday: string;
@@ -78,15 +78,24 @@ export async function writeDraft(config: Config, brief: Brief): Promise<Draft> {
   return generateJson(config, { label: 'write', system: systemPrompt(config), prompt: writerPrompt(config, brief) }, draftSchema);
 }
 
-export async function reviseDraft(config: Config, brief: Brief, draft: Draft, issues: string): Promise<Draft> {
-  const prompt = `${writerPrompt(config, brief)}
+export function revisePrompt(config: Config, brief: Brief, draft: Draft, sections: Section[], issues: string): string {
+  return `${writerPrompt(config, brief)}
 
 CURRENT DRAFT
 ${JSON.stringify(draft)}
 
+NUMBERED SCRIPT
+The same draft as it will be read, with the fixed opening and closing included. The line numbers in the issues refer to this numbering.
+${numberedScript(sections)}
+
 The review found these issues. Fix every one of them. Keep everything else that works; don't shorten good material unless asked.
+Fix a line's issue by replacing that line in the JSON, not by adding a new line next to it (that is how repeated lines creep in). Only add lines where an issue asks for more material. Don't write the opening or closing lines.
 ${issues}
 
 Return the complete revised script in the same JSON shape.`;
+}
+
+export async function reviseDraft(config: Config, brief: Brief, draft: Draft, sections: Section[], issues: string): Promise<Draft> {
+  const prompt = revisePrompt(config, brief, draft, sections, issues);
   return generateJson(config, { label: 'revise', system: systemPrompt(config), prompt, temperature: 0.5 }, draftSchema);
 }

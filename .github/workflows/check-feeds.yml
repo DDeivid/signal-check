@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
   schedule:
     # Sundays, so a dead feed shows up before the week starts.
-    - cron: '0 6 * * 0'
+    - cron: '23 6 * * 0'
 
 permissions:
   contents: read
