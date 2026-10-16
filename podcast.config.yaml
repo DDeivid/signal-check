@@ -211,8 +211,9 @@ art:
   # One illustration per episode, of its lead story, made after the audio passes its checks.
   # Billed (about $0.04 per image). If every model fails the episode still publishes, with drawn ridgelines.
   enabled: true
-  # Tried in order. Nano Banana 2 first, then the original Nano Banana.
-  models: [gemini-3.1-flash-image-preview, gemini-2.5-flash-image]
+  # Tried in order: Nano Banana 2.1 (Oct 2026), Nano Banana 2, the original Nano Banana.
+  # There is no 3.8 image model yet; "Check feeds" lists what the key can use.
+  models: [gemini-nano-banana-2.1, gemini-3.1-flash-image, gemini-2.5-flash-image]
   # The house style. Code adds the fixed rules (subject on the right, no text, no real people's faces)
   # and the episode's lead story after this.
   style: >-

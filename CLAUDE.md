@@ -34,4 +34,4 @@ Automated weekday news podcast. TypeScript (Node 22, ESM, run with `tsx`, no bui
 
 ## Not yet verified live
 
-Gemini model IDs (`gemini-flash-latest`, `gemini-3.1-flash-tts-preview`, the image models `gemini-3.1-flash-image-preview` and `gemini-2.5-flash-image`), free-tier rate limits, and grounding availability on the free tier. Feeds and market symbols were checked on 2026-10-15.
+Gemini model IDs (`gemini-flash-latest`, `gemini-3.1-flash-tts-preview`, the image models `gemini-nano-banana-2.1`, `gemini-3.1-flash-image` and `gemini-2.5-flash-image` (all listed for the key on 2026-10-15, none called yet)), free-tier rate limits, and grounding availability on the free tier. Feeds and market symbols were checked on 2026-10-15.
