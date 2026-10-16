@@ -90,6 +90,9 @@ function goodRun(): void {
   expect(duration > 60, `itunes:duration (${duration}s) is over 60s`);
   expect(/^signal-check-\d{4}-\d\d-\d\d-rrehearsal-1\.mp3$/.test(meta.file), `MP3 name is unique per run (${meta.file})`);
   expect(typeof meta.ttsModel === 'string' && meta.targetMinutes === 5, 'meta.json records ttsModel and targetMinutes');
+  const roles = (meta.models ?? []).map((b: { role: string }) => b.role).join(',');
+  expect(roles === 'Research,Script,Fact-check,Voices', `meta.json records the models per role (${roles})`);
+  expect(xml.includes('Models: Research:') && readFileSync(join(dir, '_site', 'index.html'), 'utf8').includes('class="badge"'), 'feed and site show the model badges');
   expect(existsSync(join(dir, 'out', 'tts.json')) && existsSync(join(dir, 'out', 'summary.md')), 'tts.json and summary.md are written');
   resumeRun(dir, meta);
   cleanUp(dir);

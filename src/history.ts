@@ -1,3 +1,4 @@
+import type { ModelBadge } from './models';
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 
 export const HISTORY_PATH = 'data/episodes.json';
@@ -43,6 +44,8 @@ export interface EpisodeRecord {
   openThreads: string[];
   /** Prediction check episodes: the grades given in this episode. */
   predictionGrades?: PredictionGrade[];
+  /** Which models did what, for the badges on the site. Missing on early episodes. */
+  models?: ModelBadge[];
   /** Markdown transcript, relative to the repo root. */
   transcriptFile: string;
   /** Show notes markdown, relative to the repo root. */

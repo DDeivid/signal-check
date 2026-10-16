@@ -32,6 +32,8 @@ export const savedScriptSchema = z.object({
   open_threads: z.array(z.string()),
   story_summaries: z.array(z.object({ id: z.string(), summary: z.string() })).default([]),
   predictionGrades: z.array(gradeSchema).optional(),
+  /** Models that researched, wrote and checked the script (voices are added when it's voiced). */
+  textModels: z.array(z.object({ role: z.string(), models: z.array(z.string()) })).default([]),
 });
 export type SavedScript = z.infer<typeof savedScriptSchema>;
 

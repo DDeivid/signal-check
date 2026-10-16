@@ -20,6 +20,7 @@ import { collectNews, type FeedItem, normalizeUrl } from '../feeds';
 import { type EpisodeRecord, lastPublished, type PredictionGrade, readHistory, recentEpisodes, type StoryRecord } from '../history';
 import { modelUses, type Source } from '../llm';
 import { fetchQuotes, type Quote, quotesTable } from '../markets';
+import { episodeBadges, textBadges } from '../models';
 import { loadResume, type SavedScript } from '../resume';
 import { emptyRun, summaryMarkdown } from '../run-summary';
 import { chunkForTts, transcript } from '../script';
@@ -286,6 +287,7 @@ async function makeScript(config: Config, now: Date): Promise<SavedScript | unde
     open_threads: draft.open_threads,
     story_summaries: draft.story_summaries,
     ...(predictionGrades ? { predictionGrades } : {}),
+    textModels: textBadges(modelUses()),
   };
   writeJson('script.json', script);
   writeFileSync(join(outDir, 'transcript.md'), `# ${draft.title}\n\n${transcript(sections)}\n`);
@@ -394,6 +396,7 @@ async function main(): Promise<void> {
     durationSeconds: duration,
     targetMinutes: minutes,
     ttsModel: voiced.model,
+    models: episodeBadges(script.textModels, voiced.model),
     stories: script.stories,
     predictions: script.predictions,
     openThreads: script.open_threads,

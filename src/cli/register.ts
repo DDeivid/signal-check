@@ -34,6 +34,7 @@ const record: EpisodeRecord = {
   predictions: meta.predictions,
   openThreads: meta.openThreads,
   ...(meta.predictionGrades ? { predictionGrades: meta.predictionGrades } : {}),
+  ...(meta.models ? { models: meta.models } : {}),
   transcriptFile,
   notesFile,
 };
