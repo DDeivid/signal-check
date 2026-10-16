@@ -8,6 +8,7 @@ on:
       - assets/cover.png
       - podcast.config.yaml
       - src/site.ts
+      - src/art.ts
       - src/feed.ts
   workflow_dispatch:
   workflow_call:

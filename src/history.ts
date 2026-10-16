@@ -27,6 +27,14 @@ export interface PredictionGrade {
   attempt?: number;
 }
 
+export interface EpisodeArt {
+  /** WebP image, relative to the repo root (data/art/<date>.webp). */
+  file: string;
+  /** Theme colour picked from the image, #RRGGBB. */
+  color: string;
+  model: string;
+}
+
 /** One published episode. Written to data/episodes.json by `npm run register`. */
 export interface EpisodeRecord {
   number: number;
@@ -46,6 +54,8 @@ export interface EpisodeRecord {
   predictionGrades?: PredictionGrade[];
   /** Which models did what, for the badges on the site. Missing on early episodes. */
   models?: ModelBadge[];
+  /** The episode illustration and its theme colour. Missing when no image was made. */
+  art?: EpisodeArt;
   /** Markdown transcript, relative to the repo root. */
   transcriptFile: string;
   /** Show notes markdown, relative to the repo root. */

@@ -1,0 +1,76 @@
+name: Episode image
+
+# Make (or remake) the image for a published episode, then rebuild the site.
+# Uses GEMINI_API_KEY (billed: about $0.04 per image). Don't run it during the daily window
+# (08:00–10:00 Tallinn): it shares the daily run's queue, where a newer pending run cancels an older one.
+# It stops at once if a daily run is in progress.
+on:
+  workflow_dispatch:
+    inputs:
+      date:
+        description: Episode date, YYYY-MM-DD (empty = the newest episode)
+        type: string
+        default: ''
+
+permissions: {}
+
+concurrency:
+  group: signal-check
+  cancel-in-progress: false
+
+jobs:
+  art:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+      actions: read
+    outputs:
+      sha: ${{ steps.push.outputs.sha }}
+    steps:
+      - name: Stop if a daily run is in progress
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if [ -n "$(gh run list -R "$GITHUB_REPOSITORY" --workflow daily.yml --status in_progress --json databaseId --jq '.[].databaseId')" ]; then
+            echo "::error::A daily run is in progress; run this again after it finishes."
+            exit 1
+          fi
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - name: Make the image
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          DATE: ${{ inputs.date }}
+        run: npm run art -- "$(echo "$DATE" | tr -d '[:space:]')"
+      - name: Commit
+        id: push
+        env:
+          DATE: ${{ inputs.date }}
+        run: |
+          DATE=$(echo "$DATE" | tr -d '[:space:]')
+          git config user.name "signal-check-bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data
+          git commit -m "Image for episode $(jq -r --arg d "$DATE" 'if $d == "" then .[-1] else (.[] | select(.date == $d)) end | .date' data/episodes.json)"
+          for i in 1 2 3; do
+            git pull -q --rebase && git push -q && break
+            sleep 5
+          done
+          git fetch -q origin main
+          git diff --quiet origin/main HEAD || { echo "::error::Could not push the image"; exit 1; }
+          echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
+  site:
+    needs: art
+    uses: ./.github/workflows/pages.yml
+    with:
+      sha: ${{ needs.art.outputs.sha }}
+    permissions:
+      contents: read
+      pages: write
+      id-token: write

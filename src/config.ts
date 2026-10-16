@@ -86,6 +86,17 @@ export const configSchema = z.object({
     speaker_part_models: z.array(z.string()).default([]),
     style: z.string(),
   }),
+  /** Episode illustration (Gemini image model). Optional: a failed image never stops an episode. */
+  art: z.object({
+    enabled: z.boolean(),
+    models: z.array(z.string()).min(1),
+    /** The house style, sent before the episode's lead story. */
+    style: z.string(),
+    /** Width of the published image; the height follows from 16:9. */
+    width: z.number().int().min(320),
+    /** Card colour when an episode has no image. */
+    fallback_color: z.string().regex(/^#[0-9a-fA-F]{6}$/),
+  }),
   audio: z.object({
     bitrate: z.string(),
     gap_ms: z.number().int().min(0),

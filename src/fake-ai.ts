@@ -2,6 +2,7 @@
  * A deterministic stand-in for Gemini (SC_FAKE_AI=true), for rehearsals and tests: valid JSON for every
  * text stage built from the real prompt (candidate ids, word budgets), and TTS tones as long as the words.
  * SC_FAKE_SILENT_CHUNK=n makes TTS chunk n come back silent, to prove the audio checks stop the run.
+ * Image requests get a two-colour PNG whose right side is FAKE_ART_COLOR; SC_FAKE_ART_FAIL=true makes them fail.
  */
 import { FinishReason, type GenerateContentParameters, GenerateContentResponse } from '@google/genai';
 import { SAMPLE_RATE } from './wav';
@@ -16,6 +17,22 @@ const SECTIONS = ['headlines', 'main_1', 'main_2', 'segment', 'quick_hits'] as c
 
 interface FakeOptions {
   silentChunk?: number;
+  artFails?: boolean;
+}
+
+/** The colour the fake image is painted with on its right side, where the theme colour is read. */
+export const FAKE_ART_COLOR = '#2E86C1';
+
+async function imageResponse(): Promise<GenerateContentResponse> {
+  const { default: sharp } = await import('sharp');
+  const right = await sharp({ create: { width: 200, height: 180, channels: 3, background: FAKE_ART_COLOR } }).png().toBuffer();
+  const png = await sharp({ create: { width: 320, height: 180, channels: 3, background: '#20242A' } })
+    .composite([{ input: right, left: 120, top: 0 }])
+    .png()
+    .toBuffer();
+  const response = new GenerateContentResponse();
+  response.candidates = [{ content: { role: 'model', parts: [{ inlineData: { mimeType: 'image/png', data: png.toString('base64') } }] }, finishReason: FinishReason.STOP }];
+  return response;
 }
 
 const promptOf = (p: GenerateContentParameters) => (typeof p.contents === 'string' ? p.contents : JSON.stringify(p.contents));
@@ -124,7 +141,9 @@ function audioResponse(seconds: number, silent: boolean): GenerateContentRespons
   return response;
 }
 
-export function fakeAiClient(options: FakeOptions = { silentChunk: Number(process.env.SC_FAKE_SILENT_CHUNK) || undefined }) {
+export function fakeAiClient(
+  options: FakeOptions = { silentChunk: Number(process.env.SC_FAKE_SILENT_CHUNK) || undefined, artFails: process.env.SC_FAKE_ART_FAIL === 'true' },
+) {
   let factChecks = 0;
   return {
     async generateContent(label: string, params: GenerateContentParameters): Promise<GenerateContentResponse> {
@@ -133,6 +152,14 @@ export function fakeAiClient(options: FakeOptions = { silentChunk: Number(proces
         const silent = options.silentChunk !== undefined && label === `tts:${options.silentChunk}`;
         const spoken = typeof params.contents === 'string' ? spokenWords(params.contents) : partWords(params.contents);
         return audioResponse((spoken / WORDS_PER_MINUTE) * 60, silent);
+      }
+      if (params.config?.responseModalities?.includes('IMAGE')) {
+        if (options.artFails) {
+          const blocked = new GenerateContentResponse();
+          blocked.candidates = [{ content: { role: 'model', parts: [] }, finishReason: FinishReason.PROHIBITED_CONTENT }];
+          return blocked;
+        }
+        return imageResponse();
       }
       const stage = label.split(':')[0];
       switch (stage) {

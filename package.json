@@ -19,12 +19,14 @@
     "notify": "tsx src/cli/notify.ts",
     "jingle": "tsx src/cli/make-jingle.ts",
     "cover": "tsx src/cli/make-cover.ts",
+    "art": "tsx src/cli/make-art.ts",
     "typecheck": "tsc --noEmit",
     "test": "vitest run"
   },
   "dependencies": {
     "@google/genai": "^2.30.0",
     "rss-parser": "^3.13.0",
+    "sharp": "^0.35.5",
     "yaml": "^2.9.1",
     "zod": "^4.6.7"
   },
