@@ -143,12 +143,16 @@ async function main(): Promise<void> {
   const minutes = env.SC_MINUTES ? Number(env.SC_MINUTES) : format.minutes;
   const date = localDate(now, tz);
   const spoken = spokenDate(now, tz);
-  const history = readHistory();
-  if (env.SC_SKIP_IF_PUBLISHED === 'true' && history.some((e) => e.date === date)) {
+  const published = readHistory();
+  if (env.SC_SKIP_IF_PUBLISHED === 'true' && published.some((e) => e.date === date)) {
     console.log(`[produce] episode for ${date} already published; nothing to do`);
     setOutput({ published: 'false', skipped: 'true' });
     return;
   }
+  // Re-making today's episode replaces it, so it doesn't count as the previous episode
+  // (otherwise the news window would start at it and its stories would count as covered).
+  const history = published.filter((e) => e.date !== date);
+  if (history.length < published.length) console.log(`[produce] replacing today's published episode`);
   mkdirSync(outDir, { recursive: true });
   console.log(`[produce] ${date}, ${weekday} format (${format.segment}), ${minutes} min${dryRun ? ', dry run' : ''}`);
 
