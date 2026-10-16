@@ -33,6 +33,11 @@ describe('time', () => {
     expect(showWeekday(now, 'Europe/Tallinn')).toBe('monday');
     expect(showWeekday(now, 'Europe/Tallinn', 'thursday')).toBe('thursday');
     expect(showWeekday(new Date('2026-10-18T05:00:00Z'), 'Europe/Tallinn')).toBe('monday');
+    const extra = { '2026-10-17': 'wednesday', '2026-10-18': 'tuesday' } as const;
+    expect(showWeekday(new Date('2026-10-17T05:07:00Z'), 'Europe/Tallinn', undefined, extra)).toBe('wednesday');
+    expect(showWeekday(new Date('2026-10-18T05:07:00Z'), 'Europe/Tallinn', 'auto', extra)).toBe('tuesday');
+    expect(showWeekday(new Date('2026-10-18T05:07:00Z'), 'Europe/Tallinn', 'friday', extra)).toBe('friday');
+    expect(showWeekday(new Date('2026-10-25T05:07:00Z'), 'Europe/Tallinn', undefined, extra)).toBe('monday');
   });
 
   it('starts the window at the last episode, capped', () => {

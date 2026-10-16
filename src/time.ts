@@ -21,7 +21,8 @@ export function spokenDate(now: Date, timeZone: string): { weekday: string; date
 }
 
 /** Weekday to produce for: the override if given, otherwise today. Weekends fall back to Monday's format. */
-export function showWeekday(now: Date, timeZone: string, override?: string): Weekday {
+export function showWeekday(now: Date, timeZone: string, override?: string, extraDays: Record<string, Weekday> = {}): Weekday {
+  if ((!override || override === 'auto') && extraDays[localDate(now, timeZone)]) return extraDays[localDate(now, timeZone)]!;
   const day = override && override !== 'auto' ? override.toLowerCase() : localWeekday(now, timeZone);
   if (day === 'saturday' || day === 'sunday') return 'monday';
   if (!WEEKDAYS.includes(day as never)) throw new Error(`Unknown weekday override "${override}"`);

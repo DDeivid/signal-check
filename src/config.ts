@@ -46,6 +46,10 @@ export const configSchema = z.object({
       thursday: weekday,
       friday: weekday,
     }),
+    /** One-off extra episodes on dates the show normally skips: date → whose weekday format to use. */
+    extra_days: z
+      .record(z.string().regex(/^\d{4}-\d\d-\d\d$/), z.enum(['monday', 'tuesday', 'wednesday', 'thursday', 'friday']))
+      .default({}),
   }),
   segments: z.object({
     look_back: segment,

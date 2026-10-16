@@ -5,7 +5,8 @@ on:
     # GitHub cron is UTC-only and can delay or drop runs, so there are six triggers and the
     # gate job decides. Only triggers that land 08:00–08:55 in Tallinn go ahead:
     # summer (UTC+3) uses the 05:xx ones, winter (UTC+2) the 06:xx ones. Three tries a day.
-    - cron: '7,27,47 5,6 * * 1-5'
+    # Every day: the gate skips weekends unless the date is in schedule.extra_days.
+    - cron: '7,27,47 5,6 * * *'
   workflow_dispatch:
     inputs:
       dry_run:
@@ -53,6 +54,10 @@ jobs:
       run: ${{ steps.gate.outputs.run }}
       date: ${{ steps.gate.outputs.date }}
     steps:
+      - uses: actions/checkout@v7
+        with:
+          sparse-checkout: podcast.config.yaml
+          sparse-checkout-cone-mode: false
       - name: Decide whether to run
         id: gate
         env:
@@ -66,7 +71,9 @@ jobs:
           decide() { echo "run=$1" >> "$GITHUB_OUTPUT"; echo "### Gate: $2" >> "$GITHUB_STEP_SUMMARY"; echo "$2"; exit 0; }
           echo "Trigger: $EVENT ${{ github.event.schedule }} · Tallinn $(TZ=$TZ_SHOW date '+%a %F %H:%M')" >> "$GITHUB_STEP_SUMMARY"
           if [ "$EVENT" != schedule ]; then decide true "manual run, no time check"; fi
-          [ "$DAY" -le 5 ] || decide false "weekend in Tallinn; skipping"
+          EXTRA=$(yq -r ".schedule.extra_days[\"$DATE\"] // \"\"" podcast.config.yaml)
+          [ "$DAY" -le 5 ] || [ -n "$EXTRA" ] || decide false "weekend in Tallinn; skipping"
+          [ -z "$EXTRA" ] || echo "Extra episode today, $EXTRA format" >> "$GITHUB_STEP_SUMMARY"
           if [ "$NOW" -lt 0800 ] || [ "$NOW" -gt 0855 ]; then decide false "Tallinn time $NOW is outside 08:00–08:55; skipping"; fi
           # Live state, not this run's checkout: a queued run would see history from before the last publish.
           if gh api "repos/$GITHUB_REPOSITORY/contents/data/episodes.json?ref=main" --jq .content | base64 -d \
