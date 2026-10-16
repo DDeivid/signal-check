@@ -9,7 +9,8 @@ import { parseChart, quotesTable, type Quote } from '../src/markets';
 import { chunkForTts, type Section } from '../src/script';
 import { htmlToText } from '../src/stages/research';
 import { assembleSections, ruleIssues, unmatchedMarketNumbers } from '../src/stages/review';
-import { outsideShare, validateSelection } from '../src/stages/select';
+import { checkSelection, outsideShare, type Selection } from '../src/stages/select';
+import type { SegmentId } from '../src/config';
 import { wordBudget } from '../src/stages/write';
 import { localDate, showWeekday, windowStart } from '../src/time';
 import { pcmToWav } from '../src/wav';
@@ -180,14 +181,56 @@ describe('selection checks', () => {
   const items = ['world', 'world', 'science', 'gaming', 'culture'].map((topic, i) => ({
     id: `s${i + 1}`, feed: 'F', topic, title: `T${i}`, url: `https://x.com/${i}`, published: new Date(), snippet: '',
   }));
-  const selection = { headlines: ['s1', 's3'], main: [{ id: 's1', angle: '' }, { id: 's2', angle: '' }], quick_hits: ['s4', 's5'], segment_items: [], notes: '' };
+  const selection: Selection = { headlines: ['s1', 's3'], main: [{ id: 's1', angle: '' }, { id: 's4', angle: '' }], quick_hits: ['s2', 's5'], segment_items: [], notes: '' };
+  const check = (patch: Partial<Selection>, segment: SegmentId = 'deep_dive') => checkSelection(config, segment, { ...selection, ...patch }, items);
 
   it('computes the outside share over distinct picks', () => {
     expect(outsideShare(config, selection, items)).toBeCloseTo(2 / 5);
   });
 
-  it('rejects unknown ids and repeated main stories', () => {
-    expect(validateSelection(config, { ...selection, quick_hits: ['s1', 's9'] }, items)).toEqual(['unknown id s9', 'quick hits repeat a main story']);
+  it('accepts a clean pick unchanged', () => {
+    expect(check({})).toEqual({ selection, warnings: [], problems: [] });
+  });
+
+  it('drops unknown and repeated supporting ids with a warning instead of failing', () => {
+    const { selection: s, warnings, problems } = check({ headlines: ['s1', 's9', 's1'], quick_hits: ['s1', 's9', 's2', 's2'], segment_items: ['s7'] });
+    expect(problems).toEqual([]);
+    expect(s.headlines).toEqual(['s1']);
+    expect(s.quick_hits).toEqual(['s2']);
+    expect(s.segment_items).toEqual([]);
+    expect(warnings).toEqual([
+      'dropped headline s9: unknown id',
+      'dropped headline s1: listed twice',
+      'dropped quick hit s1: it is a main story',
+      'dropped quick hit s9: unknown id',
+      'dropped quick hit s2: listed twice',
+      'dropped segment item s7: unknown id',
+    ]);
+  });
+
+  it('trims extra headlines and quick hits to the configured counts', () => {
+    const many = { ...config, episode: { ...config.episode, headlines: 2, quick_hits: 1 } };
+    const { selection: s, warnings } = checkSelection(many, 'deep_dive', { ...selection, headlines: ['s1', 's2', 's3'], quick_hits: ['s2', 's5'] }, items);
+    expect(s.headlines).toEqual(['s1', 's2']);
+    expect(s.quick_hits).toEqual(['s2']);
+    expect(warnings).toEqual(['trimmed headlines from 3 to 2: dropped s3', 'trimmed quick hits from 2 to 1: dropped s5']);
+  });
+
+  it('only main-story problems need a new pick: unknown, repeated, same topic, wrong count', () => {
+    const texts = (main: Selection['main']) => check({ main }).problems.map((p) => `${p.kind}: ${p.text}`);
+    expect(texts([{ id: 's1', angle: '' }, { id: 's9', angle: '' }])).toEqual(['main: unknown main story id s9']);
+    expect(texts([{ id: 's1', angle: '' }, { id: 's1', angle: '' }])).toEqual(['main: the same main story is picked twice', 'main: main stories must come from different topics (got world, world)']);
+    expect(texts([{ id: 's1', angle: '' }, { id: 's2', angle: '' }])).toEqual(['main: main stories must come from different topics (got world, world)']);
+    expect(texts([{ id: 's1', angle: '' }])).toEqual(['main: need exactly 2 main stories, got 1']);
+  });
+
+  it('requires an outside-topic segment item on far-field days', () => {
+    expect(check({ segment_items: ['s2'] }, 'far_field').problems).toEqual([{ kind: 'far_field', text: 'the far-field segment item must come from an OUTSIDE topic' }]);
+    const mixed = check({ segment_items: ['s2', 's5', 's3'] }, 'far_field');
+    expect(mixed.problems).toEqual([]);
+    expect(mixed.selection.segment_items).toEqual(['s5']);
+    // Outside-topic rule applies only to far field.
+    expect(check({ segment_items: ['s2'] }, 'markets').problems).toEqual([]);
   });
 });
 

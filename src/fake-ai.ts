@@ -20,29 +20,35 @@ interface FakeOptions {
 
 const promptOf = (p: GenerateContentParameters) => (typeof p.contents === 'string' ? p.contents : JSON.stringify(p.contents));
 
-function textResponse(text: string): GenerateContentResponse {
+export function textResponse(text: string): GenerateContentResponse {
   const response = new GenerateContentResponse();
   response.candidates = [{ content: { role: 'model', parts: [{ text }] }, finishReason: FinishReason.STOP }];
   return response;
 }
 
 /** Candidate ids from the selection prompt, split into core and outside topics. */
-function candidates(prompt: string): { core: string[]; outside: string[] } {
+function candidates(prompt: string): { core: string[]; outside: string[]; topic: Map<string, string> } {
   const list = prompt.split('\nCandidates:\n')[1] ?? '';
   const core: string[] = [];
   const outside: string[] = [];
-  for (const m of list.matchAll(/^(s\d+) \[([^\]]+)\]/gm)) (m[2]!.startsWith('OUTSIDE:') ? outside : core).push(m[1]!);
-  return { core, outside };
+  const topic = new Map<string, string>();
+  for (const m of list.matchAll(/^(s\d+) \[([^\]]+)\]/gm)) {
+    (m[2]!.startsWith('OUTSIDE:') ? outside : core).push(m[1]!);
+    topic.set(m[1]!, m[2]!);
+  }
+  return { core, outside, topic };
 }
 
-/** A pick that satisfies validateSelection and the outside-topic share, from whatever candidates exist. */
+/** A pick that satisfies checkSelection and the outside-topic share, from whatever candidates exist. */
 export function fakeSelection(prompt: string) {
-  const { core, outside } = candidates(prompt);
+  const { core, outside, topic } = candidates(prompt);
   const all = [...core, ...outside];
   if (all.length < 6) throw new Error('fake select: too few candidates');
   const c = (i: number) => core[i] ?? all[i % all.length]!;
   const o = (i: number) => outside[i] ?? c(i + 6);
-  const main = [c(0), c(1)];
+  // Main stories from two different topics.
+  const second = all.find((id) => topic.get(id) !== topic.get(c(0))) ?? c(1);
+  const main = [c(0), second];
   return {
     headlines: [c(0), c(1), c(2), o(0), c(3)],
     main: main.map((id) => ({ id, angle: 'What changed and why it matters.', follow_up_of: null })),

@@ -1,13 +1,13 @@
 import { ApiError } from '@google/genai';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { loadConfig } from '../src/config';
-import { fakeAiClient, fakeDraft, fakeSelection, spokenWords } from '../src/fake-ai';
+import { fakeAiClient, fakeDraft, fakeSelection, spokenWords, textResponse } from '../src/fake-ai';
 import { fetchText, fixtureItems, prepareItems } from '../src/feeds';
 import { type AiClient, modelUses, resetModelState, setAiClient } from '../src/llm';
 import { emptyRun, summaryMarkdown } from '../src/run-summary';
 import { type Draft, draftSchema, numberedScript } from '../src/script';
 import { assembleSections, bestReviewed, contentLoop, type Issue, ruleIssues } from '../src/stages/review';
-import { outsideShare, selectionPrompt, shortlist, validateSelection } from '../src/stages/select';
+import { checkSelection, outsideShare, selectionPrompt, selectStories, shortlist } from '../src/stages/select';
 import { type Brief, revisePrompt, writerPrompt } from '../src/stages/write';
 import fixture from './fixtures/feeds.json' with { type: 'json' };
 
@@ -168,7 +168,7 @@ describe('fake AI client', () => {
   it('picks a valid selection from the real candidate ids', () => {
     const candidates = shortlist(items);
     const selection = fakeSelection(selectionPrompt(config, 'far_field', candidates, [], ''));
-    expect(validateSelection(config, { ...selection, notes: '' }, candidates)).toEqual([]);
+    expect(checkSelection(config, 'far_field', { ...selection, notes: '' }, candidates).problems).toEqual([]);
     expect(outsideShare(config, { ...selection, notes: '' }, candidates)).toBeGreaterThanOrEqual(1 - config.topics.core_share - 0.1);
   });
 
@@ -181,6 +181,53 @@ describe('fake AI client', () => {
 
   it('counts the spoken words of a TTS request', () => {
     expect(spokenWords('Read this calmly.\n\nMia: Good morning all.\nTheo: Hi.')).toBe(4);
+  });
+});
+
+describe('story selection', () => {
+  const candidates = shortlist(items);
+  const coreIds = candidates.filter((i) => config.topics.core.some((t) => t.id === i.topic)).map((i) => i.id);
+  /** A selector that answers each select call with the next pick, built from the fake's valid one. */
+  function picks(...changes: Array<(pick: ReturnType<typeof fakeSelection>) => object>): AiClient {
+    let n = 0;
+    return {
+      async generateContent(_label, params) {
+        const pick = fakeSelection(String(params.contents));
+        return textResponse(JSON.stringify(changes[Math.min(n++, changes.length - 1)]!(pick)));
+      },
+    };
+  }
+
+  it('drops unknown supporting ids with a warning instead of failing', async () => {
+    setAiClient(picks((p) => ({ ...p, headlines: [...p.headlines, 's999'], quick_hits: [...p.quick_hits, 'nope'] })));
+    const { selection, warnings } = await selectStories(fast, 'deep_dive', items, [], '');
+    expect(selection.headlines).not.toContain('s999');
+    expect(warnings).toEqual(expect.arrayContaining(['dropped headline s999: unknown id', 'dropped quick hit nope: unknown id']));
+    expect(modelUses()).toHaveLength(1);
+  });
+
+  it('fails when the second pick still has two identical main stories', async () => {
+    setAiClient(picks((p) => ({ ...p, main: [p.main[0], p.main[0]] })));
+    await expect(selectStories(fast, 'deep_dive', items, [], '')).rejects.toThrow('the same main story is picked twice');
+    expect(modelUses()).toHaveLength(2);
+  });
+
+  it('asks again once when the far-field item is from a core topic, then falls back to the newest outside item', async () => {
+    setAiClient(picks((p) => ({ ...p, segment_items: [coreIds.at(-1)] })));
+    const { selection, warnings } = await selectStories(fast, 'far_field', items, [], '');
+    expect(modelUses()).toHaveLength(2);
+    const outside = candidates.filter((i) => !config.topics.core.some((t) => t.id === i.topic));
+    const used = new Set([...selection.main.map((m) => m.id), ...selection.quick_hits]);
+    expect(selection.segment_items).toEqual([outside.find((i) => !used.has(i.id))!.id]);
+    expect(warnings.at(-1)).toContain('fell back to the newest outside-topic item');
+  });
+
+  it('uses the second pick when it fixes the far-field item', async () => {
+    setAiClient(picks((p) => ({ ...p, segment_items: [coreIds[0]] }), (p) => p));
+    const { selection, warnings } = await selectStories(fast, 'far_field', items, [], '');
+    expect(modelUses()).toHaveLength(2);
+    expect(warnings).toEqual([]);
+    expect(config.topics.core.some((t) => t.id === candidates.find((i) => i.id === selection.segment_items[0])!.topic)).toBe(false);
   });
 });
 
