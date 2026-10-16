@@ -2,8 +2,11 @@ name: Daily episode
 
 on:
   schedule:
-    # 05:00 UTC = 08:00 Tallinn in summer, 07:00 in winter. Mon–Fri.
-    - cron: '0 5 * * 1-5'
+    # GitHub delays scheduled runs at busy times (worst at the top of the hour) and can drop them.
+    # So: off the hour, early, plus a backup that does nothing if the episode already exists.
+    # 04:17 UTC = 07:17 Tallinn in summer, 06:17 in winter. Mon–Fri.
+    - cron: '17 4 * * 1-5'
+    - cron: '43 5 * * 1-5'
   workflow_dispatch:
     inputs:
       dry_run:
@@ -39,6 +42,7 @@ jobs:
     timeout-minutes: 75
     outputs:
       published: ${{ steps.produce.outputs.published }}
+      skipped: ${{ steps.produce.outputs.skipped }}
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-node@v7
@@ -58,6 +62,7 @@ jobs:
           SC_WEEKDAY: ${{ inputs.weekday || 'auto' }}
           SC_MINUTES: ${{ inputs.minutes }}
           SC_NOTES: ${{ inputs.notes }}
+          SC_SKIP_IF_PUBLISHED: ${{ github.event_name == 'schedule' }}
         run: npm run produce
 
       - name: Keep script, review and transcript
@@ -110,7 +115,7 @@ jobs:
 
   notify:
     needs: [produce, site]
-    if: always()
+    if: always() && needs.produce.outputs.skipped != 'true'
     runs-on: ubuntu-latest
     env:
       TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}

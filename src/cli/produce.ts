@@ -2,7 +2,8 @@
  * Produce one episode: news → selection → research → script → content loop → (unless dry run) voices → MP3.
  * Everything lands in out/. Publishing is done afterwards by the workflow (release + register + site).
  *
- * Env: SC_DRY_RUN=true, SC_WEEKDAY=auto|monday..friday, SC_MINUTES, SC_NOTES, SC_OUT (default "out").
+ * Env: SC_DRY_RUN=true, SC_WEEKDAY=auto|monday..friday, SC_MINUTES, SC_NOTES, SC_OUT (default "out"),
+ *      SC_SKIP_IF_PUBLISHED=true (scheduled runs: do nothing if today's episode exists).
  */
 import { appendFileSync, mkdirSync, statSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -143,6 +144,11 @@ async function main(): Promise<void> {
   const date = localDate(now, tz);
   const spoken = spokenDate(now, tz);
   const history = readHistory();
+  if (env.SC_SKIP_IF_PUBLISHED === 'true' && history.some((e) => e.date === date)) {
+    console.log(`[produce] episode for ${date} already published; nothing to do`);
+    setOutput({ published: 'false', skipped: 'true' });
+    return;
+  }
   mkdirSync(outDir, { recursive: true });
   console.log(`[produce] ${date}, ${weekday} format (${format.segment}), ${minutes} min${dryRun ? ', dry run' : ''}`);
 
