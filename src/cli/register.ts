@@ -33,6 +33,7 @@ const record: EpisodeRecord = {
   stories: meta.stories,
   predictions: meta.predictions,
   openThreads: meta.openThreads,
+  ...(meta.predictionGrades ? { predictionGrades: meta.predictionGrades } : {}),
   transcriptFile,
   notesFile,
 };

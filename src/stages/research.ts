@@ -75,8 +75,58 @@ Research this story for a podcast segment of ${deep ? 'about 6 minutes' : 'about
   return { topic: item.title, notes, articleText: text, sources: [{ title: `${item.feed}: ${item.title}`, url: item.url }, ...sources] };
 }
 
-/** Free-form research question, used for open threads and prediction grading. */
-export async function researchQuestion(config: Config, label: string, question: string): Promise<Research> {
-  const { notes, sources } = await research(config, label, question);
-  return { topic: label, notes, articleText: '', sources };
+/** About this many of the window's items go along as evidence for follow-up research. */
+export const EVIDENCE_CAP = 120;
+export const NO_UPDATE = 'no update in today\'s news';
+export const FROM_ITEMS_ONLY = '(Derived only from the news items listed with these notes, without web search. Anything not tied to an item id is not established.)';
+
+/** One line per item: id, title, feed, date, snippet. */
+export function evidenceLines(items: FeedItem[]): string {
+  return items.map((i) => `[${i.id}] ${i.title} (${i.feed}, ${i.published.toISOString().slice(0, 10)}) ${i.snippet.slice(0, 220)}`).join('\n');
+}
+
+/** Item ids cited as [s12] in `text` that exist in `items`, in order of first mention; plus cited ids that don't exist. */
+export function citations(text: string, items: FeedItem[]): { known: string[]; unknown: string[] } {
+  const ids = new Set(items.map((i) => i.id));
+  const cited = [...new Set([...text.matchAll(/\[(s\d+)\]/g)].map((m) => m[1]!))];
+  return { known: cited.filter((id) => ids.has(id)), unknown: cited.filter((id) => !ids.has(id)) };
+}
+
+export function newsEvidencePrompt(question: string, evidence: FeedItem[], grounded: boolean): string {
+  return `${question}
+
+TODAY'S NEWS ITEMS (id, title, feed, date, snippet)
+${evidenceLines(evidence)}
+
+Rules:
+- ${grounded ? 'Use these items first; you may add web sources, named and dated.' : 'These items are your only evidence. You have no web access, and your memory of recent events is not evidence.'}
+- Every update must cite the ids of the items it rests on in square brackets, e.g. [s12] [s40].
+- Where no item bears on a point, write "${NO_UPDATE}" for it. Don't fill the gap.`;
+}
+
+export interface NewsResearch extends Research {
+  /** Ids of the listed items the notes cite. */
+  cited: string[];
+  /** True when the notes come only from the listed items (no web search). */
+  itemsOnly: boolean;
+}
+
+/**
+ * Follow-up research (Monday threads, Friday predictions) with the news window's items as evidence.
+ * Without grounding the model has nothing else, so it must cite item ids or say there's no update.
+ */
+export async function researchFromNews(config: Config, label: string, question: string, evidence: FeedItem[]): Promise<NewsResearch> {
+  if (config.research.grounding && !searchUnavailable) {
+    try {
+      const { text, sources } = await generateText(config, { label, system: SYSTEM, prompt: newsEvidencePrompt(question, evidence, true), grounding: true, temperature: 0.2 });
+      return { topic: label, notes: text, articleText: '', sources, cited: citations(text, evidence).known, itemsOnly: false };
+    } catch (err) {
+      searchUnavailable = true;
+      console.warn(`::warning::Web search unavailable, researching without it for the rest of this run: ${describeError(err)}`);
+    }
+  }
+  const { text } = await generateText(config, { label, system: SYSTEM, prompt: newsEvidencePrompt(question, evidence, false), temperature: 0.2 });
+  const { known, unknown } = citations(text, evidence);
+  if (unknown.length) console.warn(`[research] ${label} cites ids that aren't in the list: ${unknown.join(', ')}`);
+  return { topic: label, notes: `${FROM_ITEMS_ONLY}\n${text}`, articleText: '', sources: [], cited: known, itemsOnly: true };
 }

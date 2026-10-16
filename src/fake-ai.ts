@@ -129,8 +129,17 @@ export function fakeAiClient(options: FakeOptions = { silentChunk: Number(proces
       switch (stage) {
         case 'select':
           return textResponse(JSON.stringify(fakeSelection(prompt)));
-        case 'research':
-          return textResponse(`Fake research notes for ${label}. What happened, the background, and what is still unknown.`);
+        case 'research': {
+          // Follow-up research cites the first listed news item, as the real prompt requires.
+          const cited = /TODAY'S NEWS ITEMS[^\n]*\n\[(s\d+)\]/.exec(prompt)?.[1];
+          return textResponse(`Fake research notes for ${label}. What happened, the background, and what is still unknown.${cited ? ` One item bears on this [${cited}]; otherwise no update in today's news.` : ''}`);
+        }
+        case 'grade': {
+          // Every prediction too early: the honest answer when nothing settles it.
+          const count = (prompt.split('\nPREDICTIONS\n')[1]?.split('\n\n')[0] ?? '').split('\n').filter((l) => /^\d+\. /.test(l)).length;
+          const grades = Array.from({ length: count }, (_, n) => ({ n: n + 1, verdict: 'too_early', evidence: "no update in today's news" }));
+          return textResponse(JSON.stringify({ grades }));
+        }
         case 'write':
           return textResponse(JSON.stringify(fakeDraft(`${prompt}\n${String(params.config?.systemInstruction ?? '')}`)));
         case 'revise': {
