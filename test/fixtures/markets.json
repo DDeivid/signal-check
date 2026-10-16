@@ -1,0 +1,5 @@
+[
+  { "label": "S&P 500", "symbol": "^GSPC", "currency": "USD", "date": "2026-10-15", "close": 7722.24, "dayChangePct": 0.04, "weekChangePct": -0.56 },
+  { "label": "Nasdaq 100", "symbol": "^NDX", "currency": "USD", "date": "2026-10-15", "close": 29761.03, "dayChangePct": -0.63, "weekChangePct": -3.14 },
+  { "label": "EUR/USD", "symbol": "EURUSD=X", "currency": "USD", "date": "2026-10-16", "close": 1.1612, "dayChangePct": 0.12, "weekChangePct": 0.48 }
+]

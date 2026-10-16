@@ -1,0 +1,23 @@
+[
+  { "feed": "Fixture Tech", "topic": "ai_software", "title": "Open model tops coding benchmark", "url": "https://fixture.example/tech/1", "snippet": "A new open-weights model scores well on a coding benchmark its authors built.", "hoursAgo": 2 },
+  { "feed": "Fixture Tech", "topic": "ai_software", "title": "Browser ships new layout engine flag", "url": "https://fixture.example/tech/2", "snippet": "A browser vendor puts its rewritten layout engine behind a flag.", "hoursAgo": 3 },
+  { "feed": "Fixture Tech", "topic": "ai_software", "title": "Package registry tightens publishing rules", "url": "https://fixture.example/tech/3", "snippet": "Maintainers must now use two-factor sign-in to publish.", "hoursAgo": 4 },
+  { "feed": "Fixture Tech", "topic": "ai_software", "title": "Chip maker delays AI accelerator", "url": "https://fixture.example/tech/4", "snippet": "The company cites packaging capacity.", "hoursAgo": 5 },
+  { "feed": "Fixture Maker", "topic": "selfhosting", "title": "Home server distro adds automatic backups", "url": "https://fixture.example/maker/1", "snippet": "Snapshots are now on by default.", "hoursAgo": 3 },
+  { "feed": "Fixture Maker", "topic": "selfhosting", "title": "Single-board computer gets a price cut", "url": "https://fixture.example/maker/2", "snippet": "The board's base model is cheaper from today.", "hoursAgo": 6 },
+  { "feed": "Fixture World", "topic": "world", "title": "Ceasefire talks resume in Geneva", "url": "https://fixture.example/world/1", "snippet": "Delegations meet again after a week-long pause.", "hoursAgo": 1 },
+  { "feed": "Fixture World", "topic": "world", "title": "Parliament passes budget after long debate", "url": "https://fixture.example/world/2", "snippet": "The vote was closer than expected.", "hoursAgo": 2 },
+  { "feed": "Fixture World", "topic": "world", "title": "Floods close major rail route", "url": "https://fixture.example/world/3", "snippet": "Repairs could take weeks, the operator says.", "hoursAgo": 7 },
+  { "feed": "Fixture Baltics", "topic": "estonia", "title": "Tallinn approves new tram line", "url": "https://fixture.example/baltics/1", "snippet": "Construction is planned to start next spring.", "hoursAgo": 4 },
+  { "feed": "Fixture Baltics", "topic": "estonia", "title": "Latvia and Estonia sign grid deal", "url": "https://fixture.example/baltics/2", "snippet": "The agreement covers cross-border reserves.", "hoursAgo": 8 },
+  { "feed": "Fixture Markets", "topic": "markets", "title": "Stocks edge higher ahead of rate decision", "url": "https://fixture.example/markets/1", "snippet": "Investors wait for the central bank.", "hoursAgo": 3 },
+  { "feed": "Fixture Markets", "topic": "markets", "title": "Oil slips as supply worries ease", "url": "https://fixture.example/markets/2", "snippet": "Traders see more supply next quarter.", "hoursAgo": 5 },
+  { "feed": "Fixture Games", "topic": "gaming", "title": "Indie strategy game leaves early access", "url": "https://fixture.example/games/1", "snippet": "The studio says the full release adds a campaign.", "hoursAgo": 6 },
+  { "feed": "Fixture Games", "topic": "gaming", "title": "Console maker announces smaller handheld", "url": "https://fixture.example/games/2", "snippet": "It plays the existing library.", "hoursAgo": 9 },
+  { "feed": "Fixture Science", "topic": "science", "title": "Astronomers spot water vapour on a distant moon", "url": "https://fixture.example/science/1", "snippet": "The signal came from a space telescope.", "hoursAgo": 2 },
+  { "feed": "Fixture Science", "topic": "science", "title": "Bees found to count in new experiment", "url": "https://fixture.example/science/2", "snippet": "Researchers trained bees to pick the larger number.", "hoursAgo": 5 },
+  { "feed": "Fixture Science", "topic": "science", "title": "Oldest known map of the stars reexamined", "url": "https://fixture.example/science/3", "snippet": "New imaging reveals faded markings.", "hoursAgo": 10 },
+  { "feed": "Fixture Climate", "topic": "climate", "title": "City trials cooler pavement paint", "url": "https://fixture.example/climate/1", "snippet": "Early readings show lower surface temperatures.", "hoursAgo": 4 },
+  { "feed": "Fixture Culture", "topic": "culture", "title": "Lost silent film found in an attic", "url": "https://fixture.example/culture/1", "snippet": "Archivists are restoring the reels.", "hoursAgo": 6 },
+  { "feed": "Fixture Culture", "topic": "culture", "title": "Why some languages have no word for left", "url": "https://fixture.example/culture/2", "snippet": "A long read on directions and language.", "hoursAgo": 11 }
+]
