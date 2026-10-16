@@ -1,0 +1,18 @@
+# Review
+
+Selection notes: Selected major diplomatic, open-source, and Baltic policy developments for the lead stories. Hit the 25% outside-topic quota with rural solar policy, academic science, and Roman philosophy.
+
+## Round 1 (1851 words)
+- [critical] line 7: The script states that Linus Torvalds posted his very first 'pull request', but the source states he posted a patch to a development branch. Fix: Change 'pull request' to 'patch' or 'kernel patch'. (fact-check)
+- [critical] line 10: The script claims Torvalds ran his workaround on his laptop 'for months', whereas the source material states he has used it on his laptop 'since that time' (early 2024, meaning over two years). Fix: Change 'which he ran on his personal laptop for months' to 'which he has been running on his personal laptop since early 2024'. (fact-check)
+- [minor] line 27: Clumsy repetition in 'look at unilateral interventions or domestic sanctions to shut it down unilaterally'. Fix: Remove the trailing 'unilaterally' so the sentence ends with 'to shut it down'. (fact-check)
+- [major] line 35: The specific figure 'sixteen gigabytes' of memory is not in the source material, which only refers to accessing 'more RAM'. Fix: Change 'repurposing a console's sixteen gigabytes of fast memory' to 'repurposing the console's unified memory' or 'repurposing the console's RAM'. (fact-check)
+
+## Round 2 (1851 words)
+- [critical] line 26: The script claims Estonia and Latvia have spent 'two years' lobbying the EU, but the materials do not attach a two-year duration to lobbying; the text states that no Russian gas has flowed through the pipeline for more than two years. Fix: Remove 'spent two years' and state that Estonia and Latvia have consistently advocated for EU sanctions and tariffs against Moscow. (fact-check)
+- [minor] line 27: Awkward repetition of 'unilateral': 'look at unilateral interventions or domestic sanctions to shut it down unilaterally'. Fix: Rephrase to: 'If bilateral talks with Riga fail, he warned that Estonia will look at domestic sanctions or direct interventions to shut it down.' (fact-check)
+- [minor] line 42: The script claims the 1.0 release includes 'substantial overhauls to its voxel building and crafting mechanics', but the source article only specifies 'a complete story, bigger map, and way too much more to mention'. Fix: Rephrase to stick to the source text: 'and the full release introduces a finished narrative campaign, an expanded map, and a host of other additions.' (fact-check)
+
+## Round 3 (1848 words)
+- [minor] line 27: Phrasing the issue as 'leaving that infrastructure open' could confuse listeners given that the previous line established the Estonian valve is physically closed. In addition, 'unilateral interventions ... to shut it down unilaterally' is repetitious. Fix: Rephrase to: 'his stance is firm: keeping that transit corridor viable is wrong. If bilateral talks with Riga fail, he warned that Estonia will look at domestic sanctions or other direct interventions to shut it down.' (fact-check)
+- [minor] line 42: The material highlights a 'complete story, bigger map, and way too much more to mention', but does not mention specific overhauls to voxel building and crafting mechanics. Fix: Change 'and substantial overhauls to its voxel building and crafting mechanics' to 'and a massive list of additions and improvements across the game.' (fact-check)

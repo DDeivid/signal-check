@@ -1,0 +1,47 @@
+[
+  {
+    "index": 1,
+    "words": 427,
+    "chars": 2751,
+    "seconds": 163.3,
+    "ratio": 0.96,
+    "model": "gemini-3.8-flash-tts",
+    "finishReason": "STOP"
+  },
+  {
+    "index": 2,
+    "words": 361,
+    "chars": 2221,
+    "seconds": 129.3,
+    "ratio": 0.9,
+    "model": "gemini-3.8-flash-tts",
+    "finishReason": "STOP"
+  },
+  {
+    "index": 3,
+    "words": 407,
+    "chars": 2690,
+    "seconds": 153.4,
+    "ratio": 0.94,
+    "model": "gemini-3.8-flash-tts",
+    "finishReason": "STOP"
+  },
+  {
+    "index": 4,
+    "words": 444,
+    "chars": 2841,
+    "seconds": 170.9,
+    "ratio": 0.96,
+    "model": "gemini-3.8-flash-tts",
+    "finishReason": "STOP"
+  },
+  {
+    "index": 5,
+    "words": 209,
+    "chars": 1362,
+    "seconds": 79.4,
+    "ratio": 0.95,
+    "model": "gemini-3.8-flash-tts",
+    "finishReason": "STOP"
+  }
+]
