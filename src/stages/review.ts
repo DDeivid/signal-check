@@ -32,22 +32,46 @@ export function assembleSections(config: Config, draft: Draft, spoken: { weekday
   ];
 }
 
-/** Numbers in `text` that don't match any value in the market table (closes and absolute % changes). */
-export function unmatchedMarketNumbers(text: string, quotes: Quote[]): string[] {
-  // Numbers inside instrument names ("S&P 500", "Nasdaq 100") aren't market figures.
-  for (const q of quotes) text = text.replaceAll(q.label, ' ');
-  // Nor are dates ("October 15", "15 October").
+const escapeRegExp = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+/** "S&P 500" also matches "s&p-500" and "S&P500"; "EUR/USD" also "eur-usd". */
+function labelPattern(label: string): RegExp {
+  const parts = label.split(/[\s/-]+/).filter(Boolean).map(escapeRegExp);
+  return new RegExp(`${parts.join('[\\s/-]?')}(?![\\d])`, 'gi');
+}
+
+const HEDGE = /\b(?:about|around|roughly|nearly|almost)\s+[$€£]?$/i;
+const HEDGE_TOLERANCE = 0.02;
+
+/**
+ * Numbers in the text that don't match the market table (closes and absolute % changes). `labels` are all configured instrument names
+ * (config.markets.instruments), stripped even when their quote wasn't fetched today.
+ * Not market figures: numbers in instrument names, dates, times (8:30), ordinals (17th), years,
+ * "5-day"/"two week"-style durations, and small integers. "About/around/roughly/nearly/almost N" may be
+ * up to 2% off a table value.
+ */
+export function unmatchedMarketNumbers(text: string, quotes: Quote[], labels: string[] = []): string[] {
+  for (const label of [...new Set([...labels, ...quotes.map((q) => q.label)])]) text = text.replace(labelPattern(label), ' ');
   const month = '(?:January|February|March|April|May|June|July|August|September|October|November|December)';
   text = text.replace(new RegExp(`${month}\\s+\\d{1,2}(?:st|nd|rd|th)?|\\d{1,2}(?:st|nd|rd|th)?\\s+${month}`, 'g'), ' ');
+  text = text.replace(/\b\d{1,2}:\d{2}(?:\s*[ap]\.?m\.?)?/gi, ' ');
+  text = text.replace(/\b\d+(?:st|nd|rd|th)\b/gi, ' ');
+  text = text.replace(/\b\d+[\s-](?:trading[\s-])?(?:sessions?|days?|weeks?|months?|years?|hours?|minutes?)\b/gi, ' ');
   const values = quotes.flatMap((q) => [q.close, q.dayChangePct, q.weekChangePct].filter((v): v is number => v !== null).map(Math.abs));
-  const tokens = text.match(/\d[\d,]*(?:\.\d+)?/g) ?? [];
-  return tokens.filter((token) => {
+  const bad: string[] = [];
+  for (const m of text.matchAll(/\d[\d,]*(?:\.\d+)?/g)) {
+    const token = m[0];
     const n = Number(token.replaceAll(',', ''));
     const decimals = token.split('.')[1]?.length ?? 0;
-    if (!decimals && n < 10) return false;
-    if (!decimals && n >= 1900 && n <= 2100) return false;
-    return !values.some((v) => Math.abs(v - n) <= 0.5 * 10 ** -decimals + 1e-9 || (n >= 100 && Math.abs(v - n) / v <= 0.005));
-  });
+    if (!decimals && n < 10) continue;
+    if (!decimals && n >= 1900 && n <= 2100) continue;
+    const hedged = HEDGE.test(text.slice(0, m.index));
+    const matches = values.some(
+      (v) => Math.abs(v - n) <= 0.5 * 10 ** -decimals + 1e-9 || (n >= 100 && Math.abs(v - n) / v <= 0.005) || (hedged && Math.abs(v - n) <= HEDGE_TOLERANCE * v + 1e-9),
+    );
+    if (!matches) bad.push(token);
+  }
+  return bad;
 }
 
 export function ruleIssues(config: Config, sections: Section[], targetWords: number, segment: string, quotes: Quote[]): Issue[] {
@@ -97,7 +121,7 @@ export function ruleIssues(config: Config, sections: Section[], targetWords: num
 
   if (segment === 'markets') {
     const text = sections.find((s) => s.id === 'segment')?.lines.map((l) => l.text).join(' ') ?? '';
-    const bad = unmatchedMarketNumbers(text, quotes);
+    const bad = unmatchedMarketNumbers(text, quotes, config.markets.instruments.map((i) => i.label));
     if (bad.length) add('critical', `Market segment numbers not in the market table: ${bad.join(', ')}.`, 'Use only numbers from the market table, or drop them.');
   }
   return issues;

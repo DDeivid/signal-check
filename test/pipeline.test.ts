@@ -81,11 +81,45 @@ describe('markets', () => {
   };
 
   it('parses closes and changes', () => {
-    const q = parseChart('Test', 'T', chart);
+    const q = parseChart('Test', 'T', chart, new Date('2026-10-20T05:00:00Z'));
     expect(q.close).toBe(110);
     expect(q.dayChangePct).toBeCloseTo(6.796, 2);
     expect(q.weekChangePct).toBeNull();
-    expect(quotesTable([q])).toContain('Test: close 110.00 USD');
+    expect(quotesTable([q])).toContain('Test: latest close 110.00 USD on 2026-10-14');
+  });
+
+  describe('unfinished bars', () => {
+    // A 24-hour instrument at 05:00 UTC: the series ends with today's running bar.
+    const btc = (end?: number) => ({
+      chart: {
+        result: [{
+          meta: { currency: 'USD', exchangeTimezoneName: 'UTC', ...(end ? { currentTradingPeriod: { regular: { start: Date.UTC(2026, 9, 16) / 1000, end } } } : {}) },
+          timestamp: [Date.UTC(2026, 9, 14) / 1000, Date.UTC(2026, 9, 15) / 1000, Date.UTC(2026, 9, 16) / 1000],
+          indicators: { quote: [{ close: [60_000, 61_000, 62_500] }] },
+        }],
+      },
+    });
+    const morning = new Date('2026-10-16T05:00:00Z');
+
+    it("drops today's bar while the session is still open", () => {
+      const q = parseChart('Bitcoin', 'BTC-USD', btc(Date.UTC(2026, 9, 16, 23, 59) / 1000), morning);
+      expect(q).toMatchObject({ close: 61_000, date: '2026-10-15' });
+    });
+
+    it('drops a bar dated today when the response has no trading period', () => {
+      expect(parseChart('Bitcoin', 'BTC-USD', btc(), morning).date).toBe('2026-10-15');
+    });
+
+    it("keeps today's bar once the session has ended", () => {
+      const q = parseChart('Bitcoin', 'BTC-USD', btc(Date.UTC(2026, 9, 16, 4) / 1000), morning);
+      expect(q).toMatchObject({ close: 62_500, date: '2026-10-16' });
+    });
+
+    it("keeps yesterday's US close, which is not today in New York", () => {
+      // 01:00 in New York: the last bar (Oct 14, 16:00) is a finished session.
+      const q = parseChart('Test', 'T', chart, new Date('2026-10-15T05:00:00Z'));
+      expect(q).toMatchObject({ close: 110, date: '2026-10-14' });
+    });
   });
 
   it('flags numbers that are not in the table', () => {
@@ -235,5 +269,23 @@ describe('market numbers in instrument names', () => {
     expect(unmatchedMarketNumbers('The S&P 500 closed at 7722.24 and the Nasdaq 100 fell 0.63 percent.', quotes)).toEqual([]);
     expect(unmatchedMarketNumbers('Looking at the table for Thursday, October 15 (or 15 October).', quotes)).toEqual([]);
     expect(unmatchedMarketNumbers('Shares rose 15 percent on October 15.', quotes)).toEqual(['15']);
+  });
+
+  const labels = config.markets.instruments.map((i) => i.label);
+  const sp: Quote[] = [{ label: 'S&P 500', symbol: '^GSPC', currency: 'USD', date: '2026-10-15', close: 7722.24, dayChangePct: 0.04, weekChangePct: -0.56 }];
+
+  it('strips every configured instrument name, in any case and with a hyphen or no space', () => {
+    expect(unmatchedMarketNumbers('The nasdaq-100, the Nasdaq100, the s&p 500 and the S&P-500.', sp, labels)).toEqual([]);
+    // No Nasdaq 100 quote today, but its name still isn't a figure.
+    expect(unmatchedMarketNumbers('The Nasdaq 100 had no data.', sp, labels)).toEqual([]);
+  });
+
+  it('ignores times, ordinals and durations', () => {
+    expect(unmatchedMarketNumbers('At 8:30 on the 17th, after a 30-day slide and a 12 month run over 52 weeks.', sp, labels)).toEqual([]);
+  });
+
+  it('allows 2% after about, around, roughly, nearly and almost, and only there', () => {
+    expect(unmatchedMarketNumbers('It sits at roughly 7,600, nearly 7,850 at one point, almost 7,900.', sp, labels)).toEqual(['7,900']);
+    expect(unmatchedMarketNumbers('It sits at 7,600.', sp, labels)).toEqual(['7,600']);
   });
 });

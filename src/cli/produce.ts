@@ -100,7 +100,7 @@ async function segmentMaterial(
       return `${itemBlock(item)}\n\n${researchBlock(r)}`;
     }
     case 'markets':
-      return `Market table (the ONLY source for market numbers; closes are the latest session, "5 sessions" is the change over the last five trading days):
+      return `Market table (the ONLY source for market numbers; "latest close" is the last finished session, "day" is its change vs the session before, "5 sessions" is the change over the last five finished sessions):
 ${quotes.length ? quotesTable(quotes) : '(no market data available today)'}
 ${quoteFailures.length ? `Unavailable today, don't mention numbers for these: ${quoteFailures.join('; ')}` : ''}
 

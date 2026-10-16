@@ -14,7 +14,12 @@ export interface Quote {
 interface ChartResponse {
   chart: {
     result?: Array<{
-      meta: { currency?: string; exchangeTimezoneName?: string };
+      meta: {
+        currency?: string;
+        exchangeTimezoneName?: string;
+        regularMarketTime?: number;
+        currentTradingPeriod?: { regular?: { start?: number; end?: number } };
+      };
       timestamp?: number[];
       indicators: { quote: Array<{ close?: Array<number | null> }> };
     }>;
@@ -24,22 +29,36 @@ interface ChartResponse {
 
 const pct = (from: number | undefined, to: number) => (from ? ((to - from) / from) * 100 : null);
 
-/** Daily closes → latest close, day change and change vs five sessions back. */
-export function parseChart(label: string, symbol: string, body: ChartResponse): Quote {
+const dayIn = (seconds: number, timeZone: string) => new Intl.DateTimeFormat('en-CA', { timeZone }).format(new Date(seconds * 1000));
+
+/**
+ * Daily closes → latest close, day change and change vs five sessions back.
+ *
+ * Unfinished bars: at the early-morning run, Yahoo's daily series ends with today's still-running bar for
+ * 24-hour instruments (Bitcoin, EUR/USD, gold, Brent). Rule: the last bar is dropped when its date in the
+ * exchange's time zone is today's date there and the regular session hasn't ended yet
+ * (`now` before meta.currentTradingPeriod.regular.end). Without a trading period in the response, a bar
+ * dated today is always dropped. So the table only ever shows finished sessions: "latest close".
+ */
+export function parseChart(label: string, symbol: string, body: ChartResponse, now = new Date()): Quote {
   const result = body.chart.result?.[0];
   if (!result) throw new Error(body.chart.error?.description ?? 'empty chart response');
   const closes = result.indicators.quote[0]?.close ?? [];
+  const tz = result.meta.exchangeTimezoneName ?? 'UTC';
   const points = (result.timestamp ?? [])
     .map((t, n) => ({ t, close: closes[n] }))
     .filter((p): p is { t: number; close: number } => typeof p.close === 'number');
+  const nowSeconds = now.getTime() / 1000;
+  const sessionEnd = result.meta.currentTradingPeriod?.regular?.end;
+  const latest = points.at(-1);
+  if (latest && dayIn(latest.t, tz) === dayIn(nowSeconds, tz) && (sessionEnd === undefined || nowSeconds < sessionEnd)) points.pop();
   const last = points.at(-1);
-  if (!last) throw new Error('no closing prices');
-  const tz = result.meta.exchangeTimezoneName ?? 'UTC';
+  if (!last) throw new Error('no finished sessions');
   return {
     label,
     symbol,
     currency: result.meta.currency ?? '',
-    date: new Intl.DateTimeFormat('en-CA', { timeZone: tz }).format(new Date(last.t * 1000)),
+    date: dayIn(last.t, tz),
     close: last.close,
     dayChangePct: pct(points.at(-2)?.close, last.close),
     weekChangePct: points.length > 5 ? pct(points.at(-6)?.close, last.close) : null,
@@ -74,7 +93,7 @@ export function quotesTable(quotes: Quote[]): string {
       const digits = q.close < 10 ? 4 : 2;
       const day = q.dayChangePct === null ? 'n/a' : `${round(q.dayChangePct, 2)}%`;
       const week = q.weekChangePct === null ? 'n/a' : `${round(q.weekChangePct, 2)}%`;
-      return `${q.label}: close ${round(q.close, digits)} ${q.currency} on ${q.date}; day ${day}; 5 sessions ${week}`;
+      return `${q.label}: latest close ${round(q.close, digits)} ${q.currency} on ${q.date}; day ${day}; 5 sessions ${week}`;
     })
     .join('\n');
 }
