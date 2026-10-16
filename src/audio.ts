@@ -15,13 +15,14 @@ export function assembleEpisode(config: Config, parts: Buffer[], dir: string, mp
   ensureJingles(config);
   const work = join(dir, 'audio');
   mkdirSync(work, { recursive: true });
-  const gap = join(work, 'gap.wav');
+  // ffmpeg's concat demuxer resolves relative paths against the list file's folder, so every path is absolute.
+  const gap = resolve(work, 'gap.wav');
   writeFileSync(gap, silence(config.audio.gap_ms));
   const files = [resolve(config.audio.intro), gap];
   parts.forEach((part, n) => {
-    const file = join(work, `part-${String(n + 1).padStart(2, '0')}.wav`);
+    const file = resolve(work, `part-${String(n + 1).padStart(2, '0')}.wav`);
     writeFileSync(file, part);
-    files.push(resolve(file), resolve(gap));
+    files.push(file, gap);
   });
   files.push(resolve(config.audio.outro));
   const list = join(work, 'list.txt');

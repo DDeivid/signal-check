@@ -234,6 +234,9 @@ async function main(): Promise<void> {
   assembleEpisode(config, parts, outDir, mp3, { title: draft.title, artist: config.show.author });
   const duration = durationSeconds(mp3);
   const target = minutes * 60;
+  if (duration < target / 2) {
+    throw new Error(`Episode audio is only ${duration}s for a ${minutes}-minute target; not publishing a broken episode.`);
+  }
   if (Math.abs(duration - target) / target > config.audio.length_warning_tolerance) {
     console.warn(`::warning::Episode is ${Math.round(duration / 60)} min; target is ${minutes} min.`);
   }
