@@ -3,7 +3,7 @@ import { AudioQaError, checkChunk } from './audio-qa';
 import type { Config } from './config';
 import { ai, classify, describeError, sleep, TTS_TIMEOUT_MS, withModelsNamed, withTimeout } from './llm';
 import { type Line, words } from './script';
-import { pcmToWav } from './wav';
+import { decodeWav, pcmToWav, SAMPLE_RATE, toPcm16 } from './wav';
 
 /** The TTS answered without usable audio (no audio part, or it stopped for a reason other than STOP). Worth retrying. */
 export class TtsOutputError extends Error {
@@ -30,13 +30,21 @@ export interface VoicedChunk {
 }
 
 /** The audio part of a TTS response, or a TtsOutputError. A missing finishReason is accepted; only an explicit non-STOP fails. */
-export function audioPart(response: GenerateContentResponse): { pcm: Buffer; mimeType: string | undefined; finishReason: string } {
+export function audioPart(response: GenerateContentResponse): { pcm: Buffer; mimeType: string | undefined; finishReason: string; source?: string } {
   const candidate = response.candidates?.[0];
   const finishReason = candidate?.finishReason ?? 'unknown';
   if (candidate?.finishReason && candidate.finishReason !== 'STOP') throw new TtsOutputError(`TTS stopped early (finish reason: ${finishReason})`);
   const part = candidate?.content?.parts?.find((p) => p.inlineData?.data);
   if (!part?.inlineData?.data) throw new TtsOutputError(`no audio in TTS response (finish reason: ${finishReason})`);
-  return { pcm: Buffer.from(part.inlineData.data, 'base64'), mimeType: part.inlineData.mimeType, finishReason };
+  const bytes = Buffer.from(part.inlineData.data, 'base64');
+  const mimeType = part.inlineData.mimeType;
+  // Newer TTS models send a WAV file instead of raw PCM: unpack it to the 24 kHz mono PCM everything else uses.
+  if (/^audio\/(x-)?wav\b/i.test(mimeType ?? '') || bytes.toString('latin1', 0, 4) === 'RIFF') {
+    const wav = decodeWav(bytes);
+    const source = `audio/wav ${wav.sampleRate} Hz, ${wav.channels} ch, ${wav.bits}-bit`;
+    return { pcm: toPcm16(wav.samples, wav.sampleRate), mimeType: `audio/L16;codec=pcm;rate=${SAMPLE_RATE}`, finishReason, source };
+  }
+  return { pcm: bytes, mimeType, finishReason };
 }
 
 const lineWords = (lines: Line[]) => lines.reduce((n, l) => n + words(l.text), 0);
@@ -101,7 +109,8 @@ export async function voiceChunk(
   label: string,
   state: { qaFailures: number; attempts: ChunkReport[] },
 ): Promise<VoicedChunk> {
-  const { pcm, mimeType, finishReason } = audioPart(await requestAudio(config, model, lines, label));
+  const { pcm, mimeType, finishReason, source } = audioPart(await requestAudio(config, model, lines, label));
+  if (source) console.log(`[${label}] ${model} sent ${source}; converted to ${SAMPLE_RATE} Hz mono PCM`);
   const count = lineWords(lines);
   const check = checkChunk(pcm, mimeType, count, config.episode.words_per_minute);
   const report: ChunkReport = {
