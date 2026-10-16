@@ -10,6 +10,7 @@
   "scripts": {
     "produce": "tsx src/cli/produce.ts",
     "validate-audio": "tsx src/cli/validate-audio.ts",
+    "rehearsal": "tsx src/cli/rehearsal.ts",
     "register": "tsx src/cli/register.ts",
     "site": "tsx src/cli/build-site.ts",
     "voice-test": "tsx src/cli/voice-test.ts",
