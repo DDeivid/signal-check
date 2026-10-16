@@ -17,6 +17,7 @@ import {
   setAiClient,
   withModels,
   withTimeout,
+  failureHint,
 } from '../src/llm';
 
 const config = loadConfig();
@@ -172,5 +173,13 @@ describe('model demotion', () => {
     const err = await withModels('t', ['a'], async (m) => m).catch((e) => e);
     expect(err).toBeInstanceOf(NoModelAvailableError);
     expect(classify(err)).toBe('next-model');
+  });
+});
+
+describe('failure hints', () => {
+  it('explains empty prepaid credit and used-up free quota', () => {
+    expect(failureHint('ApiError: {"error":{"code":402,"message":"Your prepayment credits are depleted."}}')).toMatch(/top it up in AI Studio/);
+    expect(failureHint('[quota: GenerateRequestsPerDayPerProjectPerModel-FreeTier]')).toMatch(/resets at midnight Pacific/);
+    expect(failureHint('something else')).toBe('');
   });
 });

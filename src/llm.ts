@@ -116,6 +116,13 @@ export async function withTimeout<T>(ms: number, fn: (signal: AbortSignal) => Pr
 
 const DAILY_QUOTA = /limit: 0\b|PerDay|per day/i;
 
+/** A plain-language reason for the failures the owner can act on, for error.txt and the notification. */
+export function failureHint(message: string): string {
+  if (/prepayment credits are depleted|"code":\s*402/i.test(message)) return 'Gemini prepaid credit is empty: top it up in AI Studio (Billing)';
+  if (/PerDay/.test(message)) return 'Gemini free daily quota is used up; it resets at midnight Pacific time';
+  return '';
+}
+
 export const isDailyQuota = (err: unknown) => err instanceof ApiError && err.status === 429 && DAILY_QUOTA.test(err.message);
 
 /** What to do after a failed call: wait and retry the same model, move to the next model, or give up. */

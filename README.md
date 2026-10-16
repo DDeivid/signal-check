@@ -11,7 +11,7 @@ feeds + market data
   → pick stories (about 75% core topics, 25% outside them)
   → research the main stories (article text + web search)
   → write the script
-  → content loop: rules + fact-check → revise with the concrete issues (up to 2×)
+  → content loop: rules + fact-check → revise with the concrete issues (up to 3×; news facts must match the sources, well-known background is allowed)
   → voices (only once the content is final)
   → MP3 → GitHub release → feed + site on GitHub Pages
 ```

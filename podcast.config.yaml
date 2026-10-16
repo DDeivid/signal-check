@@ -181,7 +181,7 @@ research:
 
 quality:
   # Fact-check and rules run first; the script is revised up to this many times.
-  max_revisions: 2
+  max_revisions: 3
   # What to do if blocking issues remain after the last revision: stop | publish
   on_unresolved: stop
   # Allowed deviation from the target word count before it counts as an issue.
@@ -198,6 +198,8 @@ tts:
   # Tried in order; one model per episode. 3.8 models get per-line direction (each line's
   # delivery cue); 3.1 only gets each host's default delivery, since inline cues might be read aloud.
   models: [gemini-3.8-flash-tts, gemini-3.8-flash-lite-tts, gemini-3.1-flash-tts-preview]
+  # These want one part per speaker line; listing them saves a rejected first request per run.
+  speaker_part_models: [gemini-3.8-flash-tts, gemini-3.8-flash-lite-tts]
   # Both hosts go in one request; the script is split into chunks of about this size.
   max_chars_per_request: 3000
   seconds_between_requests: 25

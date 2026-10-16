@@ -189,7 +189,7 @@ jobs:
           fi
           [ -n "$(ls -A "$DIR")" ] || echo "No files: the run failed before writing any. See $RUN_URL" > "$DIR/error.txt"
           echo "$RUN_URL" > "$DIR/run-url.txt"
-          if grep -qE 'PerDay' "$DIR/error.txt" 2>/dev/null; then touch "$DATE/QUOTA_EXHAUSTED"; fi
+          if grep -qE 'PerDay|prepayment credits are depleted' "$DIR/error.txt" 2>/dev/null; then touch "$DATE/QUOTA_EXHAUSTED"; fi
           git add -A
           git commit -q -m "Run ${{ github.run_id }} for $DATE (${{ needs.produce.result }})"
           for i in 1 2 3; do

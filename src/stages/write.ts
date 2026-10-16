@@ -38,7 +38,7 @@ How it sounds:
 - A real conversation between two people who read the news closely. Short turns, mostly 1-4 sentences. They react to each other, disagree sometimes, and hand off naturally.
 - Spoken English, the way people actually talk: contractions (it's, they're, we'll), "the US" not "the United States" every time, no "let us examine". No headings read aloud, no stage directions, no sound effects, no emojis, no markdown.
 - Attribute claims ("according to the BBC", "the company says"). Separate what is known from what is claimed or guessed.
-- Use only facts from the materials. If the materials don't say it, the hosts don't say it as fact. Never invent numbers, quotes, names or dates.
+- Facts about the news come only from the materials. Never invent numbers, quotes, names or dates. Short, well-established background (what a product is, a standard term) is fine, but don't add specific background numbers such as prices or counts that aren't in the materials, and describe each article as what it actually reports.
 - Market numbers come only from the market table, written as digits. Never give investment advice.
 - When a story continues one from an earlier episode, say so briefly ("we covered this on Tuesday").
 - No clichés or filler: ${config.quality.banned_phrases.map((p) => `"${p}"`).join(', ')}.
