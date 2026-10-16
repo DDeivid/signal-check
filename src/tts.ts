@@ -1,4 +1,4 @@
-import type { GenerateContentResponse } from '@google/genai';
+import { ApiError, type GenerateContentResponse, type GenerateContentParameters } from '@google/genai';
 import { AudioQaError, checkChunk } from './audio-qa';
 import type { Config } from './config';
 import { ai, classify, describeError, sleep, TTS_TIMEOUT_MS, withModelsNamed, withTimeout } from './llm';
@@ -41,12 +41,38 @@ export function audioPart(response: GenerateContentResponse): { pcm: Buffer; mim
 
 const lineWords = (lines: Line[]) => lines.reduce((n, l) => n + words(l.text), 0);
 
+/**
+ * Newer Gemini TTS models (3.8) reject the "Name: text" prompt and want one part per line, tagged with its
+ * speaker. Which format a model wants is learned from that 400 the first time, then remembered for the run.
+ */
+const speakerPartModels = new Set<string>();
+
+export const wantsSpeakerParts = (err: unknown) => err instanceof ApiError && err.status === 400 && /speech_metadata/i.test(err.message);
+
+/** For tests: forget which models want speaker parts. */
+export const resetTtsFormats = () => speakerPartModels.clear();
+
+export function ttsContents(config: Config, lines: Line[], speakerParts: boolean): GenerateContentParameters['contents'] {
+  if (!speakerParts) return `${config.tts.style}\n\n${lines.map((l) => `${l.speaker}: ${l.text}`).join('\n')}`;
+  return [{ role: 'user', parts: lines.map((l) => ({ text: l.text, speechMetadata: { speaker: l.speaker, style: config.tts.style } })) }];
+}
+
 async function requestAudio(config: Config, model: string, lines: Line[], label: string): Promise<GenerateContentResponse> {
-  const conversation = lines.map((l) => `${l.speaker}: ${l.text}`).join('\n');
+  try {
+    return await requestAudioAs(config, model, lines, label, speakerPartModels.has(model));
+  } catch (err) {
+    if (speakerPartModels.has(model) || !wantsSpeakerParts(err)) throw err;
+    speakerPartModels.add(model);
+    console.log(`[${label}] ${model} wants one part per speaker line; switching format`);
+    return requestAudioAs(config, model, lines, label, true);
+  }
+}
+
+async function requestAudioAs(config: Config, model: string, lines: Line[], label: string, speakerParts: boolean): Promise<GenerateContentResponse> {
   return withTimeout(TTS_TIMEOUT_MS, (abortSignal) =>
     ai().generateContent(label, {
       model,
-      contents: `${config.tts.style}\n\n${conversation}`,
+      contents: ttsContents(config, lines, speakerParts),
       config: {
         abortSignal,
         responseModalities: ['AUDIO'],

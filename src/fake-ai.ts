@@ -109,6 +109,14 @@ export function spokenWords(contents: string): number {
     .reduce((n, l) => n + l.split(/\s+/).filter(Boolean).length, 0);
 }
 
+/** Words in a speaker-parts TTS request (one part per line). */
+function partWords(contents: GenerateContentParameters['contents']): number {
+  const list = Array.isArray(contents) ? contents : [contents];
+  return list
+    .flatMap((c) => (c && typeof c === 'object' && 'parts' in c ? (c.parts ?? []) : []))
+    .reduce((n, p) => n + (typeof p === 'object' && p && 'text' in p ? String(p.text ?? '').split(/\s+/).filter(Boolean).length : 0), 0);
+}
+
 function audioResponse(seconds: number, silent: boolean): GenerateContentResponse {
   const response = new GenerateContentResponse();
   const data = tonePcm(seconds, silent).toString('base64');
@@ -123,7 +131,8 @@ export function fakeAiClient(options: FakeOptions = { silentChunk: Number(proces
       const prompt = promptOf(params);
       if (params.config?.responseModalities?.includes('AUDIO')) {
         const silent = options.silentChunk !== undefined && label === `tts:${options.silentChunk}`;
-        return audioResponse((spokenWords(prompt) / WORDS_PER_MINUTE) * 60, silent);
+        const spoken = typeof params.contents === 'string' ? spokenWords(params.contents) : partWords(params.contents);
+        return audioResponse((spoken / WORDS_PER_MINUTE) * 60, silent);
       }
       const stage = label.split(':')[0];
       switch (stage) {
