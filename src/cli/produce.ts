@@ -18,7 +18,7 @@ import { reconcile, wavSeconds } from '../audio-qa';
 import { type Config, isCoreTopic, loadConfig, type SegmentId } from '../config';
 import { collectNews, type FeedItem, normalizeUrl } from '../feeds';
 import { type EpisodeRecord, lastPublished, type PredictionGrade, readHistory, recentEpisodes, type StoryRecord } from '../history';
-import { modelUses, type Source } from '../llm';
+import { failureHint, modelUses, type Source } from '../llm';
 import { fetchQuotes, type Quote, quotesTable } from '../markets';
 import { episodeBadges, textBadges } from '../models';
 import { loadResume, type SavedScript } from '../resume';
@@ -418,7 +418,8 @@ try {
   const message = err instanceof Error ? (err.stack ?? err.message) : String(err);
   console.error(`[produce] failed in ${stage}: ${message}`);
   run.failure = { stage, message: err instanceof Error ? err.message : String(err) };
-  writeFileSync(join(outDir, 'error.txt'), `stage: ${stage}\n${message}\n`);
+  const hint = failureHint(message);
+  writeFileSync(join(outDir, 'error.txt'), `stage: ${stage}${hint ? ` | ${hint}` : ''}\n${message}\n`);
   process.exitCode = 1;
 } finally {
   writeSummary();

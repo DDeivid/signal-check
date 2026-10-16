@@ -82,6 +82,8 @@ export const configSchema = z.object({
     models: z.array(z.string()).min(1),
     max_chars_per_request: z.number().int().positive(),
     seconds_between_requests: z.number().min(0),
+    /** Models known to want one part per speaker line, so no request is wasted finding out. */
+    speaker_part_models: z.array(z.string()).default([]),
     style: z.string(),
   }),
   audio: z.object({

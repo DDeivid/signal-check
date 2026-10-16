@@ -81,9 +81,9 @@ export function ttsContents(config: Config, lines: Line[], speakerParts: boolean
 
 async function requestAudio(config: Config, model: string, lines: Line[], label: string): Promise<GenerateContentResponse> {
   try {
-    return await requestAudioAs(config, model, lines, label, speakerPartModels.has(model));
+    return await requestAudioAs(config, model, lines, label, speakerPartModels.has(model) || config.tts.speaker_part_models.includes(model));
   } catch (err) {
-    if (speakerPartModels.has(model) || !wantsSpeakerParts(err)) throw err;
+    if (speakerPartModels.has(model) || config.tts.speaker_part_models.includes(model) || !wantsSpeakerParts(err)) throw err;
     speakerPartModels.add(model);
     console.log(`[${label}] ${model} wants one part per speaker line; switching format`);
     return requestAudioAs(config, model, lines, label, true);
