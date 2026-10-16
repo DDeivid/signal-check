@@ -13,7 +13,8 @@ feeds + market data
   → write the script
   → content loop: rules + fact-check → revise with the concrete issues (up to 3×; news facts must match the sources, well-known background is allowed)
   → voices (only once the content is final)
-  → MP3 → GitHub release → feed + site on GitHub Pages
+  → MP3 checks → an illustration of the lead story (optional: a failed image never stops the episode)
+  → GitHub release → feed + site on GitHub Pages
 ```
 
 | Day | Segment |
@@ -37,6 +38,7 @@ Every episode: opening → headlines → 2 main stories → the day's segment �
   - *Notes*: producer notes for today, e.g. "lead with the Estonian election".
 - **Voice test** (Actions → Voice test) voices a short sample with several voice pairs. Download `voice-samples`, pick a pair and set it under `hosts` in the config.
 - **Check feeds** (Actions → Check feeds, also every Sunday) reports dead or stale feeds and market symbols.
+- **Episode images**: `art` in the config sets the image models and the house style. Code adds the fixed rules: subject on the right, no text, no recognisable real people. Each image is stored as `data/art/<date>.webp`. The site picks a theme colour from it and colours that episode's card with it, in light and dark. Episodes without an image get drawn ridgelines in `art.fallback_color`. **Episode image** (Actions → Episode image) makes or remakes the image for a published episode, e.g. episode 1, and rebuilds the site.
 
 ## Setup
 
@@ -71,8 +73,8 @@ Voice-only rerun (e.g. after TTS failed): `SC_RESUME_SCRIPT=path/to/script.json 
 
 Without web search (`research.grounding: false`), Monday's still-developing threads and Friday's prediction check are researched from the news window's items only: every update cites item ids or says there's no update. Friday grades each prediction once (since the previous prediction check); too-early ones come back on the next two Fridays at most. Grades are stored as `predictionGrades` in `data/episodes.json`.
 
-Voicing locally needs `ffmpeg`. `npm run cover` re-renders `assets/cover.png` from `assets/cover.svg`; `npm run jingle` regenerates the placeholder chimes.
+`npm run art -- 2026-10-16` makes the image for a published episode locally (needs `GEMINI_API_KEY`). Voicing locally needs `ffmpeg`. `npm run cover` re-renders `assets/cover.png` from `assets/cover.svg`; `npm run jingle` regenerates the placeholder chimes.
 
 ## Costs and limits
 
-Free: GitHub Actions and Pages are free for public repos, and Gemini's free tier covers the text and TTS calls (about 15 text calls and 5–6 TTS requests per episode). Free-tier inputs may be used by Google to improve its models; only public news goes in. Market data comes from Yahoo Finance's public chart endpoint (no key, unofficial).
+GitHub Actions and Pages are free for public repos. Gemini covers the text and TTS calls (about 15 text calls and 5–6 TTS requests per episode), plus one image per episode. The image is billed at roughly $0.04 each, about $1 a month; turn it off with `art.enabled: false`. Free-tier inputs may be used by Google to improve its models; only public news goes in. Market data comes from Yahoo Finance's public chart endpoint (no key, unofficial).

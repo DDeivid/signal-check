@@ -22,6 +22,8 @@ export interface RunInfo {
   ttsModel?: string;
   file?: string;
   durationSeconds?: number;
+  /** Episode image: model and theme colour, "failed" or "off". */
+  art?: string;
   failure?: { stage: string; message: string };
 }
 
@@ -69,6 +71,7 @@ export function summaryMarkdown(run: RunInfo, uses: readonly ModelUse[]): string
     run.window ? `- News window: ${run.window.from} → ${run.window.to}, ${run.window.items} items` : '',
     run.window ? `- Failed feeds: ${run.failedFeeds.length ? run.failedFeeds.join(', ') : 'none'}` : '',
     run.durationSeconds ? `- Final duration: ${run.durationSeconds}s (${(run.durationSeconds / 60).toFixed(1)} min)${run.file ? `, ${run.file}` : ''}` : '',
+    run.art ? `- Image: ${run.art}` : '',
   ].filter(Boolean);
   const stories = run.stories.length ? `## Stories\n${run.stories.map((s) => `- ${s.role}: ${s.title} (${s.id})`).join('\n')}` : '';
   const rounds = run.rounds.length

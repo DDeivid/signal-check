@@ -9,10 +9,13 @@
  *        Refuses a script dated other than today unless SC_RESUME_ALLOW_OTHER_DATE=true.
  *      Rehearsals: SC_FAKE_AI=true, SC_FIXTURE_FEEDS=<items.json>, SC_FIXTURE_MARKETS=<quotes.json>.
  *
+ * The episode image (out/art.webp) is made after the audio passes; if it fails the episode publishes without one.
+ *
  * Debugging output in out/: summary.md (always), error.txt (on failure), selection.json, research.json, tts.json.
  */
 import { appendFileSync, mkdirSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { makeArt } from '../art';
 import { assembleEpisode, audioFileName, probeSeconds } from '../audio';
 import { reconcile, wavSeconds } from '../audio-qa';
 import { type Config, isCoreTopic, loadConfig, type SegmentId } from '../config';
@@ -36,6 +39,7 @@ const env = process.env;
 const dryRun = env.SC_DRY_RUN === 'true';
 const outDir = env.SC_OUT ?? 'out';
 const MIN_ITEMS = 8;
+const ART_FILE = 'art.webp';
 
 /** Where the run is, for error.txt and the summary. */
 let stage = 'setup';
@@ -381,6 +385,11 @@ async function main(): Promise<void> {
   }
   Object.assign(run, { file, durationSeconds: duration });
 
+  // The image comes after the audio has passed its checks, so a failed episode costs no image.
+  stage = 'art';
+  const art = await makeArt(config, script.title, script.stories[0], join(outDir, ART_FILE));
+  run.art = art ? `${art.model}, theme colour ${art.color}` : config.art.enabled ? 'failed (site draws one)' : 'off';
+
   stage = 'meta';
   const tag = `ep-${date}`;
   const meta = {
@@ -396,7 +405,8 @@ async function main(): Promise<void> {
     durationSeconds: duration,
     targetMinutes: minutes,
     ttsModel: voiced.model,
-    models: episodeBadges(script.textModels, voiced.model),
+    models: [...episodeBadges(script.textModels, voiced.model), ...(art ? [{ role: 'Art', models: [art.model] }] : [])],
+    ...(art ? { art: { file: ART_FILE, ...art } } : {}),
     stories: script.stories,
     predictions: script.predictions,
     openThreads: script.open_threads,
@@ -412,6 +422,7 @@ mkdirSync(outDir, { recursive: true });
 // A meta.json left from an earlier run must never be published as this run's.
 rmSync(join(outDir, 'meta.json'), { force: true });
 rmSync(join(outDir, 'error.txt'), { force: true });
+rmSync(join(outDir, ART_FILE), { force: true });
 try {
   await main();
 } catch (err) {

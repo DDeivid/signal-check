@@ -1,8 +1,8 @@
 /**
  * After the MP3 is attached to a GitHub release: add the episode to data/episodes.json
- * and keep its transcript and show notes under data/. A re-run on the same day replaces that day's entry.
+ * and keep its transcript, show notes and image under data/. A re-run on the same day replaces that day's entry.
  */
-import { copyFileSync, mkdirSync, readFileSync } from 'node:fs';
+import { copyFileSync, existsSync, mkdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { type EpisodeRecord, readHistory, writeHistory } from '../history';
 
@@ -17,6 +17,12 @@ const transcriptFile = `data/transcripts/${meta.date}.md`;
 const notesFile = `data/notes/${meta.date}.md`;
 copyFileSync(join(outDir, 'transcript.md'), transcriptFile);
 copyFileSync(join(outDir, 'notes.md'), notesFile);
+let art: EpisodeRecord['art'];
+if (meta.art && existsSync(join(outDir, meta.art.file))) {
+  mkdirSync('data/art', { recursive: true });
+  art = { file: `data/art/${meta.date}.webp`, color: meta.art.color, model: meta.art.model };
+  copyFileSync(join(outDir, meta.art.file), art.file);
+}
 
 const history = readHistory().filter((e) => e.date !== meta.date);
 const record: EpisodeRecord = {
@@ -35,6 +41,7 @@ const record: EpisodeRecord = {
   openThreads: meta.openThreads,
   ...(meta.predictionGrades ? { predictionGrades: meta.predictionGrades } : {}),
   ...(meta.models ? { models: meta.models } : {}),
+  ...(art ? { art } : {}),
   transcriptFile,
   notesFile,
 };
