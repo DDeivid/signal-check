@@ -2,93 +2,123 @@
   {
     "number": 1,
     "date": "2026-10-16",
-    "publishedAt": "2026-10-16T07:05:30.760Z",
+    "publishedAt": "2026-10-16T13:14:31.193Z",
     "weekday": "friday",
     "segment": "prediction_check",
-    "title": "Energy Truce Collapse and the AI Tech Wreck",
-    "description": "Donald Trump denounces Ukrainian strikes on Russian oil refineries after a unilateral energy ceasefire falls apart. Investors rotate out of mega-cap AI stocks and into government bonds and defensive equities, while weekend picks explore fungal networks and open-source radio engineering.",
-    "audioUrl": "https://github.com/DDeivid/signal-check/releases/download/ep-2026-10-16/signal-check-2026-10-16.mp3",
-    "audioBytes": 9232005,
-    "durationSeconds": 577,
+    "title": "Linus Embraces the Bot, and the Baltics Shut the Pipe",
+    "description": "Linus Torvalds submits his first AI-assisted patch to the Linux kernel as disclosure rules shift. Meanwhile, Estonia seeks a permanent shutdown of Baltic gas transit infrastructure connected to Kaliningrad.",
+    "audioUrl": "https://github.com/DDeivid/signal-check/releases/download/ep-2026-10-16/signal-check-2026-10-16-r38906238335-1.mp3",
+    "audioBytes": 11266640,
+    "durationSeconds": 704,
     "stories": [
       {
-        "title": "Trump calls Ukraine’s resumption of strikes on Russian oil refineries a ‘disgrace’",
-        "url": "https://www.theguardian.com/world/2026/oct/16/trump-calls-ukraines-resumption-of-strikes-on-russian-oil-refineries-a-disgrace",
-        "topic": "world",
-        "summary": "Donald Trump criticized Ukrainian strikes on Russian diesel refineries and attacked Volodymyr Zelenskyy following the breakdown of an energy ceasefire."
-      },
-      {
-        "title": "Investors are dumping AI stocks as ‘tech wreck’ worsens. Here’s where they’re turning now.",
-        "url": "https://www.marketwatch.com/story/traders-pile-into-bonds-and-defensive-stocks-as-the-tech-wreck-picks-up-steam-48c04374?mod=mw_rss_topstories",
-        "topic": "markets",
-        "summary": "A deepening tech selloff has pushed investors out of AI equities and into government bonds and defensive sectors amid capex monetization concerns."
-      },
-      {
-        "title": "Major investment to take Skeleton's valuation over €1 billion",
-        "url": "https://news.err.ee/1610166724/major-investment-to-take-skeleton-s-valuation-over-1-billion",
-        "topic": "estonia",
-        "summary": "German technology group Siemens is investing at least €100 million in Estonian company Skeleton Technologies, raising its valuation to €1 billion."
-      },
-      {
-        "title": "Ship attack reports near Hormuz reach record high as oil exports slow",
-        "url": "https://www.bbc.co.uk/news/articles/cmde8dpg8g0no?at_medium=RSS&at_campaign=rss",
-        "topic": "world",
-        "summary": "BBC Verify analysis of data from a UK maritime agency shows 12 vessels were struck in a week."
-      },
-      {
-        "title": "Targeted ads delivered 0-click exploits to install mercenary malware",
-        "url": "https://arstechnica.com/security/2026/10/targeted-ads-delivered-0-click-exploits-to-install-mercenary-malware/",
-        "topic": "ai_software",
-        "summary": "The incident is likely 1st confirmation of mercenary spyware delivered by targeted ads."
-      },
-      {
-        "title": "W1700K SDR turns a Wi-Fi 7 router into a 320 MSps software-defined radio receiver",
-        "url": "https://www.cnx-software.com/2026/10/16/w1700k-sdr-turns-a-wi-fi-7-router-into-a-320-msps-software-defined-radio-receiver/",
+        "title": "Linus Torvalds posts his first AI-assisted patch to the Linux kernel, synthetic test clocks 23x performance leap",
+        "url": "https://www.tomshardware.com/software/linux/linus-torvalds-posts-his-first-llm-assisted-patch-to-the-linux-kernel-after-issuing-clear-pro-ai-directives-the-bossman-makes-use-of-ai-tooling-himself",
         "topic": "selfhosting",
-        "summary": "Developer h0m3us3r released an open-source project converting a Gemtek Wi-Fi 7 router into a wideband software-defined radio receiver."
+        "summary": "Linus Torvalds published his first AI-assisted code patch to address CPU cache contention in the Linux kernel while maintainers prepare to remove AI disclosure requirements."
       },
       {
-        "title": "How Do Fungi Keep the Planet Healthy?",
-        "url": "https://www.quantamagazine.org/how-do-fungi-keep-the-planet-healthy-20261015/",
-        "topic": "science",
-        "summary": "Biologist Toby Kiers outlined how complex fungal networks trade nutrients with plant roots and store subterranean carbon without a central brain."
-      },
-      {
-        "title": "The ladder of knowledge",
-        "url": "https://aeon.co/essays/the-century-long-search-for-the-limits-to-knowledge",
-        "topic": "culture",
-        "summary": "An essay by Alexander V Gheorghiu in Aeon explores the historical search for knowledge limits, framing truth as a dynamic concept."
-      },
-      {
-        "title": "China protests Estonian politicians attending a Taiwanese event in Tallinn",
-        "url": "https://news.err.ee/1610167087/china-protests-estonian-politicians-attending-a-taiwanese-event-in-tallinn",
+        "title": "Estonia wants to block Russian gas transit through Baltics for good",
+        "url": "https://news.err.ee/1610168398/estonia-wants-to-block-russian-gas-transit-through-baltics-for-good",
         "topic": "estonia",
-        "summary": "China submitted a formal diplomatic protest to Estonia's parliament over lawmakers attending a Taiwanese National Day event in Tallinn."
+        "summary": "Estonia's energy minister announced plans to negotiate with Latvia to permanently halt natural gas transit infrastructure linked to Russia's Kaliningrad exclave."
       },
       {
-        "title": "Ahead of Call of Duty: Modern Warfare 4's launch next week, unionised Activision testers have voted to authorise a strike",
-        "url": "https://www.rockpapershotgun.com/ahead-of-call-of-duty-modern-warfare-4s-launch-next-week-unionised-activision-testers-have-voted-to-authorise-a-strike",
-        "topic": "gaming",
-        "summary": "Nearly 600 unionized Activision QA testers voted to authorize a strike right before the release of Call of Duty: Modern Warfare 4."
+        "title": "Zelensky rallies EU support as Trump says Ukraine leader 'more difficult to deal with than Putin'",
+        "url": "https://www.bbc.co.uk/news/articles/c58jz174w89ro?at_medium=RSS&at_campaign=rss",
+        "topic": "world",
+        "summary": "The US president launches a new wave of blistering criticism at Volodymyr Zelensky ahead of a meeting of EU leaders in Brussels."
       },
       {
-        "title": "Meta and Apple team up to make Muse AI models run better on Macs",
-        "url": "https://www.theverge.com/news/1012293/meta-apple-muse-spark-open-ai-model-mlx",
-        "topic": "ai_software",
-        "summary": "Meta and Apple partnered to optimize the open-weight Muse Spark AI model for desktop Mac Studios using Apple's MLX framework."
+        "title": "Germany, France agree on deal to support Europe's struggling car industry",
+        "url": "https://www.dw.com/en/germany-france-agree-on-deal-to-support-europe-s-struggling-car-industry/a-79678595?maca=en-rss-en-all-1573-rdf",
+        "topic": "world",
+        "summary": "The two countries said the agreement aimed to safeguard Europe's automotive industry, encouraging development and research. Automakers in Europe have so far struggled to compete with Chinese electric "
       },
       {
-        "title": "A new report just busted another myth about heat pumps",
-        "url": "https://grist.org/solutions/a-new-report-just-busted-another-myth-about-heat-pumps/",
+        "title": "Trump just effectively killed a popular solar energy program for rural America",
+        "url": "https://grist.org/food-and-agriculture/solar-panels-farms-trump-reap-rural-energy-for-america-program-changes/",
         "topic": "climate",
-        "summary": "A report highlighted by Grist showed electrical grids possess sufficient capacity to support widespread heat pump adoption while cutting costs for ratepayers."
+        "summary": "Solar panels can be an economic lifeline for farmers. Now they're going to be a lot harder to build."
+      },
+      {
+        "title": "Jailbroken PS5s can now run local AI models at over 100+ tokens per second",
+        "url": "https://www.tomshardware.com/video-games/playstation/jailbroken-ps5s-can-now-run-local-ai-models-at-over-100-tokens-per-second-fork-of-ps5lm-goes-native-and-accesses-gpu-and-more-ram",
+        "topic": "selfhosting",
+        "summary": "Developers released a native fork of PS5LM enabling jailbroken PlayStation 5 consoles to execute large language models locally using the system's GPU and memory."
+      },
+      {
+        "title": "How to be a (Roman) man",
+        "url": "https://aeon.co/essays/the-politics-of-masculinity-at-the-end-of-the-roman-republic",
+        "topic": "culture",
+        "summary": "An essay by Catharine Edwards in Aeon examines Cicero's philosophy of civic virtue and self-control during the crisis of the late Roman Republic."
+      },
+      {
+        "title": "After almost three years of early access, Enshrouded has hit 1.0 with a complete story, bigger map, and way too much more to mention",
+        "url": "https://www.rockpapershotgun.com/after-almost-three-years-of-early-access-enshrouded-has-hit-10-with-a-complete-story-bigger-map-and-way-too-much-more-to-mention",
+        "topic": "gaming",
+        "summary": "Survival crafting game Enshrouded has exited early access after nearly three years to release its complete 1.0 version."
+      },
+      {
+        "title": "Sega and Creative Assembly remove Total War: Shogun 2 remaster from sale as it \"falls short of both your expectations and our own standards\"",
+        "url": "https://www.gamesindustry.biz/sega-and-creative-assembly-remove-total-war-shogun-2-remaster-from-sale-as-it-falls-short-of-both-your-expectations-and-our-own-standards",
+        "topic": "gaming",
+        "summary": "Sega and Creative Assembly pulled the Total War: Shogun 2 remaster from sale following community complaints regarding AI upscaling artifacts and performance flaws."
+      },
+      {
+        "title": "Here are the key things Fed Chairman Kevin Warsh said — and didn’t say — while Americans were sleeping Thursday night",
+        "url": "https://www.marketwatch.com/story/here-are-the-key-things-fed-chairman-kevin-warsh-said-and-didnt-say-while-americans-were-sleeping-thursday-night-b82238a1?mod=mw_rss_topstories",
+        "topic": "markets",
+        "summary": "Federal Reserve Chairman Kevin Warsh delivered a speech without signaling future interest rate moves ahead of the central bank's upcoming policy meeting."
+      },
+      {
+        "title": "PhD students who write dissertation with AI less likely to stay in academia",
+        "url": "https://www.nature.com/articles/d41586-026-03253-2",
+        "topic": "science",
+        "summary": "A Nature report found that PhD candidates who write their dissertations using generative AI are less likely to pursue careers in academia."
+      },
+      {
+        "title": "KDE turns 30 with Plasma 6.8, remote upgrades, and an X11 farewell",
+        "url": "https://arstechnica.com/gadgets/2026/10/kde-turns-30-with-plasma-6-8-remote-upgrades-and-an-x11-farewell/",
+        "topic": "ai_software",
+        "summary": "The KDE project celebrated its 30th anniversary by releasing Plasma 6.8 and phasing out support for the X11 windowing system."
       }
     ],
-    "predictions": [],
+    "predictions": [
+      {
+        "text": "The cache contention patch will formally merge into the mainline Linux kernel tree before the end of the year.",
+        "by": "Mia"
+      }
+    ],
     "openThreads": [
-      "Outcome of the European Union summit in Brussels regarding support for Ukrainian energy and defense capabilities.",
-      "Upcoming tech earnings reports to track whether enterprise software revenue can justify sustained AI capex.",
-      "Potential strike action by Activision quality assurance workers ahead of the Call of Duty release."
+      "Estonian parliamentary inquiry into grid operator Elering over undisclosed Kaliningrad transit maintenance",
+      "Bilateral energy negotiations between Estonia and the incoming Latvian government regarding pipeline closure"
+    ],
+    "models": [
+      {
+        "role": "Research",
+        "models": [
+          "gemini-3.8-flash"
+        ]
+      },
+      {
+        "role": "Script",
+        "models": [
+          "gemini-3.8-flash"
+        ]
+      },
+      {
+        "role": "Fact-check",
+        "models": [
+          "gemini-3.8-flash"
+        ]
+      },
+      {
+        "role": "Voices",
+        "models": [
+          "gemini-3.8-flash-tts"
+        ]
+      }
     ],
     "transcriptFile": "data/transcripts/2026-10-16.md",
     "notesFile": "data/notes/2026-10-16.md"
