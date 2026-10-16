@@ -1,6 +1,7 @@
 /**
  * Voice a short sample dialogue with several voice pairs, to pick Mia's and Theo's voices.
- * Env: SC_VOICES="Aoede+Charon,Kore+Puck" (Mia+Theo). Output: out/voices/*.mp3 (or .wav without ffmpeg).
+ * Env: SC_VOICES="Aoede+Charon,Kore+Puck" (Mia+Theo); SC_TTS_MODEL to test one TTS model instead of the
+ * configured list (no fallback, so the sample is from that model). Output: out/voices/*.mp3 (or .wav without ffmpeg).
  */
 import { execFileSync } from 'node:child_process';
 import { mkdirSync, rmSync, writeFileSync } from 'node:fs';
@@ -11,7 +12,9 @@ import { speakChunk } from '../tts';
 
 const DEFAULT_PAIRS = 'Aoede+Charon,Kore+Puck,Leda+Orus,Zephyr+Fenrir,Despina+Iapetus';
 
-const config = loadConfig();
+const loaded = loadConfig();
+const onlyModel = process.env.SC_TTS_MODEL?.trim();
+const config = onlyModel ? { ...loaded, tts: { ...loaded.tts, models: [onlyModel] } } : loaded;
 const [mia, theo] = config.hosts;
 const sample = [
   { speaker: mia!.name, text: `Good morning, this is ${config.show.title}. I'm ${mia!.name}.` },
@@ -36,7 +39,7 @@ try {
 for (const [n, [a, b]] of pairs.entries()) {
   if (!a || !b) throw new Error(`Bad voice pair "${pairs[n]?.join('+')}"; use Mia+Theo, e.g. Aoede+Charon`);
   if (n > 0) await sleep(config.tts.seconds_between_requests * 1000);
-  const name = `${mia!.name}-${a}_${theo!.name}-${b}`;
+  const name = `${onlyModel ? `${onlyModel}_` : ''}${mia!.name}-${a}_${theo!.name}-${b}`;
   console.log(`[voice-test] ${name}`);
   const pair = { ...config, hosts: [{ ...mia!, voice: a }, { ...theo!, voice: b }] };
   const wav = await speakChunk(pair, sample, `voice:${name}`);
