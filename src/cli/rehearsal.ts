@@ -1,8 +1,9 @@
 /**
  * Full rehearsal without internet or API keys: the real pipeline with the fake AI client, fixture feeds and a
- * fixture market table, in a temp copy of the working state. Proves two things:
+ * fixture market table, in a temp copy of the working state. Proves three things:
  *   1. a good run goes produce → validate-audio → register → build-site and yields a feed with one sane item;
- *   2. a silent TTS chunk stops the run before meta.json is written (or validate-audio rejects it).
+ *   2. a voice-only rerun (SC_RESUME_SCRIPT) from that run's script.json yields a valid episode too;
+ *   3. a silent TTS chunk stops the run before meta.json is written (or validate-audio rejects it).
  * Exit 0 if every expectation holds, 1 if any fails, 2 if ffmpeg/ffprobe are missing.
  */
 import { spawnSync } from 'node:child_process';
@@ -43,7 +44,7 @@ function workspace(name: string): string {
 
 function step(dir: string, script: string, env: Record<string, string> = {}): number {
   const base = { ...process.env };
-  for (const key of ['GITHUB_OUTPUT', 'GITHUB_STEP_SUMMARY', 'GEMINI_API_KEY', 'OPENROUTER_API_KEY', 'SC_CONFIG', 'SC_OUT', 'SC_SITE', 'SC_DRY_RUN', 'SC_SKIP_IF_PUBLISHED', 'SC_NOTES']) delete base[key];
+  for (const key of ['GITHUB_OUTPUT', 'GITHUB_STEP_SUMMARY', 'GEMINI_API_KEY', 'OPENROUTER_API_KEY', 'SC_CONFIG', 'SC_OUT', 'SC_SITE', 'SC_DRY_RUN', 'SC_SKIP_IF_PUBLISHED', 'SC_NOTES', 'SC_RESUME_SCRIPT', 'SC_RESUME_ALLOW_OTHER_DATE']) delete base[key];
   console.log(`\n[rehearsal] --- ${script} (${dir})`);
   const result = spawnSync(tsx, [join(root, 'src', 'cli', script)], {
     cwd: dir,
@@ -90,7 +91,28 @@ function goodRun(): void {
   expect(/^signal-check-\d{4}-\d\d-\d\d-rrehearsal-1\.mp3$/.test(meta.file), `MP3 name is unique per run (${meta.file})`);
   expect(typeof meta.ttsModel === 'string' && meta.targetMinutes === 5, 'meta.json records ttsModel and targetMinutes');
   expect(existsSync(join(dir, 'out', 'tts.json')) && existsSync(join(dir, 'out', 'summary.md')), 'tts.json and summary.md are written');
+  resumeRun(dir, meta);
   cleanUp(dir);
+}
+
+/** Voice-only rerun from the good run's script.json (copied aside, as from a downloaded artifact), into a fresh out folder. */
+function resumeRun(dir: string, original: { title: string; stories: unknown[] }): void {
+  const prev = join(dir, 'prev');
+  mkdirSync(prev, { recursive: true });
+  for (const f of ['script.json', 'notes.md']) cpSync(join(dir, 'out', f), join(prev, f));
+  const env = { SC_RESUME_SCRIPT: join(prev, 'script.json'), SC_OUT: 'out-resume', SC_WEEKDAY: 'monday' };
+  expect(step(dir, 'produce.ts', env) === 0, 'produce resumes from script.json');
+  expect(step(dir, 'validate-audio.ts', { SC_OUT: 'out-resume' }) === 0, 'validate-audio passes on the resumed run');
+  const metaFile = join(dir, 'out-resume', 'meta.json');
+  if (!existsSync(metaFile)) {
+    expect(false, 'the resumed run writes meta.json');
+    return;
+  }
+  const meta = JSON.parse(readFileSync(metaFile, 'utf8'));
+  expect(meta.title === original.title && JSON.stringify(meta.stories) === JSON.stringify(original.stories), 'the resumed meta.json keeps the title and stories');
+  expect(meta.segment === 'markets', `the resumed run keeps the script's format, not SC_WEEKDAY (${meta.segment})`);
+  expect(!existsSync(join(dir, 'out-resume', 'selection.json')) && !existsSync(join(dir, 'out-resume', 'materials.md')), 'the resumed run skips selection and writing');
+  expect(readFileSync(join(dir, 'out-resume', 'notes.md'), 'utf8') === readFileSync(join(prev, 'notes.md'), 'utf8'), "the resumed run uses the earlier run's notes.md");
 }
 
 /** Keep the workspace for inspection if anything failed. */

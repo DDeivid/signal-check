@@ -66,6 +66,10 @@ GEMINI_API_KEY=… SC_DRY_RUN=true npm run produce
 npm test
 ```
 
+Voice-only rerun (e.g. after TTS failed): `SC_RESUME_SCRIPT=path/to/script.json npm run produce` voices the reviewed script from an earlier run's `out/` folder (with the `notes.md` next to it) and writes `meta.json` as usual, without fetching, selecting, researching, writing or reviewing anything. It refuses a script dated other than today unless `SC_RESUME_ALLOW_OTHER_DATE=true`.
+
+Without web search (`research.grounding: false`), Monday's still-developing threads and Friday's prediction check are researched from the news window's items only: every update cites item ids or says there's no update. Friday grades each prediction once (since the previous prediction check); too-early ones come back on the next two Fridays at most. Grades are stored as `predictionGrades` in `data/episodes.json`.
+
 Voicing locally needs `ffmpeg`. `npm run cover` re-renders `assets/cover.png` from `assets/cover.svg`; `npm run jingle` regenerates the placeholder chimes.
 
 ## Costs and limits
