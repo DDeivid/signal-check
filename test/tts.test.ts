@@ -5,7 +5,7 @@ import { loadConfig } from '../src/config';
 import { fakeAiClient } from '../src/fake-ai';
 import { type AiClient, classify, resetModelState, setAiClient } from '../src/llm';
 import type { Line } from '../src/script';
-import { audioPart, type ChunkReport, speakAll, TtsOutputError, voiceWithOneModel } from '../src/tts';
+import { audioPart, type ChunkReport, resetTtsFormats, speakAll, TtsOutputError, ttsContents, voiceWithOneModel } from '../src/tts';
 
 const config = loadConfig();
 const fast = { ...config, tts: { ...config.tts, seconds_between_requests: 0, models: ['tts-a', 'tts-b'] } };
@@ -21,7 +21,10 @@ function audioResponse(parts: GenerateContentResponse['candidates']): GenerateCo
   return r;
 }
 
-beforeEach(() => resetModelState());
+beforeEach(() => {
+  resetModelState();
+  resetTtsFormats();
+});
 afterEach(() => {
   setAiClient(undefined);
   vi.useRealTimers();
@@ -140,5 +143,41 @@ describe('speakAll with the fake client', () => {
     const done = speakAll(fast, chunks);
     await vi.runAllTimersAsync();
     expect((await done).model).toBe('tts-b');
+  });
+});
+
+describe('TTS request format', () => {
+  const lines: Line[] = [
+    { speaker: 'Mia', text: 'Hello there.' },
+    { speaker: 'Theo', text: 'Hi.' },
+  ];
+
+  it('builds a "Name: text" prompt, or one part per line tagged with its speaker', () => {
+    expect(ttsContents(config, lines, false)).toBe(`${config.tts.style}\n\nMia: Hello there.\nTheo: Hi.`);
+    expect(ttsContents(config, lines, true)).toEqual([
+      {
+        role: 'user',
+        parts: [
+          { text: 'Hello there.', speechMetadata: { speaker: 'Mia', style: config.tts.style } },
+          { text: 'Hi.', speechMetadata: { speaker: 'Theo', style: config.tts.style } },
+        ],
+      },
+    ]);
+  });
+
+  it('switches a model to speaker parts after its 400, and remembers that for later chunks', async () => {
+    const fake = fakeAiClient({});
+    const sent: string[] = [];
+    setAiClient({
+      async generateContent(label, params) {
+        const asParts = typeof params.contents !== 'string';
+        sent.push(`${label}:${asParts ? 'parts' : 'prompt'}`);
+        if (!asParts) throw new ApiError({ status: 400, message: 'Multi-speaker generation requests must specify speech_metadata.speaker for each text part in the contents.' });
+        return fake.generateContent(label, params);
+      },
+    } as AiClient);
+    const result = await speakAll({ ...fast, tts: { ...fast.tts, models: ['tts-new'] } }, [chunk(1), chunk(2)], []);
+    expect(result.model).toBe('tts-new');
+    expect(sent).toEqual(['tts:1:prompt', 'tts:1:parts', 'tts:2:parts']);
   });
 });
