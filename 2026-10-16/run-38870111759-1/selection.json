@@ -1,0 +1,1640 @@
+{
+  "selection": {
+    "headlines": [
+      "s19",
+      "s105",
+      "s190",
+      "s16",
+      "s202"
+    ],
+    "main": [
+      {
+        "id": "s190",
+        "angle": "ASML reports a record $13 billion quarter as unrelenting AI infrastructure spending continues to strain chipmaking equipment capacity.",
+        "follow_up_of": null
+      },
+      {
+        "id": "s19",
+        "angle": "Donald Trump has sharply criticized Ukraine's resumption of strikes on Russian oil refineries, declaring the energy ceasefire officially collapsed.",
+        "follow_up_of": null
+      }
+    ],
+    "quick_hits": [
+      "s105",
+      "s16",
+      "s202",
+      "s39"
+    ],
+    "segment_items": [
+      "s179",
+      "s120",
+      "s215"
+    ],
+    "notes": "Selected major developments in semiconductor markets, geopolitical tensions around Ukraine, and open-weight AI models, while incorporating vital science and climate stories to ensure a balanced news diet."
+  },
+  "warnings": [],
+  "candidates": [
+    {
+      "id": "s1",
+      "title": "Lihtsad uudised 16. oktoobril",
+      "topic": "estonia",
+      "feed": "ERR News"
+    },
+    {
+      "id": "s2",
+      "title": "Latvian Television's morning newscast had technical issues Friday",
+      "topic": "estonia",
+      "feed": "LSM English"
+    },
+    {
+      "id": "s3",
+      "title": "Ralf Tribuntsov takes third at World Cup,sets Estonian record",
+      "topic": "estonia",
+      "feed": "ERR News"
+    },
+    {
+      "id": "s4",
+      "title": "Elizabeth Struhs’ child protection case not ‘prioritised’ due to high workload, inquest hears",
+      "topic": "world",
+      "feed": "The Guardian World"
+    },
+    {
+      "id": "s5",
+      "title": "Illegal fishing uncovered near Salacgrīva, Latvia",
+      "topic": "estonia",
+      "feed": "LSM English"
+    },
+    {
+      "id": "s6",
+      "title": "Pornography showing strangulation and incest to be banned in UK from early November",
+      "topic": "world",
+      "feed": "The Guardian World"
+    },
+    {
+      "id": "s7",
+      "title": "Here are the key things Fed Chairman Kevin Warsh said — and didn’t say — while Americans were sleeping Thursday night",
+      "topic": "markets",
+      "feed": "MarketWatch"
+    },
+    {
+      "id": "s8",
+      "title": "Museums fear research funding shuffle threatens key projects",
+      "topic": "estonia",
+      "feed": "ERR News"
+    },
+    {
+      "id": "s9",
+      "title": "One Nation proposes $2,000 baby subsidy in Victoria but says it won’t touch state abortion laws",
+      "topic": "world",
+      "feed": "The Guardian World"
+    },
+    {
+      "id": "s10",
+      "title": "Revealed: VW, Ford and Tesla batteries linked to destructive deforestation of indigenous lands",
+      "topic": "world",
+      "feed": "The Guardian World"
+    },
+    {
+      "id": "s11",
+      "title": "UK could quickly re-enter EU with ‘Switzerland plus’ deal, senior MEP says",
+      "topic": "world",
+      "feed": "The Guardian World"
+    },
+    {
+      "id": "s12",
+      "title": "UK law could deny Fayed accusers recognition as victims of human trafficking",
+      "topic": "world",
+      "feed": "The Guardian World"
+    },
+    {
+      "id": "s13",
+      "title": "Exclusive Brethren head denies knowing church members were volunteering for Liberal party during 2025 election",
+      "topic": "world",
+      "feed": "The Guardian World"
+    },
+    {
+      "id": "s14",
+      "title": "Court rules gambling location ban in Daugavpils constitutional",
+      "topic": "estonia",
+      "feed": "LSM English"
+    },
+    {
+      "id": "s15",
+      "title": "Estonia plans to bring back its blue passports from 2030",
+      "topic": "estonia",
+      "feed": "ERR News"
+    },
+    {
+      "id": "s16",
+      "title": "China protests Estonian politicians attending a Taiwanese event in Tallinn",
+      "topic": "estonia",
+      "feed": "ERR News"
+    },
+    {
+      "id": "s17",
+      "title": "VID: There will be no Russian diesel going through Latvia's ports",
+      "topic": "estonia",
+      "feed": "LSM English"
+    },
+    {
+      "id": "s18",
+      "title": "India's 'Cockroaches' to march again after protest crackdown",
+      "topic": "world",
+      "feed": "DW"
+    },
+    {
+      "id": "s19",
+      "title": "Trump calls Ukraine’s resumption of strikes on Russian oil refineries a ‘disgrace’",
+      "topic": "world",
+      "feed": "The Guardian World"
+    },
+    {
+      "id": "s20",
+      "title": "Tories call for 5-year freeze on minimum wage to tackle youth unemployment",
+      "topic": "world",
+      "feed": "The Guardian World"
+    },
+    {
+      "id": "s21",
+      "title": "New support measures to boost tourism beyond Tallinn",
+      "topic": "estonia",
+      "feed": "ERR News"
+    },
+    {
+      "id": "s22",
+      "title": "Starlink: How Elon Musk's company influences geopolitics",
+      "topic": "world",
+      "feed": "DW"
+    },
+    {
+      "id": "s23",
+      "title": "Drivers' diligence tested in 'white cane' campaign in Latvia",
+      "topic": "estonia",
+      "feed": "LSM English"
+    },
+    {
+      "id": "s24",
+      "title": "Estonia's €50m planned island e-ferry passes first model tests with flying colors",
+      "topic": "estonia",
+      "feed": "ERR News"
+    },
+    {
+      "id": "s25",
+      "title": "News in simple Latvian: 15th October, 2026",
+      "topic": "estonia",
+      "feed": "LSM English"
+    },
+    {
+      "id": "s26",
+      "title": "Saudi Arabia to execute man for being at protests and funerals when he was 15",
+      "topic": "world",
+      "feed": "The Guardian World"
+    },
+    {
+      "id": "s27",
+      "title": "Repairing Brexit economic damage should be Burnham’s top priority, business chief says",
+      "topic": "world",
+      "feed": "The Guardian World"
+    },
+    {
+      "id": "s28",
+      "title": "Ship attack reports near Hormuz reach record high as oil exports slow",
+      "topic": "world",
+      "feed": "BBC World"
+    },
+    {
+      "id": "s29",
+      "title": "Another Wireless Chip has a Hidden SDR Revealed",
+      "topic": "selfhosting",
+      "feed": "Hackaday"
+    },
+    {
+      "id": "s30",
+      "title": "They fled Russia, but the West sent them back",
+      "topic": "world",
+      "feed": "BBC World"
+    },
+    {
+      "id": "s31",
+      "title": "‘It’s about the underdog’: Ben Roberts-Smith launches brand to support family amid legal battle",
+      "topic": "world",
+      "feed": "The Guardian World"
+    },
+    {
+      "id": "s32",
+      "title": "Carney implies US trying to break Canada amid vote for Alberta independence referendum",
+      "topic": "world",
+      "feed": "DW"
+    },
+    {
+      "id": "s33",
+      "title": "College football player Tyler Ulrich dies five days after ‘traumatic injury’ during game",
+      "topic": "world",
+      "feed": "The Guardian World"
+    },
+    {
+      "id": "s34",
+      "title": "Number of cloned number plates on UK roads at record high, data shows",
+      "topic": "world",
+      "feed": "The Guardian World"
+    },
+    {
+      "id": "s35",
+      "title": "Is JD Vance campaigning for the midterms … or 2028? – podcast",
+      "topic": "world",
+      "feed": "The Guardian World"
+    },
+    {
+      "id": "s36",
+      "title": "Future of western security is at stake in Yemen civil war, says country’s former PM",
+      "topic": "world",
+      "feed": "The Guardian World"
+    },
+    {
+      "id": "s37",
+      "title": "French police accused over war-like injuries to teenagers in school protests",
+      "topic": "world",
+      "feed": "The Guardian World"
+    },
+    {
+      "id": "s38",
+      "title": "34 Years Later, the Best-Ever 'Far Side' Quote Will Still Leave You Speechless",
+      "topic": "gaming",
+      "feed": "Polygon"
+    },
+    {
+      "id": "s39",
+      "title": "Children aged 5, 8 and 11 killed in US school shooting before suspect shot by bystander",
+      "topic": "world",
+      "feed": "BBC World"
+    },
+    {
+      "id": "s40",
+      "title": "Sydney suburb lockdown lifted as manhunt continues for person with shotgun",
+      "topic": "world",
+      "feed": "The Guardian World"
+    },
+    {
+      "id": "s41",
+      "title": "Tesla finally delivers on its promise to create a flying car",
+      "topic": "markets",
+      "feed": "MarketWatch"
+    },
+    {
+      "id": "s42",
+      "title": "53 Years Later, The Greatest Closing Line In Sci-Fi History Is Still The Best Book Quote Of The 1970s",
+      "topic": "gaming",
+      "feed": "Polygon"
+    },
+    {
+      "id": "s43",
+      "title": "Using Optical Waveguide Arrays to Make Sheets Sense Shapes",
+      "topic": "selfhosting",
+      "feed": "Hackaday"
+    },
+    {
+      "id": "s44",
+      "title": "Pentagon says Trump and Hegseth ‘completely aligned’ on decision to cancel livestream of firing squad execution – as it happened",
+      "topic": "world",
+      "feed": "The Guardian World"
+    },
+    {
+      "id": "s45",
+      "title": "Evacuations issued as multiple wildfires ignite in hot, windy California",
+      "topic": "world",
+      "feed": "The Guardian World"
+    },
+    {
+      "id": "s46",
+      "title": "FBI investigates letters with ‘unknown substance’ sent to US election officials",
+      "topic": "world",
+      "feed": "The Guardian World"
+    },
+    {
+      "id": "s47",
+      "title": "The Batman Part 2 to Resume Filming With New Director",
+      "topic": "gaming",
+      "feed": "Polygon"
+    },
+    {
+      "id": "s48",
+      "title": "'It's really hard to believe' - How Oregon primary school shooting unfolded",
+      "topic": "world",
+      "feed": "BBC World"
+    },
+    {
+      "id": "s49",
+      "title": "Houthi missiles strike Yemen presidential palace, killing five",
+      "topic": "world",
+      "feed": "The Guardian World"
+    },
+    {
+      "id": "s50",
+      "title": "Russia and Ukraine trade strikes as Trump ‘energy ceasefire’ collapses",
+      "topic": "world",
+      "feed": "The Guardian World"
+    },
+    {
+      "id": "s51",
+      "title": "Wes Streeting urges US to back Ukraine on Washington visit after Starlink row",
+      "topic": "world",
+      "feed": "The Guardian World"
+    },
+    {
+      "id": "s52",
+      "title": "Houthi missile attack on Yemeni presidential palace kills five, minister says",
+      "topic": "world",
+      "feed": "BBC World"
+    },
+    {
+      "id": "s53",
+      "title": "Meta’s new commercial terms will allow the scraping of news sites: experts",
+      "topic": "ai_software",
+      "feed": "Hacker News (150+ points)"
+    },
+    {
+      "id": "s54",
+      "title": "Pepsi loses more ground in the soda wars, as KFC switches to Coke",
+      "topic": "markets",
+      "feed": "MarketWatch"
+    },
+    {
+      "id": "s55",
+      "title": "Tip-off foiled US teen suspect's plot to attack Hindu temple, police say",
+      "topic": "world",
+      "feed": "BBC World"
+    },
+    {
+      "id": "s56",
+      "title": "Are student protests being manipulated ahead of France's presidential election?",
+      "topic": "world",
+      "feed": "BBC World"
+    },
+    {
+      "id": "s57",
+      "title": "Living with a stink? Technology might help",
+      "topic": "science",
+      "feed": "BBC Science"
+    },
+    {
+      "id": "s58",
+      "title": "45 Years Later, The Sinclair ULA Design Documents Surface",
+      "topic": "selfhosting",
+      "feed": "Hackaday"
+    },
+    {
+      "id": "s59",
+      "title": "People in China are spending nearly as much of their income as Americans on healthcare",
+      "topic": "markets",
+      "feed": "CNBC Markets"
+    },
+    {
+      "id": "s60",
+      "title": "Letters with 'suspicious substances' sent to US senators and election offices",
+      "topic": "world",
+      "feed": "BBC World"
+    },
+    {
+      "id": "s61",
+      "title": "ChatGPT can peek at your Chrome tabs now",
+      "topic": "ai_software",
+      "feed": "The Verge AI"
+    },
+    {
+      "id": "s62",
+      "title": "Bus hits train stopped on French side of Channel Tunnel, with 19 injured",
+      "topic": "world",
+      "feed": "BBC World"
+    },
+    {
+      "id": "s63",
+      "title": "Sega pulls Total War: Shogun 2 remaster from sale following disastrous launch",
+      "topic": "ai_software",
+      "feed": "The Verge AI"
+    },
+    {
+      "id": "s64",
+      "title": "‘Some people did everything right’: I lost my home in the Great Recession. I rent in my 50s. Why is that judged as failure?",
+      "topic": "markets",
+      "feed": "MarketWatch"
+    },
+    {
+      "id": "s65",
+      "title": "KDE turns 30 with Plasma 6.8, remote upgrades, and an X11 farewell",
+      "topic": "ai_software",
+      "feed": "Ars Technica"
+    },
+    {
+      "id": "s66",
+      "title": "I’m 64 with two sons, but only one works in the family firm. Should I leave him 70% of the business?",
+      "topic": "markets",
+      "feed": "MarketWatch"
+    },
+    {
+      "id": "s67",
+      "title": "Oregon school shooting: Gunman kills 3 students and teacher before being shot dead by community member",
+      "topic": "world",
+      "feed": "DW"
+    },
+    {
+      "id": "s68",
+      "title": "How a midterm sweep by Democrats could turn this tech selloff into a tech crash",
+      "topic": "markets",
+      "feed": "MarketWatch"
+    },
+    {
+      "id": "s69",
+      "title": "Welp, all of you RuneScape folks who hate Reignited have gotten your wish, as the controversial MMO rejig has been cancelled",
+      "topic": "gaming",
+      "feed": "Rock Paper Shotgun"
+    },
+    {
+      "id": "s70",
+      "title": "The tech backlash is now in theaters",
+      "topic": "ai_software",
+      "feed": "The Verge AI"
+    },
+    {
+      "id": "s71",
+      "title": "Nvidia and other chip stocks face renewed pressure as AI fears swell",
+      "topic": "markets",
+      "feed": "MarketWatch"
+    },
+    {
+      "id": "s72",
+      "title": "Plex now helps sell movie theater tickets",
+      "topic": "ai_software",
+      "feed": "Ars Technica"
+    },
+    {
+      "id": "s73",
+      "title": "Don’t ditch tech stocks just yet. Make these moves to take advantage of the latest AI reset.",
+      "topic": "markets",
+      "feed": "MarketWatch"
+    },
+    {
+      "id": "s74",
+      "title": "The Mummy Officially Returns in 1 Year — Now With a New Cryptic Title",
+      "topic": "gaming",
+      "feed": "Polygon"
+    },
+    {
+      "id": "s75",
+      "title": "How to unlock fast travel in Castlevania: Belmont's Curse",
+      "topic": "gaming",
+      "feed": "Polygon"
+    },
+    {
+      "id": "s76",
+      "title": "Hegseth’s dubious low-T screening may flag up to 25 percent of the Army",
+      "topic": "ai_software",
+      "feed": "Ars Technica"
+    },
+    {
+      "id": "s77",
+      "title": "Trump posts AI-edited photo to brag about White House restoration work",
+      "topic": "ai_software",
+      "feed": "The Verge AI"
+    },
+    {
+      "id": "s78",
+      "title": "CoreWeave’s polarizing stock rebounds as Wall Street squares off about AI spending",
+      "topic": "markets",
+      "feed": "MarketWatch"
+    },
+    {
+      "id": "s79",
+      "title": "6 Fire Emblem Fortune's Weave Characters Who Need to Be in the Next Smash Bros Game",
+      "topic": "gaming",
+      "feed": "Polygon"
+    },
+    {
+      "id": "s80",
+      "title": "Bus, train collide, injuring 19 at Channel Tunnel terminal",
+      "topic": "world",
+      "feed": "DW"
+    },
+    {
+      "id": "s81",
+      "title": "Investors are dumping AI stocks as ‘tech wreck’ worsens. Here’s where they’re turning now.",
+      "topic": "markets",
+      "feed": "MarketWatch"
+    },
+    {
+      "id": "s82",
+      "title": "Targeted ads delivered 0-click exploits to install mercenary malware",
+      "topic": "ai_software",
+      "feed": "Ars Technica"
+    },
+    {
+      "id": "s83",
+      "title": "At the scene of a school roof collapse in Pakistan",
+      "topic": "world",
+      "feed": "BBC World"
+    },
+    {
+      "id": "s84",
+      "title": "Above the 911? Porsche previews a new mid-engined supercar.",
+      "topic": "ai_software",
+      "feed": "Ars Technica"
+    },
+    {
+      "id": "s85",
+      "title": "Ahead of Call of Duty: Modern Warfare 4's launch next week, unionised Activision testers have voted to authorise a strike",
+      "topic": "gaming",
+      "feed": "Rock Paper Shotgun"
+    },
+    {
+      "id": "s86",
+      "title": "What I self-host",
+      "topic": "ai_software",
+      "feed": "Hacker News (150+ points)"
+    },
+    {
+      "id": "s87",
+      "title": "Linux Kernel Drops AI Tag Requirement, Uses Meta AI For Code Reviews",
+      "topic": "selfhosting",
+      "feed": "Hackaday"
+    },
+    {
+      "id": "s88",
+      "title": "BBC Inside Science",
+      "topic": "science",
+      "feed": "BBC Science"
+    },
+    {
+      "id": "s89",
+      "title": "Abandoned Agricultural Mill in Śmiałowice, Poland",
+      "topic": "culture",
+      "feed": "Atlas Obscura"
+    },
+    {
+      "id": "s90",
+      "title": "Bluesky&#8217;s AI tool now lets you make games and apps to share on social",
+      "topic": "ai_software",
+      "feed": "The Verge AI"
+    },
+    {
+      "id": "s91",
+      "title": "New Withings Users Must Pay $99/Year for Apple Health Syncing",
+      "topic": "ai_software",
+      "feed": "Hacker News (150+ points)"
+    },
+    {
+      "id": "s92",
+      "title": "Harvard’s endowment jumps 27% in fiscal 2026, lifted by SpaceX as top holding",
+      "topic": "markets",
+      "feed": "CNBC Markets"
+    },
+    {
+      "id": "s93",
+      "title": "Chirp Pong",
+      "topic": "ai_software",
+      "feed": "Simon Willison"
+    },
+    {
+      "id": "s94",
+      "title": "Watch: What the data centre boom means for Arizona ahead of midterm elections",
+      "topic": "world",
+      "feed": "BBC World"
+    },
+    {
+      "id": "s95",
+      "title": "Someone on Torrent Sites Kept Fucking with My Sonarr",
+      "topic": "ai_software",
+      "feed": "Hacker News (150+ points)"
+    },
+    {
+      "id": "s96",
+      "title": "What did the Liberty Bell sound like? Science is on the case.",
+      "topic": "ai_software",
+      "feed": "Ars Technica"
+    },
+    {
+      "id": "s97",
+      "title": "2026's Bloodiest Game Just Got a Release Date",
+      "topic": "gaming",
+      "feed": "Polygon"
+    },
+    {
+      "id": "s98",
+      "title": "Urine Trouble: PEE V PEE, a multiplayer game about hiding from the cops while you take a whizz on public property, takes the trophy for punniest title of the year",
+      "topic": "gaming",
+      "feed": "Rock Paper Shotgun"
+    },
+    {
+      "id": "s99",
+      "title": "Venezuela's Nicolas Maduro pleads not guilty to torture charges",
+      "topic": "world",
+      "feed": "DW"
+    },
+    {
+      "id": "s100",
+      "title": "Self-replicating AI: Is your fridge a cybersecurity risk?",
+      "topic": "world",
+      "feed": "DW"
+    },
+    {
+      "id": "s101",
+      "title": "Black Sea drone attacks enter NATO country's territorial waters for first time",
+      "topic": "ai_software",
+      "feed": "Ars Technica"
+    },
+    {
+      "id": "s102",
+      "title": "David Dastmalchian wants a Street Fighter Commander Deck! | Shelf Quest",
+      "topic": "gaming",
+      "feed": "Polygon"
+    },
+    {
+      "id": "s103",
+      "title": "Microplastics in water aren’t inert and make damaging chemicals on their own",
+      "topic": "ai_software",
+      "feed": "Ars Technica"
+    },
+    {
+      "id": "s104",
+      "title": "Trump cancels Pentagon plans to livestream firing squad execution",
+      "topic": "ai_software",
+      "feed": "Ars Technica"
+    },
+    {
+      "id": "s105",
+      "title": "Meta and Apple team up to make Muse AI models run better on Macs",
+      "topic": "ai_software",
+      "feed": "The Verge AI"
+    },
+    {
+      "id": "s106",
+      "title": "Watch: Australian band breaks world record for most gigs in 12 hours",
+      "topic": "world",
+      "feed": "BBC World"
+    },
+    {
+      "id": "s107",
+      "title": "Suspected fly tippers shamed with online photos",
+      "topic": "science",
+      "feed": "BBC Science"
+    },
+    {
+      "id": "s108",
+      "title": "What time are the Fortnitemares power hours in Fortnite Chapter 7 Season 4?",
+      "topic": "gaming",
+      "feed": "Polygon"
+    },
+    {
+      "id": "s109",
+      "title": "C64 Hardware Simulator Isn’t (Just) For Playing Around",
+      "topic": "selfhosting",
+      "feed": "Hackaday"
+    },
+    {
+      "id": "s110",
+      "title": "The 9 Biggest RPG Jerk Companions, Ranked From Worst to Even Worse",
+      "topic": "gaming",
+      "feed": "Polygon"
+    },
+    {
+      "id": "s111",
+      "title": "Formlabs Form Studio 1 Review: Professional status, consumer price tag",
+      "topic": "selfhosting",
+      "feed": "Tom's Hardware"
+    },
+    {
+      "id": "s112",
+      "title": "Iron Fountain Gyumri  in Gyumri, Armenia",
+      "topic": "culture",
+      "feed": "Atlas Obscura"
+    },
+    {
+      "id": "s113",
+      "title": "Muse Spark Open",
+      "topic": "ai_software",
+      "feed": "Hacker News (150+ points)"
+    },
+    {
+      "id": "s114",
+      "title": "Trump calls off livestream of Fort Hood attacker's execution by firing squad",
+      "topic": "world",
+      "feed": "BBC World"
+    },
+    {
+      "id": "s115",
+      "title": "Middle East updates: Houthis target Yemen government palace in Aden",
+      "topic": "world",
+      "feed": "DW"
+    },
+    {
+      "id": "s116",
+      "title": "SK hynix reportedly playing hardball with Trump admin over 3D NAND fab",
+      "topic": "selfhosting",
+      "feed": "Tom's Hardware"
+    },
+    {
+      "id": "s117",
+      "title": "Watch: What does Starlink have to do with the Ukraine-Russia war?",
+      "topic": "world",
+      "feed": "BBC World"
+    },
+    {
+      "id": "s118",
+      "title": "Former Daugavpils mayor says he's ready for jail time",
+      "topic": "estonia",
+      "feed": "LSM English"
+    },
+    {
+      "id": "s119",
+      "title": "Watch: Moment drone hits supermarket in Odesa",
+      "topic": "world",
+      "feed": "BBC World"
+    },
+    {
+      "id": "s120",
+      "title": "After almost three years of early access, Enshrouded has hit 1.0 with a complete story, bigger map, and way too much more to mention",
+      "topic": "gaming",
+      "feed": "Rock Paper Shotgun"
+    },
+    {
+      "id": "s121",
+      "title": "W1700K SDR turns a Wi-Fi 7 router into a 320 MSps software-defined radio receiver",
+      "topic": "selfhosting",
+      "feed": "CNX Software"
+    },
+    {
+      "id": "s122",
+      "title": "Neutron's first launch slips again amid trouble with carbon composites",
+      "topic": "ai_software",
+      "feed": "Ars Technica"
+    },
+    {
+      "id": "s123",
+      "title": "Maduro pleads not guilty to new torture-related charges in New York",
+      "topic": "world",
+      "feed": "BBC World"
+    },
+    {
+      "id": "s124",
+      "title": "Russia accuses Ukraine of attacking oil refinery after Zelensky says strikes to resume",
+      "topic": "world",
+      "feed": "BBC World"
+    },
+    {
+      "id": "s125",
+      "title": "Police raid the major pro-opposition Halk TV channel in Turkey",
+      "topic": "world",
+      "feed": "DW"
+    },
+    {
+      "id": "s126",
+      "title": "Nicolás Maduro tells New York court new torture allegations are ‘false’",
+      "topic": "world",
+      "feed": "The Guardian World"
+    },
+    {
+      "id": "s127",
+      "title": "Monumentally expansive roguelike Caves of Qud is getting even bigger in December with an early access expansion that lets you play as messed up dogs and trees",
+      "topic": "gaming",
+      "feed": "Rock Paper Shotgun"
+    },
+    {
+      "id": "s128",
+      "title": "Jev meets the Trolley Problem",
+      "topic": "ai_software",
+      "feed": "Hacker News (150+ points)"
+    },
+    {
+      "id": "s129",
+      "title": "Friends don&#8217;t let friends feed their data to AI agents",
+      "topic": "ai_software",
+      "feed": "The Verge AI"
+    },
+    {
+      "id": "s130",
+      "title": "School headscarf ban sparks rare protests in Azerbaijan and row with Turkey",
+      "topic": "world",
+      "feed": "BBC World"
+    },
+    {
+      "id": "s131",
+      "title": "BIPM decides to stop adding leap seconds to UTC",
+      "topic": "ai_software",
+      "feed": "Hacker News (150+ points)"
+    },
+    {
+      "id": "s132",
+      "title": "Krea 3 – An image model built for editing at scale",
+      "topic": "ai_software",
+      "feed": "Hacker News (150+ points)"
+    },
+    {
+      "id": "s133",
+      "title": "Neural networks are clean",
+      "topic": "ai_software",
+      "feed": "Hacker News (150+ points)"
+    },
+    {
+      "id": "s134",
+      "title": "Milton College in Milton, Wisconsin",
+      "topic": "culture",
+      "feed": "Atlas Obscura"
+    },
+    {
+      "id": "s135",
+      "title": "4X strategy sequel Humankind 2 gets its first extended in-game footage, rich in era-spanning, culture-shaping, history-rewriting action",
+      "topic": "gaming",
+      "feed": "Rock Paper Shotgun"
+    },
+    {
+      "id": "s136",
+      "title": "Report: FTC probes Anthropic, OpenAI after Trump dismissed AI fears as “hoax”",
+      "topic": "ai_software",
+      "feed": "Ars Technica"
+    },
+    {
+      "id": "s137",
+      "title": "Severe drought declared and hosepipe bans in force - is your area affected?",
+      "topic": "science",
+      "feed": "BBC Science"
+    },
+    {
+      "id": "s138",
+      "title": "Nvidia RTX 5090 disappears from Micro Center amid rumors of a production halt",
+      "topic": "selfhosting",
+      "feed": "Tom's Hardware"
+    },
+    {
+      "id": "s139",
+      "title": "Trump says execution of Fort Hood shooter will not be livestreamed",
+      "topic": "world",
+      "feed": "DW"
+    },
+    {
+      "id": "s140",
+      "title": "Hand-Machined Stake Sharpener Just in Time for Dracula Season",
+      "topic": "selfhosting",
+      "feed": "Hackaday"
+    },
+    {
+      "id": "s141",
+      "title": "Russia arrests Swedish national, claims he's Ukraine fighter",
+      "topic": "world",
+      "feed": "DW"
+    },
+    {
+      "id": "s142",
+      "title": "At least 33 pupils and teacher killed after school roof collapses in Pakistan",
+      "topic": "world",
+      "feed": "BBC World"
+    },
+    {
+      "id": "s143",
+      "title": "Singer or clanker? YouTube Music will tell you with new gen AI labeling.",
+      "topic": "ai_software",
+      "feed": "Ars Technica"
+    },
+    {
+      "id": "s144",
+      "title": "Rewilding could help vulnerable islands keep pace with rising seas",
+      "topic": "ai_software",
+      "feed": "Ars Technica"
+    },
+    {
+      "id": "s145",
+      "title": "Celebrating 70 Years of Fortran",
+      "topic": "ai_software",
+      "feed": "Hacker News (150+ points)"
+    },
+    {
+      "id": "s146",
+      "title": "Milei adviser claims UK being ‘colonised by Islam’ as Falklands row grows",
+      "topic": "world",
+      "feed": "The Guardian World"
+    },
+    {
+      "id": "s147",
+      "title": "Was Neanderthal life violent? This wound suggests lethal fighting was more common",
+      "topic": "world",
+      "feed": "BBC World"
+    },
+    {
+      "id": "s148",
+      "title": "Googlebooks from Dell, Lenovo, and HP tested: Nice hardware, but the OS isn't ready yet",
+      "topic": "selfhosting",
+      "feed": "Tom's Hardware"
+    },
+    {
+      "id": "s149",
+      "title": "£15m for zero-emission testing at Belfast Harbour",
+      "topic": "science",
+      "feed": "BBC Science"
+    },
+    {
+      "id": "s150",
+      "title": "Seven crew missing after drone attack leaves tanker ablaze off Romania's coast",
+      "topic": "world",
+      "feed": "BBC World"
+    },
+    {
+      "id": "s151",
+      "title": "Ukraine resumes attacks on Russian refineries as Zelenskyy says 'we're done'",
+      "topic": "world",
+      "feed": "DW"
+    },
+    {
+      "id": "s152",
+      "title": "Can Kenya preserve the democratic space Raila Odinga fought for?",
+      "topic": "world",
+      "feed": "DW"
+    },
+    {
+      "id": "s153",
+      "title": "EU summit to focus on China, Ukraine and bloc budget",
+      "topic": "world",
+      "feed": "DW"
+    },
+    {
+      "id": "s154",
+      "title": "Using AI to reverse engineer hardware",
+      "topic": "ai_software",
+      "feed": "Hacker News (150+ points)"
+    },
+    {
+      "id": "s155",
+      "title": "Romania: 2 ships on fire in Black Sea, 7 crew missing",
+      "topic": "world",
+      "feed": "DW"
+    },
+    {
+      "id": "s156",
+      "title": "Tech market sell-off deepens amid fears over US inflation and AI debt",
+      "topic": "world",
+      "feed": "The Guardian World"
+    },
+    {
+      "id": "s157",
+      "title": "DayZ creator Dean Hall releases open-source game development framework Brutal",
+      "topic": "gaming",
+      "feed": "GamesIndustry.biz"
+    },
+    {
+      "id": "s158",
+      "title": "How Windows is being optimized for Nvidia’s RTX Spark laptops",
+      "topic": "ai_software",
+      "feed": "The Verge AI"
+    },
+    {
+      "id": "s159",
+      "title": "Sipeed reveals Chinese-made DGX Spark and Ryzen AI Halo rival, expected to cost $3,999",
+      "topic": "selfhosting",
+      "feed": "Tom's Hardware"
+    },
+    {
+      "id": "s160",
+      "title": "\"Total War: Shogun 2 Complete Edition has fallen short of both your expectations and our own standards\", Sega say as they pull it from stores and restore the original",
+      "topic": "gaming",
+      "feed": "Rock Paper Shotgun"
+    },
+    {
+      "id": "s161",
+      "title": "Sheep are disappearing from our hills - and our dinner plates",
+      "topic": "science",
+      "feed": "BBC Science"
+    },
+    {
+      "id": "s162",
+      "title": "Elisa to shut down 2G network in 2028, competitors hold back for now",
+      "topic": "estonia",
+      "feed": "ERR News"
+    },
+    {
+      "id": "s163",
+      "title": "Nobody is safe from celebrity AI deepfakes",
+      "topic": "ai_software",
+      "feed": "The Verge AI"
+    },
+    {
+      "id": "s164",
+      "title": "So You Want To Make Your SDR Work On Other Frequencies",
+      "topic": "selfhosting",
+      "feed": "Hackaday"
+    },
+    {
+      "id": "s165",
+      "title": "Benn Jordan on Flock, privacy, and the new surveillance backlash",
+      "topic": "ai_software",
+      "feed": "The Verge AI"
+    },
+    {
+      "id": "s166",
+      "title": "The internet isn’t the best place to find upgrades for your computer — brick-and-mortar stores still reign supreme thanks to bundled deals",
+      "topic": "selfhosting",
+      "feed": "Tom's Hardware"
+    },
+    {
+      "id": "s167",
+      "title": "Grave of John Gray in Hiramsburg, Ohio",
+      "topic": "culture",
+      "feed": "Atlas Obscura"
+    },
+    {
+      "id": "s168",
+      "title": "Resignation of Bärbel Bas shines light on harsh era of German politics",
+      "topic": "world",
+      "feed": "DW"
+    },
+    {
+      "id": "s169",
+      "title": "Hamburg court jails 2 men over plot to attack Jewish leaders on behalf of Iran",
+      "topic": "world",
+      "feed": "DW"
+    },
+    {
+      "id": "s170",
+      "title": "Estonia mulls allowing dual citizenship in certain circumstances",
+      "topic": "estonia",
+      "feed": "ERR News"
+    },
+    {
+      "id": "s171",
+      "title": "How Do Fungi Keep the Planet Healthy?",
+      "topic": "science",
+      "feed": "Quanta Magazine"
+    },
+    {
+      "id": "s172",
+      "title": "EU negotiates sanction swap with China to rescue critical ASML supplier",
+      "topic": "selfhosting",
+      "feed": "Tom's Hardware"
+    },
+    {
+      "id": "s173",
+      "title": "Reforj developer 4J Studios announces PC release date at Game Republic New Horizons",
+      "topic": "gaming",
+      "feed": "GamesIndustry.biz"
+    },
+    {
+      "id": "s174",
+      "title": "AI-assisted dying? Doris Dörrie's new film addresses prospect of care robots",
+      "topic": "world",
+      "feed": "DW"
+    },
+    {
+      "id": "s175",
+      "title": "Wayland desktop for Linux with skeuomorphic design",
+      "topic": "ai_software",
+      "feed": "Hacker News (150+ points)"
+    },
+    {
+      "id": "s176",
+      "title": "Estonian ex-soldier jailed in Russia after visiting his wife",
+      "topic": "estonia",
+      "feed": "ERR News"
+    },
+    {
+      "id": "s177",
+      "title": "Anthropic tells investors quarterly revenue up nearly 50% to $16.8bn ahead of IPO",
+      "topic": "ai_software",
+      "feed": "Simon Willison"
+    },
+    {
+      "id": "s178",
+      "title": "Tartu prison director: Dissatisfaction with prison life hardly out of the ordinary",
+      "topic": "estonia",
+      "feed": "ERR News"
+    },
+    {
+      "id": "s179",
+      "title": "Alienware AW3226Q 32-inch 4K OLED gaming monitor review: Sleek design with performance and value to match",
+      "topic": "selfhosting",
+      "feed": "Tom's Hardware"
+    },
+    {
+      "id": "s180",
+      "title": "\"I lost the concept of home, until my grandmother took me into these forests\" - Trollheim: Gnomes is a survival game from ex-DICE and Paradox devs that channels childhood fairytales",
+      "topic": "gaming",
+      "feed": "Rock Paper Shotgun"
+    },
+    {
+      "id": "s181",
+      "title": "Libreboot 26.10 \"Ominous Olive\" released with UEFI, Chromebook support",
+      "topic": "ai_software",
+      "feed": "Hacker News (150+ points)"
+    },
+    {
+      "id": "s182",
+      "title": "Eesti 200 to decide Sunday on running with Greens at Riigikogu election",
+      "topic": "estonia",
+      "feed": "ERR News"
+    },
+    {
+      "id": "s183",
+      "title": "Foreign minister: One must ensure one's own survival when inflicting pain on Russia",
+      "topic": "estonia",
+      "feed": "ERR News"
+    },
+    {
+      "id": "s184",
+      "title": "The rumoured Steam Frame OLED would fix one of the Frame's minor weaknesses and do nothing for its major ones",
+      "topic": "gaming",
+      "feed": "Rock Paper Shotgun"
+    },
+    {
+      "id": "s185",
+      "title": "An oral history of the Tomb Raider game no one wanted to make",
+      "topic": "gaming",
+      "feed": "GamesIndustry.biz"
+    },
+    {
+      "id": "s186",
+      "title": "Malicious Russian disinformation bot traffic barely flinches after Ukraine strikes Yandex data centers and auto-migration kicks in",
+      "topic": "selfhosting",
+      "feed": "Tom's Hardware"
+    },
+    {
+      "id": "s187",
+      "title": "Allegations of emotional abuse regarding MP Judins",
+      "topic": "estonia",
+      "feed": "LSM English"
+    },
+    {
+      "id": "s188",
+      "title": "Hypersonic missiles highlight arms race on Korean Peninsula",
+      "topic": "world",
+      "feed": "DW"
+    },
+    {
+      "id": "s189",
+      "title": "We tested the RTX Spark Superchip in Microsoft's Surface Laptop Ultra",
+      "topic": "selfhosting",
+      "feed": "Tom's Hardware"
+    },
+    {
+      "id": "s190",
+      "title": "ASML reports record $13 billion quarter, vows to expand capacity as demand for lithography equipment soars",
+      "topic": "selfhosting",
+      "feed": "Tom's Hardware"
+    },
+    {
+      "id": "s191",
+      "title": "\"Some people like it, some people are annoyed by it\": Substructure may look like Factorio, but it changes the automation game in some fundamental ways",
+      "topic": "gaming",
+      "feed": "Rock Paper Shotgun"
+    },
+    {
+      "id": "s192",
+      "title": "Save $249 on 32GB of DDR5 with this 3-item Newegg bundle",
+      "topic": "selfhosting",
+      "feed": "Tom's Hardware"
+    },
+    {
+      "id": "s193",
+      "title": "Estonia still importing Russian food products",
+      "topic": "estonia",
+      "feed": "ERR News"
+    },
+    {
+      "id": "s194",
+      "title": "Social Security benefits to get a boost. And, Hasan Piker defends his rhetoric",
+      "topic": "world",
+      "feed": "NPR World"
+    },
+    {
+      "id": "s195",
+      "title": "ASML struggling to keep up with demand for chipmaking equipment as AI spending continues to boom",
+      "topic": "selfhosting",
+      "feed": "Tom's Hardware"
+    },
+    {
+      "id": "s196",
+      "title": "Why is Starlink internet so important on the battlefield in Ukraine?",
+      "topic": "world",
+      "feed": "BBC World"
+    },
+    {
+      "id": "s197",
+      "title": "TSMC confirms it is considering Terafab chipmaking expansion with Elon Musk",
+      "topic": "selfhosting",
+      "feed": "Tom's Hardware"
+    },
+    {
+      "id": "s198",
+      "title": "Company managing Narva border queue asks city for support after traffic dries up",
+      "topic": "estonia",
+      "feed": "ERR News"
+    },
+    {
+      "id": "s199",
+      "title": "House House will not release Big Walk on Xbox in support of pro-Palestinian BDS campaign",
+      "topic": "gaming",
+      "feed": "GamesIndustry.biz"
+    },
+    {
+      "id": "s200",
+      "title": "League of Legends Classic will become a thing of the past in January 2027, though it may one day be resurrected as a limited-time event",
+      "topic": "gaming",
+      "feed": "Rock Paper Shotgun"
+    },
+    {
+      "id": "s201",
+      "title": "Elon Musk calls out memory makers over 'extortionate' chip pricing, says Micron is playing smart for long-term loyalty",
+      "topic": "selfhosting",
+      "feed": "Tom's Hardware"
+    },
+    {
+      "id": "s202",
+      "title": "A new report just busted another myth about heat pumps",
+      "topic": "climate",
+      "feed": "Grist"
+    },
+    {
+      "id": "s203",
+      "title": "Obama says drift towards extremism 'not inevitable'",
+      "topic": "world",
+      "feed": "BBC World"
+    },
+    {
+      "id": "s204",
+      "title": "Thousands of German gamblers could sue for their money back",
+      "topic": "world",
+      "feed": "DW"
+    },
+    {
+      "id": "s205",
+      "title": "Sanctions conference in Rīga will discuss 'Degrading Russia’s War Machine'",
+      "topic": "estonia",
+      "feed": "LSM English"
+    },
+    {
+      "id": "s206",
+      "title": "Nearly half of Latvian homes still uninsured",
+      "topic": "estonia",
+      "feed": "LSM English"
+    },
+    {
+      "id": "s207",
+      "title": "Major investment to take Skeleton's valuation over €1 billion",
+      "topic": "estonia",
+      "feed": "ERR News"
+    },
+    {
+      "id": "s208",
+      "title": "Russian chipmakers demo homegrown RISC-V and Arm chips with retro games",
+      "topic": "selfhosting",
+      "feed": "Tom's Hardware"
+    },
+    {
+      "id": "s209",
+      "title": "Big Walk devs House House announce support for BDS Microsoft boycott, say the co-op puzzler isn't coming to Xbox",
+      "topic": "gaming",
+      "feed": "Rock Paper Shotgun"
+    },
+    {
+      "id": "s210",
+      "title": "Save 30% on this ASUS ROG Gaming laptop with RTX 5060 — $600 discount makes this hefty machine just $1,399",
+      "topic": "selfhosting",
+      "feed": "Tom's Hardware"
+    },
+    {
+      "id": "s211",
+      "title": "Germany news: Train station alcohol ban comes into force",
+      "topic": "world",
+      "feed": "DW"
+    },
+    {
+      "id": "s212",
+      "title": "Ukraine resumes attacks on Russian oil refineries, officials say, after brief truce",
+      "topic": "world",
+      "feed": "NPR World"
+    },
+    {
+      "id": "s213",
+      "title": "Two dead in Istanbul after heaviest rainfall in 84 years, governor says",
+      "topic": "world",
+      "feed": "BBC World"
+    },
+    {
+      "id": "s214",
+      "title": "Brazil's Congress approves shorter working week in win for Lula",
+      "topic": "world",
+      "feed": "BBC World"
+    },
+    {
+      "id": "s215",
+      "title": "The secrets of Hohle Fels cave",
+      "topic": "culture",
+      "feed": "Aeon"
+    },
+    {
+      "id": "s216",
+      "title": "Unsupervised AI agent deletes TV show’s entire edit weeks before release; program can't air",
+      "topic": "selfhosting",
+      "feed": "Tom's Hardware"
+    },
+    {
+      "id": "s217",
+      "title": "Greetings from Mexico City, where a bullfighting ban doesn't stop this matador training",
+      "topic": "world",
+      "feed": "NPR World"
+    },
+    {
+      "id": "s218",
+      "title": "The ladder of knowledge",
+      "topic": "culture",
+      "feed": "Aeon"
+    },
+    {
+      "id": "s219",
+      "title": "Ida-Viru County's only psychiatric hospital closes doors",
+      "topic": "estonia",
+      "feed": "ERR News"
+    },
+    {
+      "id": "s220",
+      "title": "Brazil's elections matter for the planet. This is why",
+      "topic": "world",
+      "feed": "DW"
+    },
+    {
+      "id": "s221",
+      "title": "Ubisoft reportedly look to cut 100 more jobs by proposing voluntary redundancies at studios including lead Anno devs Ubisoft Mainz",
+      "topic": "gaming",
+      "feed": "Rock Paper Shotgun"
+    },
+    {
+      "id": "s222",
+      "title": "Epic Games claims its new \"vibe coded\" launcher runs 46% faster than Steam from cold start to store page",
+      "topic": "gaming",
+      "feed": "GamesIndustry.biz"
+    },
+    {
+      "id": "s223",
+      "title": "Two killed, one seriously hurt in explosion at Intel’s chip plant in Israel",
+      "topic": "selfhosting",
+      "feed": "Tom's Hardware"
+    },
+    {
+      "id": "s224",
+      "title": "Historic cannons airlifted for restoration",
+      "topic": "science",
+      "feed": "BBC Science"
+    },
+    {
+      "id": "s225",
+      "title": "Tallinn tram driver: TLT doesn't train staff enough or review incidents",
+      "topic": "estonia",
+      "feed": "ERR News"
+    },
+    {
+      "id": "s226",
+      "title": "Saeima supports stiffer penalties for aiding illegal migration",
+      "topic": "estonia",
+      "feed": "LSM English"
+    },
+    {
+      "id": "s227",
+      "title": "China indicates rare earths will keep flowing to EU, regardless of U.S. trade deal expiration",
+      "topic": "markets",
+      "feed": "CNBC Markets"
+    },
+    {
+      "id": "s228",
+      "title": "Ukraine says its Starshield access is back",
+      "topic": "world",
+      "feed": "NPR World"
+    },
+    {
+      "id": "s229",
+      "title": "Rep. Mike Quigley, D-Ill., on reports Ukraine's Starshield access was restricted",
+      "topic": "world",
+      "feed": "NPR World"
+    },
+    {
+      "id": "s230",
+      "title": "Why Chinese tech brands are outpacing Western rivals from EVs to robot vacuums",
+      "topic": "world",
+      "feed": "DW"
+    },
+    {
+      "id": "s231",
+      "title": "Brazil’s election could determine the fate of the Amazon",
+      "topic": "climate",
+      "feed": "Grist"
+    },
+    {
+      "id": "s232",
+      "title": "White House defends new press secretary over her legal credentials",
+      "topic": "world",
+      "feed": "BBC World"
+    },
+    {
+      "id": "s233",
+      "title": "Magic: The Gathering draws a bad hand with El Niño",
+      "topic": "climate",
+      "feed": "Grist"
+    },
+    {
+      "id": "s234",
+      "title": "Pakistan school roof collapse kills at least 34 children and teacher",
+      "topic": "world",
+      "feed": "The Guardian World"
+    },
+    {
+      "id": "s235",
+      "title": "School roof collapse kills at least 29, injures more than 3 dozen in Pakistan",
+      "topic": "world",
+      "feed": "NPR World"
+    },
+    {
+      "id": "s236",
+      "title": "Weapons thieves arrested getting some fast food in Daugavpils, Latvia",
+      "topic": "estonia",
+      "feed": "LSM English"
+    },
+    {
+      "id": "s237",
+      "title": "European Prosecutor's Office will not keep Estonia in the loop in Datasel proceedings",
+      "topic": "estonia",
+      "feed": "ERR News"
+    },
+    {
+      "id": "s238",
+      "title": "Actor Imran Khan ordered to leave India after participating in protest",
+      "topic": "world",
+      "feed": "BBC World"
+    },
+    {
+      "id": "s239",
+      "title": "Manchester City, the UAE and the UK's OM in a political tangle",
+      "topic": "world",
+      "feed": "DW"
+    },
+    {
+      "id": "s240",
+      "title": "Ubisoft to reduce workforce across Düsseldorf, Berlin, and Mainz as part of \"proposed voluntary departure plan\"",
+      "topic": "gaming",
+      "feed": "GamesIndustry.biz"
+    },
+    {
+      "id": "s241",
+      "title": "Estonia would allow criminal proceeds to be confiscated without a conviction",
+      "topic": "estonia",
+      "feed": "ERR News"
+    },
+    {
+      "id": "s242",
+      "title": "Indian scientist and Ukrainian athlete given Latvian citizenship by Saeima",
+      "topic": "estonia",
+      "feed": "LSM English"
+    },
+    {
+      "id": "s243",
+      "title": "LGBTQ+ people go into hiding in Senegal as hundreds are arrested",
+      "topic": "world",
+      "feed": "The Guardian World"
+    },
+    {
+      "id": "s244",
+      "title": "Ministry of Culture drops plan to slash county library funding",
+      "topic": "estonia",
+      "feed": "ERR News"
+    },
+    {
+      "id": "s245",
+      "title": "Photos: Ülle Madise meets Alexander Stubb in Helsinki on 2nd foreign trip",
+      "topic": "estonia",
+      "feed": "ERR News"
+    },
+    {
+      "id": "s246",
+      "title": "Indian woman and boyfriend get death sentence in 'blue drum' murder case",
+      "topic": "world",
+      "feed": "BBC World"
+    },
+    {
+      "id": "s247",
+      "title": "HPMicro HPM5100 RISC-V MCU integrates four 16-bit ADCs, four op-amps for analog sensing and motor control",
+      "topic": "selfhosting",
+      "feed": "CNX Software"
+    },
+    {
+      "id": "s248",
+      "title": "Tallinn French Lyceum struggling with leaky sports hall roof",
+      "topic": "estonia",
+      "feed": "ERR News"
+    },
+    {
+      "id": "s249",
+      "title": "Baiba Zūzena: Saeima could stop the creation of unified public media",
+      "topic": "estonia",
+      "feed": "LSM English"
+    },
+    {
+      "id": "s250",
+      "title": "North Korea and China open new bridge after 12-year delay",
+      "topic": "world",
+      "feed": "BBC World"
+    },
+    {
+      "id": "s251",
+      "title": "Latvia is not particularly EEE-wasteful",
+      "topic": "estonia",
+      "feed": "LSM English"
+    },
+    {
+      "id": "s252",
+      "title": "Estonian parliament supports lower voting age at European Parliament elections",
+      "topic": "estonia",
+      "feed": "ERR News"
+    },
+    {
+      "id": "s253",
+      "title": "State Language Day marked in Latvia",
+      "topic": "estonia",
+      "feed": "LSM English"
+    },
+    {
+      "id": "s254",
+      "title": "Watch again: XXIX Open Society Forum on democratic renewal",
+      "topic": "estonia",
+      "feed": "ERR News"
+    },
+    {
+      "id": "s255",
+      "title": "Tallinn food bank takes on 43,000 canned wild boar from state after ASF cull",
+      "topic": "estonia",
+      "feed": "ERR News"
+    },
+    {
+      "id": "s256",
+      "title": "WATCH AGAIN: Learning to Care: Education and Training in Culture and Health conference",
+      "topic": "estonia",
+      "feed": "LSM English"
+    },
+    {
+      "id": "s257",
+      "title": "Estonia's EE-ALARM test sets SMS record but sheltering gaps remain",
+      "topic": "estonia",
+      "feed": "ERR News"
+    },
+    {
+      "id": "s258",
+      "title": "Little tern colony has worst breeding season",
+      "topic": "science",
+      "feed": "BBC Science"
+    },
+    {
+      "id": "s259",
+      "title": "Hundreds of IDF investigations into killings still have no public outcome, BBC Verify finds",
+      "topic": "world",
+      "feed": "BBC World"
+    },
+    {
+      "id": "s260",
+      "title": "Rīga Central Station square to be redeveloped",
+      "topic": "estonia",
+      "feed": "LSM English"
+    },
+    {
+      "id": "s261",
+      "title": "Musk says US government may be behind slowdown of Ukraine drone speeds",
+      "topic": "science",
+      "feed": "BBC Science"
+    },
+    {
+      "id": "s262",
+      "title": "News in simple Latvian: 14th October, 2026",
+      "topic": "estonia",
+      "feed": "LSM English"
+    },
+    {
+      "id": "s263",
+      "title": "Indonesia fights fire with dry ice as toxic haze spreads across region",
+      "topic": "world",
+      "feed": "The Guardian World"
+    },
+    {
+      "id": "s264",
+      "title": "Australian woman charged with lacing colleague's curry with snail poison",
+      "topic": "world",
+      "feed": "BBC World"
+    },
+    {
+      "id": "s265",
+      "title": "'Nowhere to escape' - Indonesians share footage of orange haze blanketing towns",
+      "topic": "science",
+      "feed": "BBC Science"
+    },
+    {
+      "id": "s266",
+      "title": "Brazil cuts work week to 40 hours in win for Lula ahead of runoff",
+      "topic": "world",
+      "feed": "The Guardian World"
+    },
+    {
+      "id": "s267",
+      "title": "Retired US generals call on Pentagon to cancel 'barbaric' execution livestream",
+      "topic": "world",
+      "feed": "BBC World"
+    }
+  ]
+}
