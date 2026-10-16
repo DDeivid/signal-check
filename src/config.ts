@@ -25,7 +25,9 @@ export const configSchema = z.object({
     opening: z.array(line),
     closing: z.array(line),
   }),
-  hosts: z.array(z.object({ name: z.string(), voice: z.string(), persona: z.string() })).length(2),
+  hosts: z
+    .array(z.object({ name: z.string(), voice: z.string(), persona: z.string(), delivery: z.string().default('') }))
+    .length(2),
   topics: z.object({
     core: z.array(z.object({ id: z.string(), label: z.string() })).min(1),
     core_share: z.number().min(0).max(1),

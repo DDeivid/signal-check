@@ -38,11 +38,14 @@ hosts:
     persona: >-
       Curious generalist and the guide. Sets up each story in plain language,
       connects it to earlier episodes, asks the questions a smart listener would.
+    # How the voice should sound by default (sent to the voice model).
+    delivery: warm, curious, upbeat
   - name: Theo
     voice: Iapetus
     persona: >-
       Sharp skeptic. Pushes on claims, asks who benefits and what's missing,
       separates what is known from what is speculation. Dry, never cynical.
+    delivery: dry, measured, quietly amused
 
 # What gets covered. Feeds below point at these topic ids.
 topics:
@@ -192,7 +195,9 @@ quality:
     - "stay tuned"
 
 tts:
-  models: [gemini-3.1-flash-tts-preview, gemini-2.5-flash-preview-tts]
+  # Tried in order; one model per episode. 3.8 models get per-line direction (each line's
+  # delivery cue); 3.1 only gets each host's default delivery, since inline cues might be read aloud.
+  models: [gemini-3.8-flash-tts, gemini-3.8-flash-lite-tts, gemini-3.1-flash-tts-preview]
   # Both hosts go in one request; the script is split into chunks of about this size.
   max_chars_per_request: 3000
   seconds_between_requests: 25

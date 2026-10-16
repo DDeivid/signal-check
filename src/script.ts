@@ -1,6 +1,11 @@
 import { z } from 'zod';
 
-export const lineSchema = z.object({ speaker: z.string(), text: z.string().trim().min(1) });
+export const lineSchema = z.object({
+  speaker: z.string(),
+  text: z.string().trim().min(1),
+  /** Optional voice direction for this line ("amused", "serious, slower"), only where it differs from the host's default. */
+  delivery: z.string().trim().max(60).optional(),
+});
 export type Line = z.infer<typeof lineSchema>;
 
 export const SECTION_IDS = ['headlines', 'main_1', 'main_2', 'segment', 'quick_hits'] as const;

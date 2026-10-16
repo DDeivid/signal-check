@@ -60,9 +60,23 @@ export const wantsSpeakerParts = (err: unknown) => err instanceof ApiError && er
 /** For tests: forget which models want speaker parts. */
 export const resetTtsFormats = () => speakerPartModels.clear();
 
+/** The style sent with one line: the show's style, the host's default delivery, and the line's own cue. */
+export function lineStyle(config: Config, line: Line): string {
+  const host = config.hosts.find((h) => h.name === line.speaker)?.delivery;
+  const parts = [config.tts.style, host && `${line.speaker} sounds ${host}`, line.delivery && `This line: ${line.delivery}`];
+  return parts.flatMap((p) => (p ? [`${p.trim().replace(/[.\s]+$/, '')}.`] : [])).join(' ');
+}
+
+/**
+ * Speaker-parts models (3.8) get per-line direction. The "Name: text" prompt (3.1) gets each host's default
+ * delivery in the preamble only: inline cues could be read aloud, so per-line delivery is left out there.
+ */
 export function ttsContents(config: Config, lines: Line[], speakerParts: boolean): GenerateContentParameters['contents'] {
-  if (!speakerParts) return `${config.tts.style}\n\n${lines.map((l) => `${l.speaker}: ${l.text}`).join('\n')}`;
-  return [{ role: 'user', parts: lines.map((l) => ({ text: l.text, speechMetadata: { speaker: l.speaker, style: config.tts.style } })) }];
+  if (!speakerParts) {
+    const hosts = config.hosts.filter((h) => h.delivery).map((h) => `${h.name} sounds ${h.delivery}.`).join(' ');
+    return `${config.tts.style.trim()}${hosts ? ` ${hosts}` : ''}\n\n${lines.map((l) => `${l.speaker}: ${l.text}`).join('\n')}`;
+  }
+  return [{ role: 'user', parts: lines.map((l) => ({ text: l.text, speechMetadata: { speaker: l.speaker, style: lineStyle(config, l) } })) }];
 }
 
 async function requestAudio(config: Config, model: string, lines: Line[], label: string): Promise<GenerateContentResponse> {

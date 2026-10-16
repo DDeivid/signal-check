@@ -29,6 +29,7 @@ Every episode: opening → headlines → 2 main stories → the day's segment �
 ## Controlling the show
 
 - **`podcast.config.yaml`**: hosts and voices, topics and the core/outside balance, feeds, weekday formats, lengths, models, quality rules. Edit it on GitHub; the next run uses it.
+- **Voice direction**: each host has a default `delivery` in the config ("warm, curious, upbeat"), and the writer can add a short cue to a line ("amused", "serious"). Gemini 3.8 TTS gets both per line; the 3.1 fallback only gets the hosts' defaults, since inline cues could be read aloud.
 - **Manual run** (Actions → Daily episode → Run workflow):
   - *Dry run*: writes and reviews the script without voicing or publishing. Download the `episode-…` artifact to read `review.md` and `transcript.md`.
   - *Weekday*: use another day's format.

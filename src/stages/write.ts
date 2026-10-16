@@ -43,6 +43,7 @@ How it sounds:
 - When a story continues one from an earlier episode, say so briefly ("we covered this on Tuesday").
 - No clichés or filler: ${config.quality.banned_phrases.map((p) => `"${p}"`).join(', ')}.
 - Speaker names must be exactly "${a!.name}" or "${b!.name}".
+- Voice direction: ${a!.name} sounds ${a!.delivery || 'natural'}; ${b!.name} sounds ${b!.delivery || 'natural'}. A line may carry an optional "delivery" cue of 1-4 words (e.g. "amused", "serious", "surprised", "slower, emphatic") where it should sound different from that default. Use it sparingly, on maybe one line in six. Never put directions inside "text".
 Return only JSON.`;
 }
 
@@ -71,7 +72,7 @@ MATERIALS
 ${brief.materials}
 
 Return JSON:
-{"title": "...", "description": "...", "sections": [{"id": "headlines", "title": "Headlines", "lines": [{"speaker": "${config.hosts[0]!.name}", "text": "..."}]}], "predictions": [], "open_threads": [], "story_summaries": []}`;
+{"title": "...", "description": "...", "sections": [{"id": "headlines", "title": "Headlines", "lines": [{"speaker": "${config.hosts[0]!.name}", "text": "..."}, {"speaker": "${config.hosts[1]!.name}", "text": "...", "delivery": "amused"}]}], "predictions": [], "open_threads": [], "story_summaries": []}`;
 }
 
 export async function writeDraft(config: Config, brief: Brief): Promise<Draft> {
