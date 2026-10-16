@@ -175,7 +175,7 @@ function alreadyPublished(published: EpisodeRecord[], date: string): boolean {
 /** The full text pipeline: feeds → selection → research → writing → content loop. Undefined when skipped. */
 async function makeScript(config: Config, now: Date): Promise<SavedScript | undefined> {
   const tz = config.show.timezone;
-  const weekday = showWeekday(now, tz, env.SC_WEEKDAY);
+  const weekday = showWeekday(now, tz, env.SC_WEEKDAY, config.schedule.extra_days);
   const format = config.schedule.weekdays[weekday];
   const minutes = env.SC_MINUTES ? Number(env.SC_MINUTES) : format.minutes;
   if (!(minutes > 0)) throw new Error(`SC_MINUTES must be a positive number, got "${env.SC_MINUTES}"`);

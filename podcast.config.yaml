@@ -79,6 +79,11 @@ schedule:
     wednesday: { segment: far_field, minutes: 12 }
     thursday: { segment: markets, minutes: 12 }
     friday: { segment: prediction_check, minutes: 12 }
+  # One-off extra episodes on days the show normally skips (weekends): date → which weekday's format.
+  # Past dates do nothing; remove them whenever.
+  extra_days:
+    "2026-10-17": wednesday   # Saturday: Far field
+    "2026-10-18": tuesday     # Sunday: Deep dive
 
 segments:
   look_back:

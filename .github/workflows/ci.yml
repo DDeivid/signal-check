@@ -25,3 +25,10 @@ jobs:
       - run: npm test
       - name: Rehearsal (whole pipeline offline with fake AI, safety gates included)
         run: npm run rehearsal
+      - name: Gate reads schedule.extra_days (same yq expression as daily.yml)
+        run: |
+          printf 'schedule:\n  extra_days:\n    "2026-10-17": wednesday\n' > "$RUNNER_TEMP/x.yaml"
+          extra() { DATE=$1; yq -r ".schedule.extra_days[\"$DATE\"] // \"\"" "$RUNNER_TEMP/x.yaml"; }
+          test "$(extra 2026-10-17)" = wednesday
+          test -z "$(extra 2026-10-19)"
+          test -n "$(yq -r '.schedule.extra_days' podcast.config.yaml)"
