@@ -4,6 +4,9 @@
  *
  * Env: SC_DRY_RUN=true, SC_WEEKDAY=auto|monday..friday, SC_MINUTES, SC_NOTES, SC_OUT (default "out"),
  *      SC_SKIP_IF_PUBLISHED=true (scheduled runs: do nothing if today's episode exists).
+ *      SC_RESUME_SCRIPT=<script.json from an earlier run>: voice-only rerun. Skips feeds, selection, research,
+ *        writing and review; voices that script, uses the notes.md next to it, writes meta.json as usual.
+ *        Refuses a script dated other than today unless SC_RESUME_ALLOW_OTHER_DATE=true.
  *      Rehearsals: SC_FAKE_AI=true, SC_FIXTURE_FEEDS=<items.json>, SC_FIXTURE_MARKETS=<quotes.json>.
  *
  * Debugging output in out/: summary.md (always), error.txt (on failure), selection.json, research.json, tts.json.
@@ -14,12 +17,14 @@ import { assembleEpisode, audioFileName, probeSeconds } from '../audio';
 import { reconcile, wavSeconds } from '../audio-qa';
 import { type Config, isCoreTopic, loadConfig, type SegmentId } from '../config';
 import { collectNews, type FeedItem, normalizeUrl } from '../feeds';
-import { type EpisodeRecord, lastPublished, readHistory, recentEpisodes, type StoryRecord } from '../history';
+import { type EpisodeRecord, lastPublished, type PredictionGrade, readHistory, recentEpisodes, type StoryRecord } from '../history';
 import { modelUses, type Source } from '../llm';
 import { fetchQuotes, type Quote, quotesTable } from '../markets';
+import { loadResume, type SavedScript } from '../resume';
 import { emptyRun, summaryMarkdown } from '../run-summary';
-import { chunkForTts, type Draft, transcript } from '../script';
-import { type Research, researchQuestion, researchStory } from '../stages/research';
+import { chunkForTts, transcript } from '../script';
+import { describePending, evidenceItems, gradePredictions, gradesBlock, newsResearchBlock, predictionsToGrade } from '../stages/followups';
+import { type Research, researchFromNews, researchStory } from '../stages/research';
 import { blocking, contentLoop, formatIssues, type ReviewRound } from '../stages/review';
 import { type Selection, selectStories } from '../stages/select';
 import { type Brief, writeDraft } from '../stages/write';
@@ -76,50 +81,58 @@ async function segmentMaterial(
   quotes: Quote[],
   quoteFailures: string[],
   research: Research[],
-): Promise<string> {
+): Promise<{ text: string; predictionGrades?: PredictionGrade[] }> {
   const picked = selection.segment_items.flatMap((id) => (items.has(id) ? [items.get(id)!] : []));
   const lastWeek = recentEpisodes(history, now, 8);
+  // Follow-up research gets the news window as evidence: without web search it is the only evidence.
+  const evidence = evidenceItems([...items.values()]);
   switch (segment) {
     case 'look_back': {
       const threads = lastWeek.flatMap((e) => e.openThreads.map((t) => `${t} (from episode ${e.number}, ${e.date})`));
       let update = '';
       if (threads.length) {
-        const r = await researchQuestion(config, 'research:threads', `For each of these stories, what has happened since the date given? Be specific and dated; say "no new developments" where that's the case.\n${threads.join('\n')}`);
+        const question = `For each of these stories from last week's episodes, what do today's news items say has happened since the date given? One short paragraph per story.\n${threads.join('\n')}`;
+        const r = await researchFromNews(config, 'research:threads', question, evidence);
         research.push(r);
-        update = `\nStill developing, research:\n${r.notes}`;
+        update = `\n\n${newsResearchBlock('Still developing, research', r, items, itemBlock)}`;
       }
-      return `Last week's episodes:\n${episodeDigest(lastWeek) || '(no episodes last week; skip the week in review and say this is the first look-back)'}${update}\n\nWeekend stories for the roundup:\n${picked.map(itemBlock).join('\n\n') || '(use the headline and main stories)'}`;
+      return { text: `Last week's episodes:\n${episodeDigest(lastWeek) || '(no episodes last week; skip the week in review and say this is the first look-back)'}${update}\n\nWeekend stories for the roundup:\n${picked.map(itemBlock).join('\n\n') || '(use the headline and main stories)'}` };
     }
     case 'deep_dive':
-      return 'The deep dive goes further into main story 1, using its research notes: history, precedents, numbers, the strongest arguments on each side and what to watch next. Keep main_1 itself short and hand over to the deep dive.';
+      return { text: 'The deep dive goes further into main story 1, using its research notes: history, precedents, numbers, the strongest arguments on each side and what to watch next. Keep main_1 itself short and hand over to the deep dive.' };
     case 'far_field': {
       const item = picked[0] ?? [...items.values()].find((i) => !isCoreTopic(config, i.topic));
-      if (!item) return 'No outside-topic story was available today. Say so in one line and use the time for quick hits.';
+      if (!item) return { text: 'No outside-topic story was available today. Say so in one line and use the time for quick hits.' };
       const r = await researchStory(config, item, 'Explain it for someone who never reads about this field.', false);
       research.push(r);
-      return `${itemBlock(item)}\n\n${researchBlock(r)}`;
+      return { text: `${itemBlock(item)}\n\n${researchBlock(r)}` };
     }
     case 'markets':
-      return `Market table (the ONLY source for market numbers; closes are the latest session, "5 sessions" is the change over the last five trading days):
+      return { text: `Market table (the ONLY source for market numbers; "latest close" is the last finished session, "day" is its change vs the session before, "5 sessions" is the change over the last five finished sessions):
 ${quotes.length ? quotesTable(quotes) : '(no market data available today)'}
 ${quoteFailures.length ? `Unavailable today, don't mention numbers for these: ${quoteFailures.join('; ')}` : ''}
 
 Market news for context:
-${picked.map(itemBlock).join('\n\n') || '(none picked)'}`;
+${picked.map(itemBlock).join('\n\n') || '(none picked)'}` };
     case 'prediction_check': {
-      const predictions = lastWeek.flatMap((e) => e.predictions.map((p) => `"${p.text}" (${p.by}, episode ${e.number}, ${e.date})`));
-      let grading = 'No predictions were made this week. Say so in one line and spend the time on weekend picks.';
-      if (predictions.length) {
-        const r = await researchQuestion(config, 'research:predictions', `Today is ${localDate(now, config.show.timezone)}. For each prediction, find out whether it has come true, turned out wrong, or it's too early to say. Give the evidence with dates.\n${predictions.join('\n')}`);
+      // Each prediction is graded once: those since the previous check, plus its too_early ones (carried at most twice).
+      const pending = predictionsToGrade(history);
+      let grading = 'No predictions are waiting to be graded. Say so in one line and spend the time on weekend picks.';
+      let predictionGrades: PredictionGrade[] | undefined;
+      if (pending.length) {
+        const today = localDate(now, config.show.timezone);
+        const question = `Today is ${today}. For each prediction, what do today's news items say: has it come true, turned out wrong, or is it too early to say?\n${pending.map(describePending).join('\n')}`;
+        const r = await researchFromNews(config, 'research:predictions', question, evidence);
         research.push(r);
-        grading = `Predictions to grade:\n${predictions.join('\n')}\n\nResearch:\n${r.notes}`;
+        predictionGrades = await gradePredictions(config, today, pending, r, evidence);
+        grading = `Predictions to grade. The verdicts are decided; give them as stated, with their evidence:\n${gradesBlock(predictionGrades, pending)}\n\n${newsResearchBlock('Research', r, items, itemBlock)}`;
       }
-      return `${grading}\n\nWeekend pick candidates:\n${picked.map(itemBlock).join('\n\n') || '(choose from this week\'s stories)'}\n\nThis week's stories:\n${episodeDigest(lastWeek)}`;
+      return { text: `${grading}\n\nWeekend pick candidates:\n${picked.map(itemBlock).join('\n\n') || '(choose from this week\'s stories)'}\n\nThis week's stories:\n${episodeDigest(lastWeek)}`, predictionGrades };
     }
   }
 }
 
-function showNotes(config: Config, draft: Draft, stories: StoryRecord[], sources: Source[]): string {
+function showNotes(config: Config, description: string, stories: StoryRecord[], sources: Source[]): string {
   const seen = new Set(stories.map((s) => normalizeUrl(s.url)));
   const extra = sources.filter((s) => {
     const key = normalizeUrl(s.url);
@@ -128,7 +141,7 @@ function showNotes(config: Config, draft: Draft, stories: StoryRecord[], sources
     return true;
   });
   return [
-    draft.description,
+    description,
     '## Stories',
     stories.map((s) => `- [${s.title}](${s.url})`).join('\n'),
     extra.length ? `## Further sources\n${extra.map((s) => `- [${s.title}](${s.url})`).join('\n')}` : '',
@@ -149,10 +162,17 @@ function reviewReport(rounds: ReviewRound[], selection: Selection, warnings: str
     .join('\n\n');
 }
 
-async function main(): Promise<void> {
-  stage = 'config';
-  const config = loadConfig();
-  const now = new Date();
+/** Today's skip check for scheduled runs. True when there is nothing to do. */
+function alreadyPublished(published: EpisodeRecord[], date: string): boolean {
+  if (env.SC_SKIP_IF_PUBLISHED !== 'true' || !published.some((e) => e.date === date)) return false;
+  console.log(`[produce] episode for ${date} already published; nothing to do`);
+  setOutput({ published: 'false', skipped: 'true' });
+  run.skipped = true;
+  return true;
+}
+
+/** The full text pipeline: feeds → selection → research → writing → content loop. Undefined when skipped. */
+async function makeScript(config: Config, now: Date): Promise<SavedScript | undefined> {
   const tz = config.show.timezone;
   const weekday = showWeekday(now, tz, env.SC_WEEKDAY);
   const format = config.schedule.weekdays[weekday];
@@ -163,12 +183,7 @@ async function main(): Promise<void> {
   const targetWords = Math.round(minutes * config.episode.words_per_minute);
   Object.assign(run, { date, weekday, segment: format.segment, minutes, targetWords, dryRun });
   const published = readHistory();
-  if (env.SC_SKIP_IF_PUBLISHED === 'true' && published.some((e) => e.date === date)) {
-    console.log(`[produce] episode for ${date} already published; nothing to do`);
-    setOutput({ published: 'false', skipped: 'true' });
-    run.skipped = true;
-    return;
-  }
+  if (alreadyPublished(published, date)) return undefined;
   // Re-making today's episode replaces it, so it doesn't count as the previous episode
   // (otherwise the news window would start at it and its stories would count as covered).
   const history = published.filter((e) => e.date !== date);
@@ -217,7 +232,7 @@ async function main(): Promise<void> {
     mainBlocks.push(`== MAIN STORY ${n + 1} ==\nAngle: ${main.angle}${main.follow_up_of ? `\nFollow-up of: ${main.follow_up_of}` : ''}\n${itemBlock(item)}\n\n${researchBlock(r)}`);
   }
   const segment = config.segments[format.segment];
-  const segmentText = await segmentMaterial(config, format.segment, now, history, byId, selection, quotes, quoteFailures, research);
+  const { text: segmentText, predictionGrades } = await segmentMaterial(config, format.segment, now, history, byId, selection, quotes, quoteFailures, research);
   saveResearch();
   writeSummary();
   const list = (ids: string[]) => ids.flatMap((id) => (byId.has(id) ? [itemBlock(byId.get(id)!)] : [])).join('\n\n');
@@ -257,9 +272,24 @@ async function main(): Promise<void> {
     return item ? [{ title: item.title, url: item.url, topic: item.topic, summary: summaries.get(id) ?? item.snippet.slice(0, 200) }] : [];
   });
 
-  writeFileSync(join(outDir, 'script.json'), JSON.stringify({ ...draft, sections }, null, 2));
+  // Everything a voice-only rerun (SC_RESUME_SCRIPT) needs; notes.md sits next to it.
+  const script: SavedScript = {
+    date,
+    weekday,
+    segment: format.segment,
+    targetMinutes: minutes,
+    title: draft.title,
+    description: draft.description,
+    sections,
+    stories,
+    predictions: draft.predictions,
+    open_threads: draft.open_threads,
+    story_summaries: draft.story_summaries,
+    ...(predictionGrades ? { predictionGrades } : {}),
+  };
+  writeJson('script.json', script);
   writeFileSync(join(outDir, 'transcript.md'), `# ${draft.title}\n\n${transcript(sections)}\n`);
-  writeFileSync(join(outDir, 'notes.md'), showNotes(config, draft, stories, research.flatMap((r) => r.sources)));
+  writeFileSync(join(outDir, 'notes.md'), showNotes(config, draft.description, stories, research.flatMap((r) => r.sources)));
   writeFileSync(join(outDir, 'review.md'), reviewReport(rounds, selection, warnings));
 
   const critical = blocking(unresolved);
@@ -269,11 +299,49 @@ async function main(): Promise<void> {
       throw new Error('Critical issues remain after the content loop (quality.on_unresolved = stop). See out/review.md.');
     }
   }
+  return script;
+}
+
+/**
+ * Voice-only rerun: the reviewed script from an earlier run (SC_RESUME_SCRIPT=<its script.json>), with the
+ * notes.md next to it. No feeds, selection, research, writing or review. Undefined when skipped.
+ */
+function resumeScript(config: Config, now: Date, path: string): SavedScript | undefined {
+  stage = 'resume';
+  const today = localDate(now, config.show.timezone);
+  const { script, notes } = loadResume(config, path, today, env.SC_RESUME_ALLOW_OTHER_DATE === 'true');
+  Object.assign(run, {
+    date: script.date,
+    weekday: script.weekday,
+    segment: script.segment,
+    minutes: script.targetMinutes,
+    targetWords: Math.round(script.targetMinutes * config.episode.words_per_minute),
+    dryRun,
+    resumedFrom: path,
+  });
+  if (alreadyPublished(readHistory(), script.date)) return undefined;
+  console.log(`[produce] resuming from ${path}: "${script.title}" (${script.date}, ${script.weekday}), voicing only${dryRun ? ', dry run' : ''}`);
+  if (!notes) console.warn(`::warning::No notes.md next to ${path}; show notes rebuilt from the script's stories.`);
+  writeJson('script.json', script);
+  writeFileSync(join(outDir, 'transcript.md'), `# ${script.title}\n\n${transcript(script.sections)}\n`);
+  writeFileSync(join(outDir, 'notes.md'), notes ?? showNotes(config, script.description, script.stories, []));
+  return script;
+}
+
+async function main(): Promise<void> {
+  stage = 'config';
+  const config = loadConfig();
+  const now = new Date();
+  const resume = env.SC_RESUME_SCRIPT?.trim();
+  const script = resume ? resumeScript(config, now, resume) : await makeScript(config, now);
+  if (!script) return;
   if (dryRun) {
-    console.log(`[produce] dry run done: "${draft.title}". Read ${outDir}/review.md and ${outDir}/transcript.md.`);
+    const read = resume ? `${outDir}/transcript.md` : `${outDir}/review.md and ${outDir}/transcript.md`;
+    console.log(`[produce] dry run done: "${script.title}". Read ${read}.`);
     setOutput({ published: 'false' });
     return;
   }
+  const { date, sections, targetMinutes: minutes } = script;
 
   stage = 'tts';
   const chunks = chunkForTts(sections, config.tts.max_chars_per_request);
@@ -291,7 +359,7 @@ async function main(): Promise<void> {
   stage = 'assemble';
   const file = audioFileName(date, env.GITHUB_RUN_ID, env.GITHUB_RUN_ATTEMPT);
   const mp3 = join(outDir, file);
-  assembleEpisode(config, voiced.parts, outDir, mp3, { title: draft.title, artist: config.show.author });
+  assembleEpisode(config, voiced.parts, outDir, mp3, { title: script.title, artist: config.show.author });
 
   stage = 'reconcile';
   const exact = probeSeconds(mp3);
@@ -316,22 +384,24 @@ async function main(): Promise<void> {
   const meta = {
     date,
     publishedAt: now.toISOString(),
-    weekday,
-    segment: format.segment,
-    title: draft.title,
-    description: draft.description,
+    weekday: script.weekday,
+    segment: script.segment,
+    title: script.title,
+    description: script.description,
     file,
     tag,
     bytes: statSync(mp3).size,
     durationSeconds: duration,
     targetMinutes: minutes,
     ttsModel: voiced.model,
-    stories,
-    predictions: draft.predictions,
-    openThreads: draft.open_threads,
+    stories: script.stories,
+    predictions: script.predictions,
+    openThreads: script.open_threads,
+    ...(script.predictionGrades ? { predictionGrades: script.predictionGrades } : {}),
+    ...(resume ? { resumedFrom: resume } : {}),
   };
   writeFileSync(join(outDir, 'meta.json'), JSON.stringify(meta, null, 2));
-  setOutput({ published: 'true', tag, file, title: draft.title.replaceAll('\n', ' ') });
+  setOutput({ published: 'true', tag, file, title: script.title.replaceAll('\n', ' ') });
   console.log(`[produce] ${file}: ${Math.round(duration / 60)} min, ${chunks.length} TTS requests, ${voiced.model}`);
 }
 

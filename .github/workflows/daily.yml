@@ -25,6 +25,14 @@ on:
         description: Producer notes for today (e.g. "lead with the Estonian election")
         type: string
         default: ''
+      resume_from:
+        description: Voice-only rerun from a saved script (scripts-branch folder, e.g. 2026-10-16/run-123-1)
+        type: string
+        default: ''
+      allow_other_date:
+        description: Allow resuming a script from another day
+        type: boolean
+        default: false
 
 permissions: {}
 
@@ -92,6 +100,18 @@ jobs:
       - name: Install ffmpeg
         run: command -v ffmpeg || (sudo apt-get update -q && sudo apt-get install -y -q ffmpeg)
 
+      - name: Fetch the saved script to resume from
+        if: inputs.resume_from != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+          FROM: ${{ inputs.resume_from }}
+        run: |
+          mkdir -p resume
+          for f in script.json notes.md; do
+            gh api "repos/$GITHUB_REPOSITORY/contents/$FROM/$f?ref=scripts" --jq .content | base64 -d > "resume/$f" || rm -f "resume/$f"
+          done
+          test -s resume/script.json || { echo "::error::No script.json at scripts:$FROM"; exit 1; }
+
       - name: Produce episode
         id: produce
         env:
@@ -101,6 +121,8 @@ jobs:
           SC_WEEKDAY: ${{ inputs.weekday || 'auto' }}
           SC_MINUTES: ${{ inputs.minutes }}
           SC_NOTES: ${{ inputs.notes }}
+          SC_RESUME_SCRIPT: ${{ inputs.resume_from != '' && 'resume/script.json' || '' }}
+          SC_RESUME_ALLOW_OTHER_DATE: ${{ inputs.allow_other_date && 'true' || 'false' }}
         run: npm run produce
 
       - name: Keep episode files

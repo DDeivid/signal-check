@@ -14,6 +14,18 @@ export interface Prediction {
   by: string;
 }
 
+/** A prediction graded on a Friday prediction check. */
+export interface PredictionGrade {
+  text: string;
+  by: string;
+  /** Number of the episode the prediction was made in. */
+  episode: number;
+  verdict: 'right' | 'wrong' | 'too_early';
+  evidence: string;
+  /** 1 the first time it is graded; a too_early grade is carried to the next check until attempt 3. */
+  attempt?: number;
+}
+
 /** One published episode. Written to data/episodes.json by `npm run register`. */
 export interface EpisodeRecord {
   number: number;
@@ -29,6 +41,8 @@ export interface EpisodeRecord {
   stories: StoryRecord[];
   predictions: Prediction[];
   openThreads: string[];
+  /** Prediction check episodes: the grades given in this episode. */
+  predictionGrades?: PredictionGrade[];
   /** Markdown transcript, relative to the repo root. */
   transcriptFile: string;
   /** Show notes markdown, relative to the repo root. */

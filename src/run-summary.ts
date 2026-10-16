@@ -10,6 +10,8 @@ export interface RunInfo {
   minutes?: number;
   targetWords?: number;
   dryRun?: boolean;
+  /** SC_RESUME_SCRIPT: the script.json this run voices instead of writing a new one. */
+  resumedFrom?: string;
   skipped?: boolean;
   window?: { from: string; to: string; items: number };
   failedFeeds: string[];
@@ -56,12 +58,13 @@ export function summaryMarkdown(run: RunInfo, uses: readonly ModelUse[]): string
       ? 'skipped (already published)'
       : run.durationSeconds
         ? 'episode ready'
-        : run.dryRun && run.rounds.length
+        : run.dryRun && (run.rounds.length || run.resumedFrom)
           ? 'dry run done'
           : 'in progress';
   const facts = [
     `- Date: ${run.date ?? '?'}`,
     run.weekday ? `- Format: ${run.weekday} (${run.segment})${run.dryRun ? ', dry run' : ''}` : '',
+    run.resumedFrom ? `- Voice-only rerun of ${run.resumedFrom} (no feeds, selection, research, writing or review)` : '',
     run.minutes ? `- Target: ${run.minutes} min (${run.targetWords} words)` : '',
     run.window ? `- News window: ${run.window.from} → ${run.window.to}, ${run.window.items} items` : '',
     run.window ? `- Failed feeds: ${run.failedFeeds.length ? run.failedFeeds.join(', ') : 'none'}` : '',
