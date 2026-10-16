@@ -11,6 +11,11 @@ on:
       - src/feed.ts
   workflow_dispatch:
   workflow_call:
+    inputs:
+      sha:
+        description: Commit to build (the episode-history commit just pushed)
+        type: string
+        required: false
 
 permissions:
   contents: read
@@ -27,8 +32,8 @@ jobs:
     steps:
       - uses: actions/checkout@v7
         with:
-          # When called right after an episode is committed, build from the new commit.
-          ref: main
+          # When called right after an episode is committed, build exactly that commit.
+          ref: ${{ inputs.sha || 'main' }}
       - uses: actions/setup-node@v7
         with:
           node-version-file: .nvmrc

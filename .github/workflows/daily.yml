@@ -2,11 +2,10 @@ name: Daily episode
 
 on:
   schedule:
-    # GitHub delays scheduled runs at busy times (worst at the top of the hour) and can drop them.
-    # So: off the hour, early, plus a backup that does nothing if the episode already exists.
-    # 04:17 UTC = 07:17 Tallinn in summer, 06:17 in winter. Mon–Fri.
-    - cron: '17 4 * * 1-5'
-    - cron: '43 5 * * 1-5'
+    # GitHub cron is UTC-only and can delay or drop runs, so there are six triggers and the
+    # gate job decides. Only triggers that land 08:00–08:55 in Tallinn go ahead:
+    # summer (UTC+3) uses the 05:xx ones, winter (UTC+2) the 06:xx ones. Three tries a day.
+    - cron: '7,27,47 5,6 * * 1-5'
   workflow_dispatch:
     inputs:
       dry_run:
@@ -27,22 +26,62 @@ on:
         type: string
         default: ''
 
-permissions:
-  contents: write
-  pages: write
-  id-token: write
+permissions: {}
 
 concurrency:
   group: signal-check
   cancel-in-progress: false
 
+env:
+  TZ_SHOW: Europe/Tallinn
+
 jobs:
-  produce:
+  gate:
     runs-on: ubuntu-latest
-    timeout-minutes: 75
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    outputs:
+      run: ${{ steps.gate.outputs.run }}
+      date: ${{ steps.gate.outputs.date }}
+    steps:
+      - name: Decide whether to run
+        id: gate
+        env:
+          GH_TOKEN: ${{ github.token }}
+          EVENT: ${{ github.event_name }}
+        run: |
+          DATE=$(TZ=$TZ_SHOW date +%F)
+          NOW=$(TZ=$TZ_SHOW date +%H%M)
+          DAY=$(TZ=$TZ_SHOW date +%u)
+          echo "date=$DATE" >> "$GITHUB_OUTPUT"
+          decide() { echo "run=$1" >> "$GITHUB_OUTPUT"; echo "### Gate: $2" >> "$GITHUB_STEP_SUMMARY"; echo "$2"; exit 0; }
+          echo "Trigger: $EVENT ${{ github.event.schedule }} · Tallinn $(TZ=$TZ_SHOW date '+%a %F %H:%M')" >> "$GITHUB_STEP_SUMMARY"
+          if [ "$EVENT" != schedule ]; then decide true "manual run, no time check"; fi
+          [ "$DAY" -le 5 ] || decide false "weekend in Tallinn; skipping"
+          if [ "$NOW" -lt 0800 ] || [ "$NOW" -gt 0855 ]; then decide false "Tallinn time $NOW is outside 08:00–08:55; skipping"; fi
+          # Live state, not this run's checkout: a queued run would see history from before the last publish.
+          if gh api "repos/$GITHUB_REPOSITORY/contents/data/episodes.json?ref=main" --jq .content | base64 -d \
+              | jq -e --arg d "$DATE" 'any(.[]; .date == $d and .durationSeconds >= 300)' >/dev/null; then
+            decide false "today's episode is already published; skipping"
+          fi
+          if gh api "repos/$GITHUB_REPOSITORY/contents/$DATE/QUOTA_EXHAUSTED?ref=scripts" >/dev/null 2>&1; then
+            decide false "an earlier run today ran out of AI quota; retrying won't help before the reset"
+          fi
+          decide true "running"
+
+  produce:
+    needs: gate
+    if: needs.gate.outputs.run == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    permissions:
+      contents: read
     outputs:
       published: ${{ steps.produce.outputs.published }}
-      skipped: ${{ steps.produce.outputs.skipped }}
+      tag: ${{ steps.produce.outputs.tag }}
+      file: ${{ steps.produce.outputs.file }}
+      title: ${{ steps.produce.outputs.title }}
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-node@v7
@@ -62,10 +101,9 @@ jobs:
           SC_WEEKDAY: ${{ inputs.weekday || 'auto' }}
           SC_MINUTES: ${{ inputs.minutes }}
           SC_NOTES: ${{ inputs.notes }}
-          SC_SKIP_IF_PUBLISHED: ${{ github.event_name == 'schedule' }}
         run: npm run produce
 
-      - name: Keep script, review and transcript
+      - name: Keep episode files
         if: always()
         uses: actions/upload-artifact@v7
         with:
@@ -73,50 +111,157 @@ jobs:
           path: |
             out/
             !out/audio/
-          retention-days: 14
+          retention-days: 90
+          if-no-files-found: ignore
+      - name: Keep voiced chunks (failed runs only)
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: audio-chunks-${{ github.run_id }}
+          path: out/audio/
+          retention-days: 7
           if-no-files-found: ignore
 
-      - name: Attach MP3 to a release
-        if: steps.produce.outputs.published == 'true'
+  save-scripts:
+    # Every run's script, review and error go to the "scripts" branch, also when the run fails.
+    needs: [gate, produce]
+    if: always() && needs.gate.outputs.run == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: write
+      actions: read
+    steps:
+      - uses: actions/download-artifact@v8
+        continue-on-error: true
+        with:
+          name: episode-${{ github.run_id }}
+          path: out
+      - name: Commit to the scripts branch
         env:
           GH_TOKEN: ${{ github.token }}
-          TAG: ${{ steps.produce.outputs.tag }}
-          FILE: ${{ steps.produce.outputs.file }}
-          TITLE: ${{ steps.produce.outputs.title }}
+          DATE: ${{ needs.gate.outputs.date }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          DIR="$DATE/run-${{ github.run_id }}-${{ github.run_attempt }}"
+          git init -q scripts && cd scripts
+          git config user.name "signal-check-bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git remote add origin "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+          if git ls-remote --exit-code --heads origin scripts >/dev/null; then
+            git fetch -q --depth 1 origin scripts && git checkout -q -b scripts FETCH_HEAD
+          else
+            git checkout -q --orphan scripts
+            printf '# Signal Check scripts\n\nOne folder per run: script, transcript, review rounds, source materials and any error.\n' > README.md
+          fi
+          mkdir -p "$DIR"
+          if [ -d ../out ]; then
+            find ../out -maxdepth 1 -type f \( -name '*.md' -o -name '*.json' -o -name '*.txt' \) -exec cp {} "$DIR/" \;
+          fi
+          [ -n "$(ls -A "$DIR")" ] || echo "No files: the run failed before writing any. See $RUN_URL" > "$DIR/error.txt"
+          echo "$RUN_URL" > "$DIR/run-url.txt"
+          if grep -qE 'PerDay' "$DIR/error.txt" 2>/dev/null; then touch "$DATE/QUOTA_EXHAUSTED"; fi
+          git add -A
+          git commit -q -m "Run ${{ github.run_id }} for $DATE (${{ needs.produce.result }})"
+          for i in 1 2 3; do
+            git push -q origin HEAD:scripts && break
+            git fetch -q --depth 1 origin scripts && git rebase -q FETCH_HEAD
+          done
+          echo "Scripts: ${{ github.server_url }}/${GITHUB_REPOSITORY}/tree/scripts/$DIR" >> "$GITHUB_STEP_SUMMARY"
+
+  validate:
+    needs: produce
+    if: needs.produce.outputs.published == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      actions: read
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - name: Install ffmpeg
+        run: command -v ffmpeg || (sudo apt-get update -q && sudo apt-get install -y -q ffmpeg)
+      - uses: actions/download-artifact@v8
+        with:
+          name: episode-${{ github.run_id }}
+          path: out
+      - name: Check the MP3 independently
+        run: npm run validate-audio
+
+  publish:
+    needs: [gate, produce, validate]
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+      actions: read
+    outputs:
+      sha: ${{ steps.push.outputs.sha }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - uses: actions/download-artifact@v8
+        with:
+          name: episode-${{ github.run_id }}
+          path: out
+      - name: Attach MP3 to the episode's release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ needs.produce.outputs.tag }}
+          FILE: ${{ needs.produce.outputs.file }}
+          TITLE: ${{ needs.produce.outputs.title }}
+        # Each run's file has its own name, so a re-made episode gets a new URL and nothing is deleted.
         run: |
           if gh release view "$TAG" >/dev/null 2>&1; then
-            gh release upload "$TAG" "out/$FILE" --clobber
+            gh release upload "$TAG" "out/$FILE"
           else
             gh release create "$TAG" "out/$FILE" --title "$TITLE" --notes-file out/notes.md
           fi
-
       - name: Register episode
-        if: steps.produce.outputs.published == 'true'
         run: npm run register
-
       - name: Commit history
-        if: steps.produce.outputs.published == 'true'
+        id: push
         run: |
           git config user.name "signal-check-bot"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add data
           git commit -m "Episode $(jq -r .date out/meta.json): $(jq -r .title out/meta.json)"
-          git pull --rebase
-          git push
+          for i in 1 2 3; do
+            git pull -q --rebase && git push -q && break
+            sleep 5
+          done
+          git fetch -q origin main
+          git diff --quiet origin/main HEAD || { echo "::error::Could not push the episode history"; exit 1; }
+          echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+          echo "Published: ${{ needs.produce.outputs.title }}" >> "$GITHUB_STEP_SUMMARY"
 
   site:
-    needs: produce
-    if: needs.produce.outputs.published == 'true'
+    needs: publish
     uses: ./.github/workflows/pages.yml
+    with:
+      sha: ${{ needs.publish.outputs.sha }}
     permissions:
       contents: read
       pages: write
       id-token: write
 
   notify:
-    needs: [produce, site]
-    if: always() && needs.produce.outputs.skipped != 'true'
+    needs: [gate, produce, validate, publish, site]
+    if: always() && needs.gate.outputs.run == 'true'
     runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      actions: read
     env:
       TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
       TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
@@ -144,5 +289,5 @@ jobs:
         if: steps.enabled.outputs.on == 'true'
         run: >-
           npm run notify --
-          ${{ (needs.produce.result != 'success' || needs.site.result == 'failure') && 'failure'
-          || (needs.produce.outputs.published == 'true' && 'success' || 'dry') }}
+          ${{ needs.produce.outputs.published == 'true' && needs.site.result == 'success' && 'success'
+          || (needs.produce.result == 'success' && needs.produce.outputs.published != 'true' && 'dry' || 'failure') }}
