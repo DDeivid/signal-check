@@ -4,27 +4,42 @@
  *
  * Env: SC_DRY_RUN=true, SC_WEEKDAY=auto|monday..friday, SC_MINUTES, SC_NOTES, SC_OUT (default "out"),
  *      SC_SKIP_IF_PUBLISHED=true (scheduled runs: do nothing if today's episode exists).
+ *      Rehearsals: SC_FAKE_AI=true, SC_FIXTURE_FEEDS=<items.json>, SC_FIXTURE_MARKETS=<quotes.json>.
+ *
+ * Debugging output in out/: summary.md (always), error.txt (on failure), selection.json, research.json, tts.json.
  */
-import { appendFileSync, mkdirSync, statSync, writeFileSync } from 'node:fs';
+import { appendFileSync, mkdirSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { assembleEpisode, durationSeconds } from '../audio';
+import { assembleEpisode, audioFileName, probeSeconds } from '../audio';
+import { reconcile, wavSeconds } from '../audio-qa';
 import { type Config, isCoreTopic, loadConfig, type SegmentId } from '../config';
 import { collectNews, type FeedItem, normalizeUrl } from '../feeds';
 import { type EpisodeRecord, lastPublished, readHistory, recentEpisodes, type StoryRecord } from '../history';
-import type { Source } from '../llm';
+import { modelUses, type Source } from '../llm';
 import { fetchQuotes, type Quote, quotesTable } from '../markets';
+import { emptyRun, summaryMarkdown } from '../run-summary';
 import { chunkForTts, type Draft, transcript } from '../script';
 import { type Research, researchQuestion, researchStory } from '../stages/research';
 import { blocking, contentLoop, formatIssues, type ReviewRound } from '../stages/review';
 import { type Selection, selectStories } from '../stages/select';
 import { type Brief, writeDraft } from '../stages/write';
 import { localDate, showWeekday, spokenDate, windowStart } from '../time';
-import { speakAll } from '../tts';
+import { type ChunkReport, speakAll } from '../tts';
 
 const env = process.env;
 const dryRun = env.SC_DRY_RUN === 'true';
 const outDir = env.SC_OUT ?? 'out';
 const MIN_ITEMS = 8;
+
+/** Where the run is, for error.txt and the summary. */
+let stage = 'setup';
+const run = emptyRun();
+
+function writeSummary(): void {
+  writeFileSync(join(outDir, 'summary.md'), summaryMarkdown(run, modelUses()));
+}
+
+const writeJson = (file: string, value: unknown) => writeFileSync(join(outDir, file), `${JSON.stringify(value, null, 2)}\n`);
 
 function setOutput(values: Record<string, string>): void {
   if (!env.GITHUB_OUTPUT) return;
@@ -135,52 +150,76 @@ function reviewReport(rounds: ReviewRound[], selection: Selection, warnings: str
 }
 
 async function main(): Promise<void> {
+  stage = 'config';
   const config = loadConfig();
   const now = new Date();
   const tz = config.show.timezone;
   const weekday = showWeekday(now, tz, env.SC_WEEKDAY);
   const format = config.schedule.weekdays[weekday];
   const minutes = env.SC_MINUTES ? Number(env.SC_MINUTES) : format.minutes;
+  if (!(minutes > 0)) throw new Error(`SC_MINUTES must be a positive number, got "${env.SC_MINUTES}"`);
   const date = localDate(now, tz);
   const spoken = spokenDate(now, tz);
+  const targetWords = Math.round(minutes * config.episode.words_per_minute);
+  Object.assign(run, { date, weekday, segment: format.segment, minutes, targetWords, dryRun });
   const published = readHistory();
   if (env.SC_SKIP_IF_PUBLISHED === 'true' && published.some((e) => e.date === date)) {
     console.log(`[produce] episode for ${date} already published; nothing to do`);
     setOutput({ published: 'false', skipped: 'true' });
+    run.skipped = true;
     return;
   }
   // Re-making today's episode replaces it, so it doesn't count as the previous episode
   // (otherwise the news window would start at it and its stories would count as covered).
   const history = published.filter((e) => e.date !== date);
   if (history.length < published.length) console.log(`[produce] replacing today's published episode`);
-  mkdirSync(outDir, { recursive: true });
   console.log(`[produce] ${date}, ${weekday} format (${format.segment}), ${minutes} min${dryRun ? ', dry run' : ''}`);
 
+  stage = 'feeds';
   const from = windowStart(now, lastPublished(history), config.schedule.window_cap_days, config.schedule.first_run_hours);
   const covered = new Set(history.flatMap((e) => e.stories.map((s) => normalizeUrl(s.url))));
   const { items, results } = await collectNews(config, from, now, covered);
   const failed = results.filter((r) => !r.ok);
+  run.window = { from: from.toISOString(), to: now.toISOString(), items: items.length };
+  run.failedFeeds = failed.map((f) => `${f.name} (${f.error ?? 'failed'})`);
+  writeSummary();
   console.log(`[feeds] ${items.length} items since ${from.toISOString()}; ${failed.length} feeds failed${failed.length ? `: ${failed.map((f) => f.name).join(', ')}` : ''}`);
   if (items.length < MIN_ITEMS) throw new Error(`Only ${items.length} news items in the window; not enough for an episode.`);
   const byId = new Map(items.map((i) => [i.id, i]));
 
+  stage = 'markets';
   const { quotes, failures: quoteFailures } = await fetchQuotes(config);
   if (quoteFailures.length) console.warn(`[markets] unavailable: ${quoteFailures.join('; ')}`);
 
+  stage = 'select';
   const notes = env.SC_NOTES?.trim() ?? '';
   const { selection, warnings } = await selectStories(config, format.segment, items, history, notes);
   console.log(`[select] main: ${selection.main.map((m) => byId.get(m.id)?.title).join(' | ')}`);
+  const title = (id: string) => byId.get(id)?.title ?? '(unknown id)';
+  run.stories = [
+    ...selection.main.map((m, n) => ({ role: `main ${n + 1}`, id: m.id, title: title(m.id) })),
+    ...selection.headlines.map((id) => ({ role: 'headline', id, title: title(id) })),
+    ...selection.segment_items.map((id) => ({ role: 'segment', id, title: title(id) })),
+    ...selection.quick_hits.map((id) => ({ role: 'quick hit', id, title: title(id) })),
+  ];
+  writeJson('selection.json', { selection, warnings, candidates: items.map((i) => ({ id: i.id, title: i.title, topic: i.topic, feed: i.feed })) });
+  writeSummary();
 
+  stage = 'research';
   const research: Research[] = [];
+  const saveResearch = () => writeJson('research.json', research.map((r) => ({ topic: r.topic, notes: r.notes, sources: r.sources, articleChars: r.articleText.length })));
   const mainBlocks: string[] = [];
   for (const [n, main] of selection.main.entries()) {
     const item = byId.get(main.id)!;
     const r = await researchStory(config, item, main.angle, n === 0 && format.segment === 'deep_dive');
     research.push(r);
+    saveResearch();
     mainBlocks.push(`== MAIN STORY ${n + 1} ==\nAngle: ${main.angle}${main.follow_up_of ? `\nFollow-up of: ${main.follow_up_of}` : ''}\n${itemBlock(item)}\n\n${researchBlock(r)}`);
   }
   const segment = config.segments[format.segment];
   const segmentText = await segmentMaterial(config, format.segment, now, history, byId, selection, quotes, quoteFailures, research);
+  saveResearch();
+  writeSummary();
   const list = (ids: string[]) => ids.flatMap((id) => (byId.has(id) ? [itemBlock(byId.get(id)!)] : [])).join('\n\n');
 
   const materials = [
@@ -197,14 +236,19 @@ async function main(): Promise<void> {
     weekday: spoken.weekday,
     date: spoken.date,
     segment: format.segment,
-    targetWords: Math.round(minutes * config.episode.words_per_minute),
+    targetWords,
     materials,
     producerNotes: notes,
   };
   writeFileSync(join(outDir, 'materials.md'), materials);
 
+  stage = 'write';
   const first = await writeDraft(config, brief);
-  const { draft, sections, rounds, unresolved } = await contentLoop(config, brief, first, spoken, quotes);
+  stage = 'review';
+  const { draft, sections, rounds, unresolved, chosenRound } = await contentLoop(config, brief, first, spoken, quotes);
+  run.rounds = rounds;
+  run.chosenRound = chosenRound;
+  writeSummary();
 
   const pickedIds = [...new Set([...selection.main.map((m) => m.id), ...selection.headlines, ...selection.segment_items, ...selection.quick_hits])];
   const summaries = new Map(draft.story_summaries.map((s) => [s.id, s.summary]));
@@ -231,20 +275,43 @@ async function main(): Promise<void> {
     return;
   }
 
+  stage = 'tts';
   const chunks = chunkForTts(sections, config.tts.max_chars_per_request);
-  const parts = await speakAll(config, chunks);
-  const file = `signal-check-${date}.mp3`;
-  const mp3 = join(outDir, file);
-  assembleEpisode(config, parts, outDir, mp3, { title: draft.title, artist: config.show.author });
-  const duration = durationSeconds(mp3);
-  const target = minutes * 60;
-  if (duration < target / 2) {
-    throw new Error(`Episode audio is only ${duration}s for a ${minutes}-minute target; not publishing a broken episode.`);
+  const ttsLog: ChunkReport[] = [];
+  let voiced: Awaited<ReturnType<typeof speakAll>>;
+  try {
+    voiced = await speakAll(config, chunks, ttsLog);
+  } finally {
+    run.tts = ttsLog;
+    writeJson('tts.json', ttsLog);
   }
+  run.ttsModel = voiced.model;
+  writeSummary();
+
+  stage = 'assemble';
+  const file = audioFileName(date, env.GITHUB_RUN_ID, env.GITHUB_RUN_ATTEMPT);
+  const mp3 = join(outDir, file);
+  assembleEpisode(config, voiced.parts, outDir, mp3, { title: draft.title, artist: config.show.author });
+
+  stage = 'reconcile';
+  const exact = probeSeconds(mp3);
+  const problems = reconcile({
+    mp3Seconds: exact,
+    introSeconds: wavSeconds(readFileSync(config.audio.intro)),
+    outroSeconds: wavSeconds(readFileSync(config.audio.outro)),
+    chunkSeconds: voiced.parts.map(wavSeconds),
+    gapSeconds: config.audio.gap_ms / 1000,
+    targetMinutes: minutes,
+  });
+  if (problems.length) throw new Error(`Episode audio failed its checks; not publishing a broken episode:\n- ${problems.join('\n- ')}`);
+  const duration = Math.round(exact);
+  const target = minutes * 60;
   if (Math.abs(duration - target) / target > config.audio.length_warning_tolerance) {
     console.warn(`::warning::Episode is ${Math.round(duration / 60)} min; target is ${minutes} min.`);
   }
+  Object.assign(run, { file, durationSeconds: duration });
 
+  stage = 'meta';
   const tag = `ep-${date}`;
   const meta = {
     date,
@@ -257,16 +324,30 @@ async function main(): Promise<void> {
     tag,
     bytes: statSync(mp3).size,
     durationSeconds: duration,
+    targetMinutes: minutes,
+    ttsModel: voiced.model,
     stories,
     predictions: draft.predictions,
     openThreads: draft.open_threads,
   };
   writeFileSync(join(outDir, 'meta.json'), JSON.stringify(meta, null, 2));
   setOutput({ published: 'true', tag, file, title: draft.title.replaceAll('\n', ' ') });
-  console.log(`[produce] ${file}: ${Math.round(duration / 60)} min, ${chunks.length} TTS requests`);
+  console.log(`[produce] ${file}: ${Math.round(duration / 60)} min, ${chunks.length} TTS requests, ${voiced.model}`);
 }
 
-main().catch((err) => {
-  console.error(err instanceof Error ? err.stack ?? err.message : err);
-  process.exit(1);
-});
+mkdirSync(outDir, { recursive: true });
+// A meta.json left from an earlier run must never be published as this run's.
+rmSync(join(outDir, 'meta.json'), { force: true });
+rmSync(join(outDir, 'error.txt'), { force: true });
+try {
+  await main();
+} catch (err) {
+  const message = err instanceof Error ? (err.stack ?? err.message) : String(err);
+  console.error(`[produce] failed in ${stage}: ${message}`);
+  run.failure = { stage, message: err instanceof Error ? err.message : String(err) };
+  writeFileSync(join(outDir, 'error.txt'), `stage: ${stage}\n${message}\n`);
+  process.exitCode = 1;
+} finally {
+  writeSummary();
+  if (env.GITHUB_STEP_SUMMARY) appendFileSync(env.GITHUB_STEP_SUMMARY, readFileSync(join(outDir, 'summary.md'), 'utf8'));
+}

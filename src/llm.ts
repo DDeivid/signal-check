@@ -1,6 +1,7 @@
-import { ApiError, GoogleGenAI } from '@google/genai';
+import { ApiError, type GenerateContentParameters, type GenerateContentResponse, GoogleGenAI } from '@google/genai';
 import type { z } from 'zod';
 import type { Config } from './config';
+import { fakeAiClient } from './fake-ai';
 
 export interface Source {
   title: string;
@@ -20,7 +21,49 @@ export interface CallOptions {
   grounding?: boolean;
 }
 
+/** The one Gemini call this project makes. The label names the stage, so a fake client can answer per stage. */
+export interface AiClient {
+  generateContent(label: string, params: GenerateContentParameters): Promise<GenerateContentResponse>;
+}
+
+export const TEXT_TIMEOUT_MS = 120_000;
+export const TTS_TIMEOUT_MS = 180_000;
+
+/** The model answered, but with nothing usable (empty, blocked or cut off). Another model may do better. */
+export class ModelOutputError extends Error {
+  override name = 'ModelOutputError';
+}
+
+/** A request that took longer than its timeout. Worth retrying. */
+export class RequestTimeoutError extends Error {
+  override name = 'RequestTimeoutError';
+}
+
+export class OpenRouterError extends Error {
+  override name = 'OpenRouterError';
+  constructor(
+    readonly status: number,
+    message: string,
+  ) {
+    super(message);
+  }
+}
+
+/** Every model in the list is demoted or was skipped. Lets the caller move on as with any other unavailable model. */
+export class NoModelAvailableError extends Error {
+  override name = 'NoModelAvailableError';
+}
+
+/** Errors that carry their own classification (TTS output and audio QA problems). */
+export interface ClassifiedError extends Error {
+  action: 'retry' | 'next-model' | 'fatal';
+}
+
+const isClassified = (err: unknown): err is ClassifiedError =>
+  err instanceof Error && ['retry', 'next-model', 'fatal'].includes((err as ClassifiedError).action);
+
 let client: GoogleGenAI | undefined;
+let aiOverride: AiClient | undefined;
 let lastCall = 0;
 
 export function gemini(): GoogleGenAI {
@@ -32,6 +75,18 @@ export function gemini(): GoogleGenAI {
   return client;
 }
 
+/** The client for generation calls: the real Gemini API, or the deterministic fake with SC_FAKE_AI=true. */
+export function ai(): AiClient {
+  if (aiOverride) return aiOverride;
+  if (process.env.SC_FAKE_AI === 'true') return (aiOverride = fakeAiClient());
+  return { generateContent: (_label, params) => gemini().models.generateContent(params) };
+}
+
+/** For tests: use this client instead (undefined goes back to the default). */
+export function setAiClient(next: AiClient | undefined): void {
+  aiOverride = next;
+}
+
 export const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 async function throttle(seconds: number): Promise<void> {
@@ -40,16 +95,42 @@ async function throttle(seconds: number): Promise<void> {
   lastCall = Date.now();
 }
 
+/** Runs `fn` with an abort signal and rejects with RequestTimeoutError after `ms`, whatever the SDK does with the signal. */
+export async function withTimeout<T>(ms: number, fn: (signal: AbortSignal) => Promise<T>): Promise<T> {
+  const controller = new AbortController();
+  let timer: NodeJS.Timeout | undefined;
+  const timeout = new Promise<never>((_, reject) => {
+    timer = setTimeout(() => {
+      controller.abort();
+      reject(new RequestTimeoutError(`request timed out after ${ms / 1000}s`));
+    }, ms);
+  });
+  try {
+    return await Promise.race([fn(controller.signal), timeout]);
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+const DAILY_QUOTA = /limit: 0\b|PerDay|per day/i;
+
+export const isDailyQuota = (err: unknown) => err instanceof ApiError && err.status === 429 && DAILY_QUOTA.test(err.message);
+
 /** What to do after a failed call: wait and retry the same model, move to the next model, or give up. */
 export function classify(err: unknown): 'retry' | 'next-model' | 'fatal' {
+  if (isClassified(err)) return err.action;
   if (err instanceof ApiError) {
     const message = err.message;
-    if (err.status === 429) return /limit: 0\b|PerDay|per day/i.test(message) ? 'next-model' : 'retry';
+    if (err.status === 429) return DAILY_QUOTA.test(message) ? 'next-model' : 'retry';
     if (err.status >= 500) return 'retry';
     if (err.status === 404 || (err.status === 400 && /not (found|supported)/i.test(message))) return 'next-model';
     return 'fatal';
   }
-  return err instanceof TypeError || (err as Error)?.name === 'TimeoutError' ? 'retry' : 'fatal';
+  if (err instanceof ModelOutputError || err instanceof NoModelAvailableError) return 'next-model';
+  if (err instanceof RequestTimeoutError) return 'retry';
+  if (err instanceof OpenRouterError) return err.status === 429 || err.status >= 500 ? 'retry' : 'fatal';
+  const name = (err as Error)?.name;
+  return err instanceof TypeError || name === 'TimeoutError' || name === 'AbortError' ? 'retry' : 'fatal';
 }
 
 /** Seconds the API asked us to wait, if it said so. */
@@ -81,37 +162,123 @@ export async function withRetry<T>(label: string, fn: () => Promise<T>, attempts
   }
 }
 
+// Models that are out of daily quota (for the whole run) or keep returning 503 (for a while).
+const OVERLOAD_PAUSE_MS = 10 * 60_000;
+const demotedUntil = new Map<string, number>();
+const overloadStreak = new Map<string, number>();
+
+export function isDemoted(model: string, now = Date.now()): boolean {
+  return (demotedUntil.get(model) ?? 0) > now;
+}
+
+/** Remember what a failed model told us, so later calls in this run don't waste time on it. */
+export function noteFailure(model: string, err: unknown, now = Date.now()): void {
+  if (isDailyQuota(err)) {
+    demotedUntil.set(model, Infinity);
+    console.warn(`[models] ${model} is out of daily quota; skipping it for the rest of the run`);
+    return;
+  }
+  if (err instanceof ApiError && err.status === 503) {
+    const streak = (overloadStreak.get(model) ?? 0) + 1;
+    overloadStreak.set(model, streak);
+    if (streak >= 2) {
+      demotedUntil.set(model, now + OVERLOAD_PAUSE_MS);
+      overloadStreak.set(model, 0);
+      console.warn(`[models] ${model} overloaded twice in a row; skipping it for 10 minutes`);
+    }
+  }
+}
+
+function noteSuccess(model: string): void {
+  overloadStreak.delete(model);
+}
+
+/** One entry per call: which model answered, and what was tried first. Read by the run summary. */
+export interface ModelUse {
+  label: string;
+  model: string;
+  fallbacks: string[];
+}
+
+const uses: ModelUse[] = [];
+export const modelUses = (): readonly ModelUse[] => uses;
+
+/** For tests: forget demotions and the model log. */
+export function resetModelState(): void {
+  demotedUntil.clear();
+  overloadStreak.clear();
+  uses.length = 0;
+}
+
 /**
  * Try each model in order. A busy or rate-limited model gets a few quick retries before
  * the next one is tried; a model without quota or that doesn't exist is skipped at once.
  */
 export async function withModels<T>(label: string, models: string[], fn: (model: string) => Promise<T>, attemptsPerModel = 3): Promise<T> {
+  const { result } = await withModelsNamed(label, models, fn, attemptsPerModel);
+  return result;
+}
+
+/** withModels, also returning the model that answered. */
+export async function withModelsNamed<T>(
+  label: string,
+  models: string[],
+  fn: (model: string) => Promise<T>,
+  attemptsPerModel = 3,
+): Promise<{ result: T; model: string }> {
   let last: unknown;
+  const fallbacks: string[] = [];
   for (const model of models) {
+    if (isDemoted(model)) {
+      fallbacks.push(`${model} (demoted)`);
+      continue;
+    }
     try {
-      return await withRetry(`${label}@${model}`, () => fn(model), attemptsPerModel);
+      const result = await withRetry(`${label}@${model}`, () => fn(model), attemptsPerModel);
+      noteSuccess(model);
+      uses.push({ label, model, fallbacks });
+      return { result, model };
     } catch (err) {
-      if (classify(err) === 'fatal') throw err;
+      noteFailure(model, err);
+      if (classify(err) === 'fatal') {
+        uses.push({ label, model: `${model} (failed)`, fallbacks });
+        throw err;
+      }
       last = err;
+      fallbacks.push(`${model} (${describeError(err).slice(0, 80)})`);
       console.warn(`[${label}] ${model} unavailable (${describeError(err)})`);
     }
   }
-  throw last;
+  uses.push({ label, model: '(none)', fallbacks });
+  throw last ?? new NoModelAvailableError(`[${label}] no usable model: ${fallbacks.join(', ') || 'none configured'}`);
+}
+
+const BAD_FINISH = new Set(['SAFETY', 'RECITATION', 'MAX_TOKENS']);
+
+/** The text of a response, or a ModelOutputError if it's empty, blocked or truncated. */
+export function responseText(response: GenerateContentResponse): string {
+  const finish = response.candidates?.[0]?.finishReason;
+  if (finish && BAD_FINISH.has(finish)) throw new ModelOutputError(`response stopped early (finish reason: ${finish})`);
+  const text = response.text;
+  if (!text?.trim()) throw new ModelOutputError(`empty response (finish reason: ${finish ?? 'unknown'})`);
+  return text;
 }
 
 async function callGemini(config: Config, model: string, opts: CallOptions, json: boolean): Promise<TextResult> {
-  const response = await gemini().models.generateContent({
-    model,
-    contents: opts.prompt,
-    config: {
-      systemInstruction: opts.system,
-      temperature: opts.temperature ?? config.llm.temperature,
-      ...(json ? { responseMimeType: 'application/json' } : {}),
-      ...(opts.grounding ? { tools: [{ googleSearch: {} }] } : {}),
-    },
-  });
-  const text = response.text;
-  if (!text) throw new Error(`empty response (finish reason: ${response.candidates?.[0]?.finishReason ?? 'unknown'})`);
+  const response = await withTimeout(TEXT_TIMEOUT_MS, (abortSignal) =>
+    ai().generateContent(opts.label, {
+      model,
+      contents: opts.prompt,
+      config: {
+        systemInstruction: opts.system,
+        temperature: opts.temperature ?? config.llm.temperature,
+        abortSignal,
+        ...(json ? { responseMimeType: 'application/json' } : {}),
+        ...(opts.grounding ? { tools: [{ googleSearch: {} }] } : {}),
+      },
+    }),
+  );
+  const text = responseText(response);
   const chunks = response.candidates?.[0]?.groundingMetadata?.groundingChunks ?? [];
   const sources = chunks.flatMap((c) => (c.web?.uri ? [{ title: c.web.title ?? c.web.uri, url: c.web.uri }] : []));
   return { text, sources };
@@ -130,12 +297,12 @@ async function callOpenRouter(config: Config, opts: CallOptions, json: boolean):
       ],
       ...(json ? { response_format: { type: 'json_object' } } : {}),
     }),
-    signal: AbortSignal.timeout(180_000),
+    signal: AbortSignal.timeout(TEXT_TIMEOUT_MS),
   });
-  if (!res.ok) throw new Error(`OpenRouter HTTP ${res.status}: ${(await res.text()).slice(0, 300)}`);
+  if (!res.ok) throw new OpenRouterError(res.status, `OpenRouter HTTP ${res.status}: ${(await res.text()).slice(0, 300)}`);
   const body = (await res.json()) as { choices?: Array<{ message?: { content?: string } }> };
   const text = body.choices?.[0]?.message?.content;
-  if (!text) throw new Error('OpenRouter returned no content');
+  if (!text?.trim()) throw new ModelOutputError('OpenRouter returned no content');
   return { text, sources: [] };
 }
 
@@ -146,7 +313,9 @@ async function call(config: Config, opts: CallOptions, json: boolean): Promise<T
   } catch (err) {
     if (opts.grounding || !config.llm.fallback_model || !process.env.OPENROUTER_API_KEY) throw err;
     console.warn(`[${opts.label}] Gemini failed, using OpenRouter fallback: ${describeError(err)}`);
-    return withRetry(`${opts.label}/fallback`, () => callOpenRouter(config, opts, json));
+    const result = await withRetry(`${opts.label}/fallback`, () => callOpenRouter(config, opts, json));
+    uses.push({ label: opts.label, model: `openrouter:${config.llm.fallback_model}`, fallbacks: [...config.llm.models] });
+    return result;
   }
 }
 

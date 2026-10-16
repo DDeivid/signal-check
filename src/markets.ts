@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs';
 import type { Config } from './config';
 
 export interface Quote {
@@ -46,6 +47,9 @@ export function parseChart(label: string, symbol: string, body: ChartResponse): 
 }
 
 export async function fetchQuotes(config: Config): Promise<{ quotes: Quote[]; failures: string[] }> {
+  // Rehearsals: a fixed market table instead of Yahoo.
+  const fixture = process.env.SC_FIXTURE_MARKETS;
+  if (fixture) return { quotes: JSON.parse(readFileSync(fixture, 'utf8')) as Quote[], failures: [] };
   const quotes: Quote[] = [];
   const failures: string[] = [];
   for (const { label, symbol } of config.markets.instruments) {

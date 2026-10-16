@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs';
 import Parser from 'rss-parser';
 import type { Config } from './config';
 
@@ -24,6 +25,8 @@ const USER_AGENT = 'SignalCheckPodcast/1.0 (+https://github.com)';
 const parser = new Parser();
 
 export async function fetchText(url: string, timeoutMs = 20_000): Promise<string> {
+  // Rehearsals run without internet: feeds come from the fixture and article pages aren't fetched.
+  if (process.env.SC_FIXTURE_FEEDS) throw new Error(`no network in fixture mode (${url})`);
   const res = await fetch(url, {
     headers: { 'user-agent': USER_AGENT, accept: '*/*' },
     signal: AbortSignal.timeout(timeoutMs),
@@ -79,12 +82,43 @@ export function prepareItems(items: RawItem[], from: Date, to: Date, coveredUrls
     .map((i, n) => ({ ...i, id: `s${n + 1}` }));
 }
 
+/** A fixture item: like a feed item, with either an ISO `published` or `hoursAgo` (relative to `now`). */
+export interface FixtureItem {
+  feed: string;
+  topic: string;
+  title: string;
+  url: string;
+  snippet?: string;
+  published?: string;
+  hoursAgo?: number;
+}
+
+export function fixtureItems(fixture: FixtureItem[], now: Date): { raw: RawItem[]; results: FeedResult[] } {
+  const raw = fixture.map((f) => ({
+    feed: f.feed,
+    topic: f.topic,
+    title: f.title,
+    url: f.url,
+    snippet: f.snippet ?? '',
+    published: f.published ? new Date(f.published) : new Date(now.getTime() - (f.hoursAgo ?? 1) * 3_600_000),
+  }));
+  const names = [...new Set(raw.map((r) => r.feed))];
+  const results = names.map((name) => ({ name, url: 'fixture', ok: true, items: raw.filter((r) => r.feed === name).length }));
+  return { raw, results };
+}
+
 export async function collectNews(
   config: Config,
   from: Date,
   to: Date,
   coveredUrls: Set<string>,
 ): Promise<{ items: FeedItem[]; results: FeedResult[] }> {
+  const fixture = process.env.SC_FIXTURE_FEEDS;
+  if (fixture) {
+    const { raw, results } = fixtureItems(JSON.parse(readFileSync(fixture, 'utf8')) as FixtureItem[], to);
+    console.log(`[feeds] fixture mode: ${raw.length} items from ${fixture}`);
+    return { items: prepareItems(raw, from, to, coveredUrls), results };
+  }
   const settled = await Promise.allSettled(config.feeds.map(readFeed));
   const results: FeedResult[] = [];
   const raw: RawItem[] = [];
