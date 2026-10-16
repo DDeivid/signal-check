@@ -19,10 +19,10 @@ const [mia, theo] = config.hosts;
 const sample = [
   { speaker: mia!.name, text: `Good morning, this is ${config.show.title}. I'm ${mia!.name}.` },
   { speaker: theo!.name, text: `And I'm ${theo!.name}. Big one today: a new AI model claims it can review code better than most senior engineers.` },
-  { speaker: mia!.name, text: "Which is a bold claim. What's actually in the paper?" },
+  { speaker: mia!.name, text: "Which is a bold claim. What's actually in the paper?", delivery: 'amused' },
   { speaker: theo!.name, text: "A benchmark they built themselves, which is the first thing I'd want someone else to check. The numbers look good. The test set is small." },
   { speaker: mia!.name, text: "So, promising, but nobody outside the company has tried it yet." },
-  { speaker: theo!.name, text: 'Exactly. Ask me again in a month.' },
+  { speaker: theo!.name, text: 'Exactly. Ask me again in a month.', delivery: 'deadpan' },
 ];
 
 const pairs = (process.env.SC_VOICES || DEFAULT_PAIRS).split(',').map((p) => p.trim().split('+'));

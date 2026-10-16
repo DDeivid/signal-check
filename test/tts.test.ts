@@ -152,14 +152,18 @@ describe('TTS request format', () => {
     { speaker: 'Theo', text: 'Hi.' },
   ];
 
-  it('builds a "Name: text" prompt, or one part per line tagged with its speaker', () => {
-    expect(ttsContents(config, lines, false)).toBe(`${config.tts.style}\n\nMia: Hello there.\nTheo: Hi.`);
-    expect(ttsContents(config, lines, true)).toEqual([
+  it('builds a "Name: text" prompt with host-level delivery only, or one directed part per line', () => {
+    const style = config.tts.style.trim();
+    const directed: Line[] = [lines[0]!, { ...lines[1]!, delivery: 'deadpan' }];
+    const prompt = ttsContents(config, directed, false) as string;
+    expect(prompt).toBe(`${style} Mia sounds warm, curious, upbeat. Theo sounds dry, measured, quietly amused.\n\nMia: Hello there.\nTheo: Hi.`);
+    expect(prompt).not.toContain('deadpan');
+    expect(ttsContents(config, directed, true)).toEqual([
       {
         role: 'user',
         parts: [
-          { text: 'Hello there.', speechMetadata: { speaker: 'Mia', style: config.tts.style } },
-          { text: 'Hi.', speechMetadata: { speaker: 'Theo', style: config.tts.style } },
+          { text: 'Hello there.', speechMetadata: { speaker: 'Mia', style: `${style.replace(/[.\s]+$/, '')}. Mia sounds warm, curious, upbeat.` } },
+          { text: 'Hi.', speechMetadata: { speaker: 'Theo', style: `${style.replace(/[.\s]+$/, '')}. Theo sounds dry, measured, quietly amused. This line: deadpan.` } },
         ],
       },
     ]);
