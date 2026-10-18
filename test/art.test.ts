@@ -4,7 +4,8 @@ import { join } from 'node:path';
 import { GenerateContentResponse } from '@google/genai';
 import sharp from 'sharp';
 import { afterEach, describe, expect, it } from 'vitest';
-import { artPrompt, FIXED_RULES, imagePart, makeArt } from '../src/art';
+import { artPrompt, FIXED_RULES, imagePart, makeArt, pickLook, recentLooks } from '../src/art';
+import type { EpisodeRecord } from '../src/history';
 import { cardTheme, contrast, fromHex, MIN_CONTRAST, themeColor, toHsl } from '../src/color';
 import { loadConfig } from '../src/config';
 import { FAKE_ART_COLOR, fakeAiClient, textResponse } from '../src/fake-ai';
@@ -84,6 +85,40 @@ describe('episode image', () => {
   it('keeps the no-real-people rule even with no configured rules', () => {
     const prompt = artPrompt({ ...config, art: { ...config.art, rules: [] } }, lead);
     expect(prompt).toMatch(/Never show a real, identifiable person/);
+  });
+
+  it('puts the look between the style and the rules', () => {
+    const prompt = artPrompt({ ...config, art: { ...config.art, style: 'STYLE' } }, lead, 'pastel morning');
+    expect(prompt.indexOf('The look for this photograph: pastel morning')).toBeGreaterThan(prompt.indexOf('STYLE'));
+    expect(prompt.indexOf('The look for this photograph')).toBeLessThan(prompt.indexOf('Rules:'));
+    expect(artPrompt(config, lead)).not.toContain('The look for this photograph');
+  });
+
+  it('draws a look at random from those not used recently', () => {
+    const looks = ['a', 'b', 'c', 'd'];
+    expect(pickLook(looks, ['a', 'c'], () => 0)).toBe('b');
+    expect(pickLook(looks, ['a', 'c'], (n) => n - 1)).toBe('d');
+    expect(pickLook(looks, looks, () => 2)).toBe('c'); // everything recent: draw from all
+    expect(pickLook([], [])).toBeUndefined();
+    const seen = new Set(Array.from({ length: 400 }, () => pickLook(looks, ['a'])));
+    expect([...seen].sort()).toEqual(['b', 'c', 'd']);
+  });
+
+  it('never repeats a look within no_repeat episodes over a long run', () => {
+    const cfg = { ...config, art: { ...config.art, no_repeat: 15 } };
+    const history: EpisodeRecord[] = [];
+    for (let i = 0; i < 200; i++) {
+      const look = pickLook(cfg.art.looks, recentLooks(cfg, history))!;
+      expect(recentLooks(cfg, history)).not.toContain(look);
+      history.push({ date: String(i), art: { file: 'x', color: '#000000', model: 'm', look } } as EpisodeRecord);
+    }
+  });
+
+  it('records the drawn look with the image', async () => {
+    setAiClient(fakeAiClient({}));
+    const file = join(mkdtempSync(join(tmpdir(), 'sc-art-')), 'art.webp');
+    const art = await makeArt({ ...config, art: { ...config.art, looks: ['only look'] } }, lead, file);
+    expect(art?.look).toBe('only look');
   });
 
   it('asks for the configured render size', async () => {

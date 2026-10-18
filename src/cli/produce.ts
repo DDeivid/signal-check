@@ -15,7 +15,7 @@
  */
 import { appendFileSync, mkdirSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { makeArt } from '../art';
+import { makeArt, recentLooks } from '../art';
 import { assembleEpisode, audioFileName, probeSeconds } from '../audio';
 import { reconcile, wavSeconds } from '../audio-qa';
 import { type Config, isCoreTopic, loadConfig, type SegmentId } from '../config';
@@ -387,8 +387,8 @@ async function main(): Promise<void> {
 
   // The image comes after the audio has passed its checks, so a failed episode costs no image.
   stage = 'art';
-  const art = await makeArt(config, script.stories[0], join(outDir, ART_FILE));
-  run.art = art ? `${art.model}, theme colour ${art.color}` : config.art.enabled ? 'failed (site draws one)' : 'off';
+  const art = await makeArt(config, script.stories[0], join(outDir, ART_FILE), recentLooks(config, readHistory().filter((e) => e.date !== date)));
+  run.art = art ? `${art.model}, theme colour ${art.color}${art.look ? `, look: ${art.look}` : ''}` : config.art.enabled ? 'failed (site draws one)' : 'off';
 
   stage = 'meta';
   const tag = `ep-${date}`;

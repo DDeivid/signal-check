@@ -20,7 +20,7 @@ copyFileSync(join(outDir, 'notes.md'), notesFile);
 let art: EpisodeRecord['art'];
 if (meta.art && existsSync(join(outDir, meta.art.file))) {
   mkdirSync('data/art', { recursive: true });
-  art = { file: `data/art/${meta.date}.webp`, color: meta.art.color, model: meta.art.model };
+  art = { file: `data/art/${meta.date}.webp`, color: meta.art.color, model: meta.art.model, ...(meta.art.look ? { look: meta.art.look } : {}) };
   copyFileSync(join(outDir, meta.art.file), art.file);
 }
 

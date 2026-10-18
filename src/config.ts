@@ -96,6 +96,10 @@ export const configSchema = z.object({
     rules: z.array(z.string()).default([]),
     /** Size the model renders at (its default is 1K). The site shows `width` px either way. */
     image_size: z.enum(['1K', '2K', '4K']).optional(),
+    /** Photographic looks; each image gets one at random. */
+    looks: z.array(z.string()).default([]),
+    /** A look isn't drawn again until this many episodes later. */
+    no_repeat: z.number().int().min(0).default(15),
     /** Width of the published image; the height follows from 16:9. */
     width: z.number().int().min(320),
     /** Card colour when an episode has no image. */

@@ -221,10 +221,58 @@ art:
   style: >-
     Award-winning editorial photograph, the kind a magazine runs as a full-page
     opener: a striking composition with one clear subject and crisp, rich
-    detail. Vivid, saturated colour with a bold, deliberate colour grade, like
-    a magazine cover; never grey, washed-out or muted. Shoot on location or in
-    a studio, whichever tells this story best. Choose the light, weather, time
-    and colour palette that suit this particular story.
+    detail, with deliberate, confident colour; never grey or washed-out. Shoot
+    on location or in a studio, whichever tells this story best. The look
+    below sets the light and the palette; apply it to this story.
+  # Each image gets one look, drawn at random, never one used in the last `no_repeat` episodes.
+  # Add, edit or remove lines freely; the more there are, the more varied the episodes.
+  looks:
+    # Light and time of day
+    - bright midday sun, hard shadows, deep blue sky, saturated colours
+    - early morning mist with soft pastel pinks and blues
+    - golden hour, low warm sun and long shadows
+    - blue hour, deep cobalt sky against warm lit windows
+    - night city, neon signs and wet reflections in magenta and cyan
+    - sodium street lights at night, deep orange against black
+    - stormy sky with sunlight breaking through, dramatic contrast
+    - heavy rain, glossy reflections and bright umbrellas
+    - snow in bright sunshine, crisp white and blue with one red accent
+    - cold winter morning, frost and pale gold sunlight
+    - summer heat, bleached bright colours and sharp light
+    - candlelight or firelight, warm amber against deep shadow
+    - warm tungsten indoor light against cool daylight from a window
+    - fluorescent industrial light with a green-cyan cast
+    - backlit subject with a bright rim of light, the background falling into colour
+    # Studio
+    - studio shot on a seamless backdrop in one bold colour that suits the story, hard key light
+    - studio lit with two contrasting coloured gels, sculpted shadows
+    - bright high-key white studio, clean and airy, one strong accent colour
+    - low-key studio, near-black background, a single spotlight, deep rich colour
+    - top-down still life on a coloured surface with a hard graphic shadow
+    - one object alone in a large field of flat colour, minimalist
+    - direct on-camera flash at night, vivid colours against a dark background
+    # Viewpoint and framing
+    - aerial view straight down, graphic shapes and patterns of colour
+    - extreme close-up of one telling detail, shallow depth of field
+    - wide view with a small subject in a vast, colourful setting
+    - low angle from the ground, looking up against a bright sky
+    - framed through a window, doorway or gap, layered depth
+    - seen in a reflection in a puddle, glass or mirror
+    - long exposure, moving people or traffic blurred around a sharp subject
+    - candid street photograph in a busy, colourful crowd
+    # Colour palettes and film
+    - 1970s slide-film look, warm saturated reds and yellows
+    - cool film look with clean greens and teals
+    - instant-film look with soft contrast and creamy colours
+    - a single bold colour dominating the frame in many shades
+    - primary colours, red, yellow and blue, graphic and clean
+    - pastel palette of mint, peach and lavender in soft light
+    - earthy browns and greens with one electric accent colour
+    - autumn palette of rust, ochre and deep green
+    - spring palette of fresh greens and blossom pink in clear light
+    - mostly dark frame with one splash of saturated colour
+    - shot through coloured glass, the colour washing over the scene
+  no_repeat: 15
   rules:
     - >-
       The main subject is in the right third of the frame. The left side is part
