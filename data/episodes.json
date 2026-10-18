@@ -130,8 +130,9 @@
     "notesFile": "data/notes/2026-10-16.md",
     "art": {
       "file": "data/art/2026-10-16.webp",
-      "color": "#AE714B",
-      "model": "gemini-nano-banana-2.1"
+      "color": "#A67436",
+      "model": "gemini-nano-banana-2.1",
+      "look": "heavy rain, glossy reflections and bright umbrellas"
     }
   }
 ]
