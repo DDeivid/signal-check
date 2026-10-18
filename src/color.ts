@@ -51,7 +51,8 @@ export function themeColor(pixels: Uint8Array, width: number, height: number, fr
       const i = (y * width + x) * 3;
       const rgb: Rgb = [pixels[i]!, pixels[i + 1]!, pixels[i + 2]!];
       const [h, s, l] = toHsl(rgb);
-      const w = s * (1 - Math.abs(l - 0.5) * 2) + 0.001;
+      // Squared, so pale paper or deep shadow can't outvote a smaller area of real ink.
+      const w = s * (1 - Math.abs(l - 0.5) * 2) ** 2 + 0.001;
       const bin = bins[Math.floor(h / 10) % 36]!;
       bin.w += w;
       bin.r += rgb[0] * w;

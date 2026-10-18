@@ -44,6 +44,13 @@ describe('theme colour', () => {
     expect(hueDistance(themeColor(px, 96, 54), '#E8591C')).toBeLessThan(6);
   });
 
+  it('picks the ink, not the paper, in a print with lots of plain paper', () => {
+    const px = pixels(96, 54, '#F8F0DD', '#F8F0DD');
+    for (let y = 30; y < 54; y++) for (let x = 70; x < 84; x++) px.set(fromHex('#C2602F'), (y * 96 + x) * 3);
+    for (let y = 30; y < 54; y++) for (let x = 84; x < 96; x++) px.set(fromHex('#1F2A4A'), (y * 96 + x) * 3);
+    expect(hueDistance(themeColor(px, 96, 54), '#C2602F')).toBeLessThan(6);
+  });
+
   it.each(['#FFD21F', '#2E86C1', '#102030', '#F0F0F0', '#7A7A7A', '#00FF66', '#8B0000', '#3F8F75'])(
     'gives readable accents in both themes for %s',
     (hex) => {
