@@ -220,10 +220,11 @@ art:
   # Tip: concrete photography words (place, light, lens, angle, moment) work better than "4K, award-winning".
   style: >-
     Award-winning editorial photograph, the kind a magazine runs as a full-page
-    opener: a striking composition with one clear subject, bold and
-    distinctive colour, deliberate light and crisp, rich detail. Shoot on
-    location or in a studio, whichever tells this story best. Choose the light,
-    weather, time and colour palette that suit this particular story.
+    opener: a striking composition with one clear subject and crisp, rich
+    detail. Vivid, saturated colour with a bold, deliberate colour grade, like
+    a magazine cover; never grey, washed-out or muted. Shoot on location or in
+    a studio, whichever tells this story best. Choose the light, weather, time
+    and colour palette that suit this particular story.
   rules:
     - >-
       The main subject is in the right third of the frame. The left side is part
