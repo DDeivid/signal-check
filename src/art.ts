@@ -17,7 +17,7 @@ export const ART_DEADLINE_MS = 180_000;
 export const ART_RULES = [
   'Wide 16:9 image.',
   'Place the main subject in the right third of the frame. Keep the left third calm and low in detail, because text is laid over it.',
-  'No text of any kind: no letters, numbers, captions, signs, logos or watermarks.',
+  'No text of any kind: no letters, numbers, captions, signs, logos, mascots or watermarks.',
   'Do not depict any real, recognisable person. Show people only as anonymous silhouettes or small distant figures; tell the story through places, objects and symbols.',
   'Show one ordinary, concrete scene from the story, as it could really look. No glowing effects, sparkles, particles, holograms, floating code, light beams or surreal mash-ups of several ideas.',
   'No gore or graphic violence.',

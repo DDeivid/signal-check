@@ -217,10 +217,9 @@ art:
   # The house style. Code adds the fixed rules (subject on the right, no text, no real people's faces)
   # and the episode's lead story after this.
   style: >-
-    Cinematic editorial illustration for a morning news podcast. Layered,
-    atmospheric landscape depth like overlapping ridgelines, soft volumetric
-    light, a restrained palette built around one clear colour, matte painted
-    texture, calm and thoughtful rather than sensational.
+    Risograph print look with two or three inks, simple bold shapes, slight
+    misregistration and grain, plenty of plain paper-coloured space. Calm and
+    graphic, like a small-press magazine illustration.
   width: 1600
   # Card colour for episodes without an image.
   fallback_color: "#3F8F75"
