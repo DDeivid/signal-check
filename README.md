@@ -57,6 +57,18 @@ Optional secrets:
 | `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID` | Message when an episode is ready or a run fails |
 | `NTFY_TOPIC` | Same, via ntfy.sh |
 
+## Morning trigger (cron-job.org)
+
+GitHub's own schedule is best effort: runs come hours late or not at all (it did both on 17–18 Oct 2026). So the daily run is started by [cron-job.org](https://cron-job.org), which calls the workflow at 08:02 Tallinn time; the GitHub crons in `daily.yml` stay as a backup. Either way the gate applies the same rules: never before 08:00, weekdays plus `schedule.extra_days`, and nothing if today's episode is already out.
+
+The call cron-job.org makes:
+
+- `POST https://api.github.com/repos/DDeivid/signal-check/actions/workflows/daily.yml/dispatches`
+- Headers: `Accept: application/vnd.github+json`, `Authorization: Bearer <token>`, `X-GitHub-Api-Version: 2022-11-28`, `Content-Type: application/json`
+- Body: `{"ref":"main","inputs":{"scheduled":"true"}}`. Success is HTTP 204.
+
+The token is a fine-grained personal access token for this repository only, with **Actions: read and write** and nothing else. It expires after at most a year; renew it in GitHub and paste the new one into cron-job.org.
+
 ## Spotify
 
 Submit `https://<site>/feed.xml` at [podcasters.spotify.com](https://podcasters.spotify.com). Spotify sends a code to the feed's email: set `show.owner_email`, wait for the Pages deploy, verify, then blank it again.
