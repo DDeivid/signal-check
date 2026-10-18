@@ -130,7 +130,7 @@
     "notesFile": "data/notes/2026-10-16.md",
     "art": {
       "file": "data/art/2026-10-16.webp",
-      "color": "#5A6E76",
+      "color": "#F8F0DD",
       "model": "gemini-nano-banana-2.1"
     }
   }
