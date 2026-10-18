@@ -49,6 +49,8 @@ a { color: inherit; }
   position: relative; border-radius: 22px; overflow: hidden; background: var(--tint); isolation: isolate;
 }
 .card .art { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: right center; z-index: -2; display: block; }
+.ai-tag { position: absolute; right: 12px; bottom: 12px; z-index: 1; font-size: 11px; letter-spacing: .04em; padding: 3px 8px; border-radius: 999px; background: rgba(0, 0, 0, .55); color: #fff; }
+.mini .ai-tag { bottom: 10px; }
 .card .shade { position: absolute; inset: 0; z-index: -1; background: linear-gradient(90deg, var(--tint) 0%, var(--tint) 32%, color-mix(in srgb, var(--tint) 72%, transparent) 48%, transparent 72%); }
 .content { position: relative; }
 .eyebrow { margin: 0; font: 500 12px/1.3 var(--sans); letter-spacing: .12em; text-transform: uppercase; color: var(--accent); display: flex; flex-wrap: wrap; gap: 4px 10px; }
@@ -301,7 +303,7 @@ const STORIES_SHOWN = 6;
 export function card(config: Config, e: EpisodeRecord, { root, open, fixed, eager }: CardOptions): string {
   const color = hasArt(e) ? e.art!.color : config.art.fallback_color;
   const art = hasArt(e)
-    ? `<img class="art" src="${root}/${artPath(e)}" alt="" width="1600" height="900"${eager ? ' fetchpriority="high"' : ' loading="lazy"'}>`
+    ? `<img class="art" src="${root}/${artPath(e)}" alt="" width="1600" height="900"${eager ? ' fetchpriority="high"' : ' loading="lazy"'}><span class="ai-tag">AI image</span>`
     : fallbackArt(e.date, color);
   const href = `${root}/${episodePath(e)}`;
   const shown = e.stories.slice(0, STORIES_SHOWN);

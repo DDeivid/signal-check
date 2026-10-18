@@ -217,9 +217,12 @@ art:
   # The house style. Code adds the fixed rules (subject on the right, no text, no real people's faces)
   # and the episode's lead story after this.
   style: >-
-    Risograph print look with two or three inks, simple bold shapes, slight
-    misregistration and grain, plenty of plain paper-coloured space. Calm and
-    graphic, like a small-press magazine illustration.
+    Real-life editorial still-life photograph: a few real objects that stand
+    for the story, on a real surface (a table, desk, workbench or floor), shot
+    from above or at a low angle by a professional photographer. Natural window
+    light, true-to-life colours, real materials and textures, shallow depth of
+    field, a little film grain. It must look like an actual photograph, not a
+    render or an illustration. No people.
   width: 1600
   # Card colour for episodes without an image.
   fallback_color: "#3F8F75"

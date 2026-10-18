@@ -39,9 +39,11 @@ describe('site', () => {
     writeFileSync(file, 'x');
     const withArt = indexBody(config, [episode(1, '2026-10-16', { art: { file, color: '#2E86C1', model: 'm' } })]);
     expect(withArt).toContain('<img class="art" src="./art/2026-10-16.webp"');
+    expect(withArt).toContain('<span class="ai-tag">AI image</span>');
     expect(withArt).toContain(cardStyle('#2E86C1'));
     const missing = indexBody(config, [episode(1, '2026-10-16', { art: { file: join(dir, 'gone.webp'), color: '#2E86C1', model: 'm' } })]);
     expect(missing).toContain('<svg class="art"');
+    expect(missing).not.toContain('ai-tag');
     expect(missing).toContain(`--acc-l:${cardTheme(config.art.fallback_color).accentLight}`);
   });
 
