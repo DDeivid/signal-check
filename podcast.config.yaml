@@ -219,20 +219,19 @@ art:
   # picture of someone in the news would be a fake news photo).
   # Tip: concrete photography words (place, light, lens, angle, moment) work better than "4K, award-winning".
   style: >-
-    Photorealistic documentary photograph, as a press photographer would take it
-    on assignment for this story: a real place, available light, a moment that
-    feels observed rather than posed. Full-frame camera, 35mm or 50mm lens,
-    true-to-life colour, natural detail and sharp focus on the subject.
-    Pick the setting, time of day, weather and camera angle that fit this
-    particular story, so no two episodes look alike. Avoid stock-photo looks.
+    Award-winning editorial photograph, the kind a magazine runs as a full-page
+    opener: a striking composition with one clear subject, bold and
+    distinctive colour, deliberate light and crisp, rich detail. Shoot on
+    location or in a studio, whichever tells this story best. Choose the light,
+    weather, time and colour palette that suit this particular story.
   rules:
     - >-
       The main subject is in the right third of the frame. The left side is part
       of the same photograph but quieter (open space, softer focus, less detail),
       because the episode title is laid over it.
     - >-
-      Make it a real photograph: either a real location connected to the story at
-      its most photogenic moment, or a staged studio photograph of people or
+      Make it a real photograph: either a real location connected to the story,
+      or a staged studio photograph of people or
       objects that stand for it. Physically real, no glowing effects, holograms,
       floating code, light beams or surreal mash-ups.
     - People are welcome as ordinary, anonymous people going about their day.
