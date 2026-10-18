@@ -8,7 +8,7 @@ import { z } from 'zod';
 import type { Config } from './config';
 import { lineSchema } from './script';
 
-const storySchema = z.object({ title: z.string(), url: z.string(), topic: z.string(), summary: z.string() });
+const storySchema = z.object({ title: z.string(), url: z.string(), topic: z.string(), summary: z.string(), label: z.string().optional() });
 const gradeSchema = z.object({
   text: z.string(),
   by: z.string(),
@@ -30,7 +30,7 @@ export const savedScriptSchema = z.object({
   stories: z.array(storySchema),
   predictions: z.array(z.object({ text: z.string(), by: z.string() })),
   open_threads: z.array(z.string()),
-  story_summaries: z.array(z.object({ id: z.string(), summary: z.string() })).default([]),
+  story_summaries: z.array(z.object({ id: z.string(), summary: z.string(), label: z.string().default('') })).default([]),
   predictionGrades: z.array(gradeSchema).optional(),
   /** Models that researched, wrote and checked the script (voices are added when it's voiced). */
   textModels: z.array(z.object({ role: z.string(), models: z.array(z.string()) })).default([]),

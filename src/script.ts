@@ -27,7 +27,7 @@ export const draftSchema = z.object({
     }),
   predictions: z.array(z.object({ text: z.string(), by: z.string() })).default([]),
   open_threads: z.array(z.string()).default([]),
-  story_summaries: z.array(z.object({ id: z.string(), summary: z.string() })).default([]),
+  story_summaries: z.array(z.object({ id: z.string(), summary: z.string(), label: z.string().default('') })).default([]),
 });
 export type Draft = z.infer<typeof draftSchema>;
 

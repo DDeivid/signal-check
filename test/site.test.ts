@@ -5,7 +5,7 @@ import { describe, expect, it } from 'vitest';
 import { cardTheme } from '../src/color';
 import { loadConfig } from '../src/config';
 import type { EpisodeRecord } from '../src/history';
-import { cardStyle, fallbackArt, indexBody } from '../src/site';
+import { cardStyle, easedFade, fallbackArt, indexBody } from '../src/site';
 
 const config = loadConfig();
 
@@ -30,6 +30,32 @@ describe('site', () => {
     expect(html.match(/<li><a href="https:\/\/news.example/g)).toHaveLength(6);
     expect(html).toContain('3 more stories in the notes');
     expect(html).not.toContain('world');
+  });
+
+  it('lists stories by their short label, with the full headline as a tooltip', () => {
+    const e = episode(1, '2026-10-16');
+    e.stories[0] = { ...e.stories[0]!, title: 'A very long <headline> from the feed', label: 'Short label' };
+    const html = indexBody(config, [e]);
+    expect(html).toContain('title="A very long &lt;headline&gt; from the feed">Short label</a>');
+    expect(html).toContain('>Story 2</a>'); // no label: the headline itself
+  });
+
+  it('gives every card a player: play, elapsed and total time, a seek bar and speed', () => {
+    const html = indexBody(config, [episode(1, '2026-10-16')]);
+    const player = html.match(/<div class="player">.*?<\/div>/)![0];
+    expect(player).toContain('class="pp" data-play');
+    expect(player).toContain('<span class="now">0:00</span>');
+    expect(player).toContain('<input class="seek" type="range" min="0" max="577"');
+    expect(player).toContain('<span class="total">9:37</span>');
+    expect(player).toContain('class="speed"');
+  });
+
+  it('fades the image in smoothly from fully hidden to fully shown', () => {
+    const alphas = [...easedFade('to right', 0, 64).matchAll(/rgba\(0,0,0,([\d.]+)\) ([\d.]+)%/g)].map((m) => [Number(m[1]), Number(m[2])]);
+    expect(alphas[0]).toEqual([0, 0]);
+    expect(alphas.at(-1)).toEqual([1, 64]);
+    for (let i = 1; i < alphas.length; i++) expect(alphas[i]![0]!).toBeGreaterThanOrEqual(alphas[i - 1]![0]!);
+    expect(alphas.length).toBeGreaterThan(10);
   });
 
   it('uses the episode image and its colour, or drawn ridgelines in the fallback colour', () => {
