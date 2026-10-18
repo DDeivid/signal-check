@@ -3,7 +3,7 @@ name: Episode image
 # Make (or remake) the image for a published episode, then rebuild the site.
 # Uses GEMINI_API_KEY (billed: about $0.04 per image). Don't run it during the daily window
 # (08:00–10:00 Tallinn): it shares the daily run's queue, where a newer pending run cancels an older one.
-# It stops at once if a daily run is in progress.
+# It stops at once if a daily run is in progress. Previews change nothing and can run any time.
 on:
   workflow_dispatch:
     inputs:
@@ -11,17 +11,26 @@ on:
         description: Episode date, YYYY-MM-DD (empty = the newest episode)
         type: string
         default: ''
+      preview:
+        description: Preview only (images go to a downloadable artifact; nothing is committed)
+        type: boolean
+        default: false
+      style:
+        description: Style to use instead of art.style (separate several with || in a preview)
+        type: string
+        default: ''
 
 permissions: {}
 
 concurrency:
-  group: signal-check
+  # Previews don't touch data/, so they don't queue with (or cancel) the daily run.
+  group: ${{ inputs.preview && format('art-preview-{0}', github.run_id) || 'signal-check' }}
   cancel-in-progress: false
 
 jobs:
   art:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 20
     permissions:
       contents: write
       actions: read
@@ -29,6 +38,7 @@ jobs:
       sha: ${{ steps.push.outputs.sha }}
     steps:
       - name: Stop if a daily run is in progress
+        if: ${{ !inputs.preview }}
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
@@ -46,8 +56,18 @@ jobs:
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           DATE: ${{ inputs.date }}
+          SC_ART_STYLE: ${{ inputs.style }}
+          SC_ART_PREVIEW: ${{ inputs.preview && 'true' || 'false' }}
         run: npm run art -- "$(echo "$DATE" | tr -d '[:space:]')"
+      - name: Keep the previews
+        if: ${{ inputs.preview }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: art-preview-${{ github.run_id }}
+          path: out/art-preview/
+          retention-days: 14
       - name: Commit
+        if: ${{ !inputs.preview }}
         id: push
         env:
           DATE: ${{ inputs.date }}
@@ -67,6 +87,7 @@ jobs:
 
   site:
     needs: art
+    if: ${{ !inputs.preview }}
     uses: ./.github/workflows/pages.yml
     with:
       sha: ${{ needs.art.outputs.sha }}

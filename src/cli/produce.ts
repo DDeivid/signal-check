@@ -387,7 +387,7 @@ async function main(): Promise<void> {
 
   // The image comes after the audio has passed its checks, so a failed episode costs no image.
   stage = 'art';
-  const art = await makeArt(config, script.title, script.stories[0], join(outDir, ART_FILE));
+  const art = await makeArt(config, script.stories[0], join(outDir, ART_FILE));
   run.art = art ? `${art.model}, theme colour ${art.color}` : config.art.enabled ? 'failed (site draws one)' : 'off';
 
   stage = 'meta';

@@ -63,12 +63,11 @@ describe('theme colour', () => {
 });
 
 describe('episode image', () => {
-  it('sends the house style, the fixed rules and the lead story', () => {
-    const prompt = artPrompt(config, 'Energy Truce Collapse', lead);
+  it('sends the house style, the fixed rules and only the lead story', () => {
+    const prompt = artPrompt(config, lead);
     expect(prompt).toContain(config.art.style.trim());
     for (const rule of ART_RULES) expect(prompt).toContain(rule);
-    expect(prompt).toContain('Refinery strikes resume');
-    expect(prompt).toContain('"Energy Truce Collapse"');
+    expect(prompt).toContain('The story: Refinery strikes resume. Strikes on refineries');
   });
 
   it('treats a text-only or blocked answer as no image', () => {
@@ -81,7 +80,7 @@ describe('episode image', () => {
   it('saves a 16:9 WebP and its theme colour', async () => {
     setAiClient(fakeAiClient({}));
     const file = join(mkdtempSync(join(tmpdir(), 'sc-art-')), 'art.webp');
-    const art = await makeArt(config, 'T', lead, file);
+    const art = await makeArt(config, lead, file);
     expect(art?.model).toBe(config.art.models[0]);
     expect(hueDistance(art!.color, FAKE_ART_COLOR)).toBeLessThan(6);
     const meta = await sharp(readFileSync(file)).metadata();
@@ -92,15 +91,15 @@ describe('episode image', () => {
   it('returns nothing, without throwing, when every model fails', async () => {
     setAiClient(fakeAiClient({ artFails: true }));
     const file = join(mkdtempSync(join(tmpdir(), 'sc-art-')), 'art.webp');
-    expect(await makeArt(config, 'T', lead, file)).toBeUndefined();
+    expect(await makeArt(config, lead, file)).toBeUndefined();
     expect(existsSync(file)).toBe(false);
   });
 
   it('does nothing when art is off or there is no lead story', async () => {
     setAiClient(fakeAiClient({}));
     const file = join(mkdtempSync(join(tmpdir(), 'sc-art-')), 'art.webp');
-    expect(await makeArt({ ...config, art: { ...config.art, enabled: false } }, 'T', lead, file)).toBeUndefined();
-    expect(await makeArt(config, 'T', undefined, file)).toBeUndefined();
+    expect(await makeArt({ ...config, art: { ...config.art, enabled: false } }, lead, file)).toBeUndefined();
+    expect(await makeArt(config, undefined, file)).toBeUndefined();
     expect(existsSync(file)).toBe(false);
   });
 });
