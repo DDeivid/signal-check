@@ -66,7 +66,7 @@ Also return:
 - description: two or three sentences for the show notes.
 - predictions: 0-2 concrete, checkable predictions a host actually makes in the script, e.g. {"text": "The vote passes before Friday", "by": "Theo"}. Only include predictions that are spoken in the script.
 - open_threads: stories worth following up later, one line each.
-- story_summaries: for each story id you cover, a one-sentence summary: {"id": "s4", "summary": "..."}.
+- story_summaries: for each story id you cover, a one-sentence summary and a short label for the episode's story list (2 to 6 words, plain, no clickbait, no source name): {"id": "s4", "summary": "...", "label": "Torvalds' first AI-assisted patch"}.
 ${brief.producerNotes ? `\nProducer notes for today (follow them): ${brief.producerNotes}\n` : ''}
 MATERIALS
 ${brief.materials}

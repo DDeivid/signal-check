@@ -271,10 +271,11 @@ async function makeScript(config: Config, now: Date): Promise<SavedScript | unde
   writeSummary();
 
   const pickedIds = [...new Set([...selection.main.map((m) => m.id), ...selection.headlines, ...selection.segment_items, ...selection.quick_hits])];
-  const summaries = new Map(draft.story_summaries.map((s) => [s.id, s.summary]));
+  const summaries = new Map(draft.story_summaries.map((s) => [s.id, s]));
   const stories: StoryRecord[] = pickedIds.flatMap((id) => {
     const item = byId.get(id);
-    return item ? [{ title: item.title, url: item.url, topic: item.topic, summary: summaries.get(id) ?? item.snippet.slice(0, 200) }] : [];
+    const written = summaries.get(id);
+    return item ? [{ title: item.title, url: item.url, topic: item.topic, summary: written?.summary ?? item.snippet.slice(0, 200), ...(written?.label ? { label: written.label } : {}) }] : [];
   });
 
   // Everything a voice-only rerun (SC_RESUME_SCRIPT) needs; notes.md sits next to it.

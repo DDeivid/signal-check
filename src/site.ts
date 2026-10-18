@@ -11,6 +11,21 @@ import { modelLabel } from './models';
  * transcripts. Each card takes its colours from its image's theme colour; the page itself stays neutral,
  * in light or dark (system setting, or the viewer's choice in the header).
  */
+/**
+ * A mask that fades an image in along a smootherstep curve (flat at both ends), with enough stops that the
+ * fade has no visible bands or edge: transparent at `from`, fully visible at `to` (percent of the image).
+ */
+export function easedFade(direction: string, from: number, to: number, stops = 16): string {
+  const ease = (t: number) => t * t * t * (t * (t * 6 - 15) + 10);
+  const points = Array.from({ length: stops + 1 }, (_, i) => {
+    const t = i / stops;
+    return `rgba(0,0,0,${ease(t).toFixed(3)}) ${(from + (to - from) * t).toFixed(1)}%`;
+  });
+  return `linear-gradient(${direction}, ${points.join(', ')})`;
+}
+const FADE_RIGHT = easedFade('to right', 0, 64);
+const FADE_DOWN = easedFade('to top', 0, 55);
+
 const STYLE = `
 :root {
   --dark: 0;
@@ -46,54 +61,64 @@ a { color: inherit; }
   --on-accent: color-mix(in srgb, var(--on-d) calc(var(--dark) * 100%), var(--on-l));
   --tint: color-mix(in srgb, var(--tint-d) calc(var(--dark) * 100%), var(--tint-l));
   --soft: color-mix(in srgb, var(--accent) 22%, transparent);
-  position: relative; border-radius: 22px; overflow: hidden; background: var(--tint); isolation: isolate;
+  position: relative; border-radius: 22px; overflow: hidden; background: var(--tint); isolation: isolate; display: flex;
 }
-.card .art { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: right center; z-index: -2; display: block; }
-.ai-tag { position: absolute; right: 12px; bottom: 12px; z-index: 1; font-size: 11px; letter-spacing: .04em; padding: 3px 8px; border-radius: 999px; background: rgba(0, 0, 0, .55); color: #fff; }
-.mini .ai-tag { bottom: 10px; }
-.card .shade { position: absolute; inset: 0; z-index: -1; background: linear-gradient(90deg, var(--tint) 0%, var(--tint) 32%, color-mix(in srgb, var(--tint) 72%, transparent) 48%, transparent 72%); }
-.content { position: relative; }
+/* The image sits on the card's colour and fades out to the left, so the text stands on plain colour. */
+.card .art { position: absolute; top: 0; right: 0; height: 100%; width: 74%; object-fit: cover; object-position: right center; z-index: -1; display: block; -webkit-mask-image: ${FADE_RIGHT}; mask-image: ${FADE_RIGHT}; }
+.mini .art { width: 62%; }
+.ai-tag { position: absolute; right: 12px; top: 12px; z-index: 1; font-size: 11px; letter-spacing: .04em; padding: 3px 8px; border-radius: 999px; background: rgba(0, 0, 0, .55); color: #fff; }
+.content { position: relative; display: flex; flex-direction: column; gap: 14px; width: min(580px, 52%); padding: clamp(22px, 3.4vw, 40px); }
 .eyebrow { margin: 0; font: 500 12px/1.3 var(--sans); letter-spacing: .12em; text-transform: uppercase; color: var(--accent); display: flex; flex-wrap: wrap; gap: 4px 10px; }
+.eyebrow .short { display: none; }
 .eyebrow span + span::before { content: "·"; margin-right: 10px; opacity: .6; }
 .card h2 { margin: 0; font-family: var(--serif); font-weight: 400; text-wrap: balance; }
 .card h2 a { text-decoration: none; }
 .card h2 a:hover { text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 5px; }
-.ico-play, .ico-pause { width: 18px; height: 18px; }
+.ico-play, .ico-pause { width: 20px; height: 20px; }
 [aria-pressed="true"] > .ico-play, [aria-pressed="false"] > .ico-pause { display: none; }
 
-.card.big { min-height: 540px; display: flex; }
-.big .content { width: min(560px, 100%); padding: clamp(24px, 4vw, 48px); display: flex; flex-direction: column; gap: 16px; }
-.big h2 { font-size: clamp(44px, 6.2vw, 78px); line-height: .95; letter-spacing: -.01em; }
-.desc { margin: 0; color: var(--muted); max-width: 54ch; }
-.actions { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
-.btn-play { display: inline-flex; align-items: center; gap: 10px; border: 0; padding: 12px 22px 12px 18px; border-radius: 999px; background: var(--accent); color: var(--on-accent); font-weight: 600; font-size: 16px; }
-.btn-play .t { font-size: 12px; opacity: .8; font-variant-numeric: tabular-nums; }
-.btn-ghost { display: inline-flex; align-items: center; padding: 11px 18px; border-radius: 999px; background: var(--soft); text-decoration: none; font-weight: 500; }
-.progress { height: 4px; background: var(--soft); border-radius: 2px; overflow: hidden; max-width: 420px; cursor: pointer; }
-.progress span { display: block; height: 100%; width: 0; background: var(--accent); }
-.tl { list-style: none; margin: 4px 0 0; padding: 0; display: grid; }
-.tl li { position: relative; padding: 0 0 10px 24px; font-size: 14px; line-height: 1.4; }
-.tl li::before { content: ""; position: absolute; left: 4px; top: 6px; width: 8px; height: 8px; border-radius: 50%; background: var(--tint); border: 2px solid var(--accent); }
-.tl li::after { content: ""; position: absolute; left: 7px; top: 16px; bottom: -2px; width: 2px; background: var(--soft); }
+.big h2 { font-size: clamp(40px, 5.4vw, 70px); line-height: .95; letter-spacing: -.01em; }
+.desc { margin: 0; color: var(--muted); max-width: 54ch; font-size: 15px; }
+
+.tl { list-style: none; margin: 2px 0 0; padding: 0; display: grid; }
+.tl li { position: relative; padding: 0 0 12px 30px; font-size: 16px; line-height: 22px; min-width: 0; }
+.tl li::before { content: ""; position: absolute; left: 2px; top: 4px; width: 14px; height: 14px; border-radius: 50%; box-sizing: border-box; background: var(--tint); border: 3px solid var(--accent); }
+.tl li::after { content: ""; position: absolute; left: 8px; top: 20px; bottom: 0; width: 2px; background: var(--soft); }
 .tl li:last-child::after { display: none; }
 .tl li:first-child::before { background: var(--accent); }
-.tl a { text-decoration: none; }
+.tl a { display: block; text-decoration: none; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .tl a:hover { text-decoration: underline; text-underline-offset: 3px; }
-.tl .more, .tl .more a { color: var(--muted); font-size: 13px; }
-.foot { display: flex; align-items: center; gap: 10px 16px; flex-wrap: wrap; }
-.badges { display: flex; flex-wrap: wrap; gap: 6px; margin: 0; padding: 0; list-style: none; }
-.badge { font-size: 12px; padding: 2px 9px; border-radius: 999px; background: var(--soft); }
-.badge b { font-weight: 600; }
+.tl .more::before { background: transparent; border-style: dotted; }
+.tl .more, .tl .more a { color: var(--muted); font-size: 14px; }
+
+.foot { display: flex; align-items: center; gap: 6px 14px; flex-wrap: wrap; font-size: 13px; color: var(--muted); }
+.foot a { text-underline-offset: 3px; text-decoration-color: color-mix(in srgb, currentColor 40%, transparent); }
+.foot a:hover { color: var(--fg); }
+.badges { display: flex; flex-wrap: wrap; gap: 2px 8px; margin: 0; padding: 0; list-style: none; font-size: 12px; }
+.badge + .badge::before { content: "·"; margin-right: 8px; opacity: .6; }
+.badge b { font-weight: 500; }
 .collapse { border: 0; background: none; padding: 0; color: var(--muted); font-size: 13px; text-decoration: underline; text-underline-offset: 3px; }
 .lead .collapse, .page .collapse { display: none; }
 
-.card.mini { min-height: 168px; display: flex; align-items: center; }
-.mini .content { display: grid; grid-template-columns: auto 1fr; gap: 6px 18px; align-items: center; padding: 22px clamp(18px, 3vw, 32px); width: min(640px, 100%); }
+/* The player: play/pause, elapsed time, seek bar, total time, speed. */
+.player { display: grid; grid-template-columns: auto auto 1fr auto auto; align-items: center; gap: 12px; margin-top: auto; padding-top: 6px; font-size: 13px; font-variant-numeric: tabular-nums; }
+.pp, .round { width: 52px; height: 52px; border-radius: 50%; border: 0; background: var(--accent); color: var(--on-accent); display: grid; place-items: center; flex: none; }
+.player .now, .player .total { color: var(--muted); min-width: 4ch; }
+.player .total { text-align: right; }
+.seek { -webkit-appearance: none; appearance: none; width: 100%; min-width: 0; height: 22px; margin: 0; background: transparent; cursor: pointer; --p: 0%; }
+.seek::-webkit-slider-runnable-track { height: 6px; border-radius: 3px; background: linear-gradient(90deg, var(--accent) var(--p), var(--soft) var(--p)); }
+.seek::-moz-range-track { height: 6px; border-radius: 3px; background: linear-gradient(90deg, var(--accent) var(--p), var(--soft) var(--p)); }
+.seek::-webkit-slider-thumb { -webkit-appearance: none; width: 14px; height: 14px; margin-top: -4px; border-radius: 50%; border: 0; background: var(--accent); }
+.seek::-moz-range-thumb { width: 14px; height: 14px; border-radius: 50%; border: 0; background: var(--accent); }
+.speed { border: 0; border-radius: 999px; padding: 5px 10px; background: var(--soft); font-weight: 600; font-size: 13px; min-width: 5ch; }
+
+.card.mini { align-items: center; }
+.mini .content { display: grid; grid-template-columns: auto 1fr; gap: 6px 18px; align-items: center; padding-block: 20px; width: min(640px, 60%); }
 .mini h2 { font-size: clamp(26px, 3vw, 34px); line-height: 1; }
-.round { grid-row: span 2; width: 52px; height: 52px; border-radius: 50%; border: 0; background: var(--accent); color: var(--on-accent); display: grid; place-items: center; }
-.big .round, .mini .desc, .mini .actions, .mini .tl, .mini .foot { display: none; }
-.mini .progress { grid-column: 2; max-width: 100%; height: 3px; margin-top: 4px; }
-.mini .progress:not(.on) { display: none; }
+.round { grid-row: span 2; }
+.big .round, .mini .desc, .mini .tl, .mini .foot, .mini .player .pp { display: none; }
+.mini .player { grid-column: 1 / -1; grid-template-columns: auto 1fr auto auto; padding-top: 4px; }
+.mini:not(.on) .player { display: none; }
 
 .prose { max-width: 68ch; margin: 32px auto 0; }
 .prose h2, .prose h3 { font: 400 30px/1.1 var(--serif); margin: 32px 0 10px; }
@@ -103,13 +128,16 @@ a { color: inherit; }
 .page-title { font: 400 clamp(36px, 5vw, 56px)/1 var(--serif); margin: 24px 0 0; text-wrap: balance; }
 
 @media (max-width: 720px) {
-  .card.big { min-height: 0; }
-  .big .art { height: 280px; object-position: center; }
-  .big .shade { background: linear-gradient(180deg, transparent 0, transparent 150px, var(--tint) 280px); }
-  .big .content { padding-top: 230px; }
-  .card.mini { min-height: 140px; }
-  .mini .shade { background: linear-gradient(90deg, var(--tint) 0%, var(--tint) 45%, color-mix(in srgb, var(--tint) 60%, transparent) 70%, transparent 100%); }
-  .round { width: 44px; height: 44px; }
+  .card.big { flex-direction: column; }
+  .big .art { width: 100%; height: 62vw; max-height: 340px; -webkit-mask-image: ${FADE_DOWN}; mask-image: ${FADE_DOWN}; }
+  .big .content { width: 100%; padding-top: calc(min(62vw, 340px) - 56px); }
+  .mini .art { width: 58%; }
+  .mini .content { width: 76%; gap: 4px 14px; padding: 16px 14px 16px 16px; }
+  .mini h2 { font-size: 23px; }
+  .eyebrow .long, .mini .eyebrow .min { display: none; }
+  .eyebrow .short { display: inline; }
+  .pp, .round { width: 46px; height: 46px; }
+  .player { gap: 10px; }
 }
 `;
 
@@ -129,25 +157,42 @@ const SCRIPT = `(() => {
   modes.forEach((b) => b.addEventListener('click', () => setMode(b.dataset.modeChoice)));
 
   const mmss = (s) => Math.floor(s / 60) + ':' + String(Math.floor(s % 60)).padStart(2, '0');
+  const SPEEDS = [1, 1.25, 1.5, 1.75, 2, 0.75];
+  let speed = 1;
+  try { speed = SPEEDS.includes(Number(localStorage.getItem('sc-speed'))) ? Number(localStorage.getItem('sc-speed')) : 1; } catch (e) {}
+  const label = (r) => String(r).replace(/^0\./, '.') + '×';
+  document.querySelectorAll('.speed').forEach((b) => { b.textContent = label(speed); });
   let current = null;
   document.querySelectorAll('.card audio').forEach((audio) => {
     const card = audio.closest('.card');
-    const fill = card.querySelector('.progress span');
-    const time = card.querySelector('.btn-play .t');
+    const seek = card.querySelector('.seek');
+    const now = card.querySelector('.now');
+    const total = card.querySelector('.total');
+    const draw = (t, d) => {
+      seek.max = String(d);
+      seek.value = String(t);
+      seek.style.setProperty('--p', (d ? (t / d) * 100 : 0) + '%');
+      seek.setAttribute('aria-valuetext', mmss(t) + ' of ' + mmss(d));
+      now.textContent = mmss(t);
+      total.textContent = mmss(d);
+    };
     const show = (playing) => {
       card.querySelectorAll('[data-play]').forEach((b) => {
         b.setAttribute('aria-pressed', String(playing));
-        const label = b.querySelector('.lbl');
-        if (label) label.textContent = playing ? 'Pause' : 'Play';
+        b.setAttribute('aria-label', (playing ? 'Pause' : 'Play') + ' episode ' + card.dataset.number);
       });
-      if (playing) card.querySelector('.progress').classList.add('on');
+      if (playing) card.classList.add('on');
     };
-    audio.addEventListener('play', () => show(true));
+    audio.addEventListener('play', () => { audio.playbackRate = speed; show(true); });
     audio.addEventListener('pause', () => show(false));
-    audio.addEventListener('timeupdate', () => {
-      if (!audio.duration) return;
-      fill.style.width = (audio.currentTime / audio.duration) * 100 + '%';
-      if (time) time.textContent = mmss(audio.currentTime) + ' / ' + mmss(audio.duration);
+    audio.addEventListener('timeupdate', () => { if (audio.duration && !seek.matches(':active')) draw(audio.currentTime, audio.duration); });
+    audio.addEventListener('loadedmetadata', () => draw(audio.currentTime, audio.duration));
+    seek.addEventListener('input', () => {
+      const t = Number(seek.value);
+      draw(t, Number(seek.max));
+      card.classList.add('on');
+      if (audio.readyState > 0) audio.currentTime = t;
+      else { audio.preload = 'metadata'; audio.addEventListener('loadedmetadata', () => { audio.currentTime = Number(seek.value); }, { once: true }); audio.load(); }
     });
   });
   document.addEventListener('click', (ev) => {
@@ -157,11 +202,12 @@ const SCRIPT = `(() => {
       if (audio.paused) { if (current && current !== audio) current.pause(); current = audio; audio.play().catch(() => {}); } else audio.pause();
       return;
     }
-    const bar = ev.target.closest('.progress');
-    if (bar) {
-      const audio = bar.closest('.card').querySelector('audio');
-      const box = bar.getBoundingClientRect();
-      if (audio.duration) audio.currentTime = ((ev.clientX - box.left) / box.width) * audio.duration;
+    const rate = ev.target.closest('.speed');
+    if (rate) {
+      speed = SPEEDS[(SPEEDS.indexOf(speed) + 1) % SPEEDS.length];
+      try { localStorage.setItem('sc-speed', String(speed)); } catch (e) {}
+      document.querySelectorAll('.speed').forEach((b) => { b.textContent = label(speed); });
+      document.querySelectorAll('.card audio').forEach((a) => { a.playbackRate = speed; });
       return;
     }
     const open = ev.target.closest('.mini h2 a');
@@ -245,6 +291,7 @@ export const badges = (e: EpisodeRecord) =>
 
 const day = (e: EpisodeRecord) => new Date(`${e.date}T12:00:00Z`);
 const longDate = (e: EpisodeRecord) => day(e).toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', timeZone: 'UTC' });
+const shortDate = (e: EpisodeRecord) => day(e).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', timeZone: 'UTC' });
 const mmss = (s: number) => `${Math.floor(s / 60)}:${String(Math.round(s % 60)).padStart(2, '0')}`;
 export const artPath = (e: EpisodeRecord) => `art/${e.date}.webp`;
 export const hasArt = (e: EpisodeRecord) => Boolean(e.art && existsSync(e.art.file));
@@ -309,17 +356,23 @@ export function card(config: Config, e: EpisodeRecord, { root, open, fixed, eage
   const shown = e.stories.slice(0, STORIES_SHOWN);
   const rest = e.stories.length - shown.length;
   const title = fixed === 'page' ? esc(e.title) : `<a href="${href}"${fixed ? '' : ` aria-expanded="${open}"`}>${esc(e.title)}</a>`;
-  return `<article class="card ${open ? 'big' : 'mini'}${fixed ? ` ${fixed}` : ''}" id="ep-${e.date}" style="${cardStyle(color)}">
-${art}<div class="shade"></div>
+  const story = (s: EpisodeRecord['stories'][number]) =>
+    `<li><a href="${esc(s.url)}"${s.label ? ` title="${esc(s.title)}"` : ''}>${esc(s.label || s.title)}</a></li>`;
+  const play = (cls: string) => `<button type="button" class="${cls}" data-play aria-pressed="false" aria-label="Play episode ${e.number}">${ICONS}</button>`;
+  const links = [
+    ...(fixed === 'page' ? [] : [`<a href="${href}">Show notes</a>`]),
+    `<a href="${root}/transcripts/${e.date}.html">Transcript</a>`,
+  ].join('');
+  return `<article class="card ${open ? 'big' : 'mini'}${fixed ? ` ${fixed}` : ''}" id="ep-${e.date}" data-number="${e.number}" style="${cardStyle(color)}">
+${art}
 <div class="content">
-<button type="button" class="round" data-play aria-pressed="false" aria-label="Play episode ${e.number}">${ICONS}</button>
-<p class="eyebrow"><span>Episode ${e.number}</span><span>${longDate(e)}</span><span>${Math.max(1, Math.round(e.durationSeconds / 60))} min</span></p>
+${play('round')}
+<p class="eyebrow"><span>Episode ${e.number}</span><span class="long">${longDate(e)}</span><span class="short">${shortDate(e)}</span><span class="min">${Math.max(1, Math.round(e.durationSeconds / 60))} min</span></p>
 <h2>${title}</h2>
 <p class="desc">${esc(e.description)}</p>
-<div class="actions"><button type="button" class="btn-play" data-play aria-pressed="false" aria-label="Play episode ${e.number}">${ICONS}<span class="lbl">Play</span><span class="t">${mmss(e.durationSeconds)}</span></button>${fixed === 'page' ? '' : `<a class="btn-ghost" href="${href}">Show notes</a>`}<a class="btn-ghost" href="${root}/transcripts/${e.date}.html">Transcript</a></div>
-<div class="progress" aria-hidden="true"><span></span></div>
-${shown.length ? `<ul class="tl" aria-label="Stories in this episode">${shown.map((s) => `<li><a href="${esc(s.url)}">${esc(s.title)}</a></li>`).join('')}${rest > 0 ? `<li class="more"><a href="${href}">${rest} more ${rest === 1 ? 'story' : 'stories'} in the notes</a></li>` : ''}</ul>` : ''}
-<div class="foot">${badges(e)}<button type="button" class="collapse">Show less</button></div>
+${shown.length ? `<ul class="tl" aria-label="Stories in this episode">${shown.map(story).join('')}${rest > 0 ? `<li class="more"><a href="${href}">${rest} more ${rest === 1 ? 'story' : 'stories'} in the notes</a></li>` : ''}</ul>` : ''}
+<div class="foot">${links}${badges(e)}<button type="button" class="collapse">Show less</button></div>
+<div class="player">${play('pp')}<span class="now">0:00</span><input class="seek" type="range" min="0" max="${Math.round(e.durationSeconds)}" step="1" value="0" aria-label="Seek in episode ${e.number}"><span class="total">${mmss(e.durationSeconds)}</span><button type="button" class="speed" aria-label="Playback speed">1×</button></div>
 </div>
 <audio preload="none" src="${esc(e.audioUrl)}"></audio>
 </article>`;

@@ -100,7 +100,7 @@ export function fakeDraft(prompt: string) {
     sections,
     predictions: [],
     open_threads: [],
-    story_summaries: ids.map((id) => ({ id, summary: `Fake summary of ${id}.` })),
+    story_summaries: ids.map((id) => ({ id, summary: `Fake summary of ${id}.`, label: `Fake story ${id}` })),
   };
 }
 

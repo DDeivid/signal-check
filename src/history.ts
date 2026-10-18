@@ -8,6 +8,8 @@ export interface StoryRecord {
   url: string;
   topic: string;
   summary: string;
+  /** A few words for the story list on the site; older episodes don't have one. */
+  label?: string;
 }
 
 export interface Prediction {

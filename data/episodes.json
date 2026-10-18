@@ -15,73 +15,85 @@
         "title": "Linus Torvalds posts his first AI-assisted patch to the Linux kernel, synthetic test clocks 23x performance leap",
         "url": "https://www.tomshardware.com/software/linux/linus-torvalds-posts-his-first-llm-assisted-patch-to-the-linux-kernel-after-issuing-clear-pro-ai-directives-the-bossman-makes-use-of-ai-tooling-himself",
         "topic": "selfhosting",
-        "summary": "Linus Torvalds published his first AI-assisted code patch to address CPU cache contention in the Linux kernel while maintainers prepare to remove AI disclosure requirements."
+        "summary": "Linus Torvalds published his first AI-assisted code patch to address CPU cache contention in the Linux kernel while maintainers prepare to remove AI disclosure requirements.",
+        "label": "Torvalds’ first AI-assisted patch"
       },
       {
         "title": "Estonia wants to block Russian gas transit through Baltics for good",
         "url": "https://news.err.ee/1610168398/estonia-wants-to-block-russian-gas-transit-through-baltics-for-good",
         "topic": "estonia",
-        "summary": "Estonia's energy minister announced plans to negotiate with Latvia to permanently halt natural gas transit infrastructure linked to Russia's Kaliningrad exclave."
+        "summary": "Estonia's energy minister announced plans to negotiate with Latvia to permanently halt natural gas transit infrastructure linked to Russia's Kaliningrad exclave.",
+        "label": "Estonia moves to block Russian gas"
       },
       {
         "title": "Zelensky rallies EU support as Trump says Ukraine leader 'more difficult to deal with than Putin'",
         "url": "https://www.bbc.co.uk/news/articles/c58jz174w89ro?at_medium=RSS&at_campaign=rss",
         "topic": "world",
-        "summary": "The US president launches a new wave of blistering criticism at Volodymyr Zelensky ahead of a meeting of EU leaders in Brussels."
+        "summary": "The US president launches a new wave of blistering criticism at Volodymyr Zelensky ahead of a meeting of EU leaders in Brussels.",
+        "label": "Zelensky rallies EU support"
       },
       {
         "title": "Germany, France agree on deal to support Europe's struggling car industry",
         "url": "https://www.dw.com/en/germany-france-agree-on-deal-to-support-europe-s-struggling-car-industry/a-79678595?maca=en-rss-en-all-1573-rdf",
         "topic": "world",
-        "summary": "The two countries said the agreement aimed to safeguard Europe's automotive industry, encouraging development and research. Automakers in Europe have so far struggled to compete with Chinese electric "
+        "summary": "The two countries said the agreement aimed to safeguard Europe's automotive industry, encouraging development and research. Automakers in Europe have so far struggled to compete with Chinese electric ",
+        "label": "Berlin and Paris back carmakers"
       },
       {
         "title": "Trump just effectively killed a popular solar energy program for rural America",
         "url": "https://grist.org/food-and-agriculture/solar-panels-farms-trump-reap-rural-energy-for-america-program-changes/",
         "topic": "climate",
-        "summary": "Solar panels can be an economic lifeline for farmers. Now they're going to be a lot harder to build."
+        "summary": "Solar panels can be an economic lifeline for farmers. Now they're going to be a lot harder to build.",
+        "label": "Rural solar programme cut"
       },
       {
         "title": "Jailbroken PS5s can now run local AI models at over 100+ tokens per second",
         "url": "https://www.tomshardware.com/video-games/playstation/jailbroken-ps5s-can-now-run-local-ai-models-at-over-100-tokens-per-second-fork-of-ps5lm-goes-native-and-accesses-gpu-and-more-ram",
         "topic": "selfhosting",
-        "summary": "Developers released a native fork of PS5LM enabling jailbroken PlayStation 5 consoles to execute large language models locally using the system's GPU and memory."
+        "summary": "Developers released a native fork of PS5LM enabling jailbroken PlayStation 5 consoles to execute large language models locally using the system's GPU and memory.",
+        "label": "Local AI on jailbroken PS5s"
       },
       {
         "title": "How to be a (Roman) man",
         "url": "https://aeon.co/essays/the-politics-of-masculinity-at-the-end-of-the-roman-republic",
         "topic": "culture",
-        "summary": "An essay by Catharine Edwards in Aeon examines Cicero's philosophy of civic virtue and self-control during the crisis of the late Roman Republic."
+        "summary": "An essay by Catharine Edwards in Aeon examines Cicero's philosophy of civic virtue and self-control during the crisis of the late Roman Republic.",
+        "label": "How to be a Roman man"
       },
       {
         "title": "After almost three years of early access, Enshrouded has hit 1.0 with a complete story, bigger map, and way too much more to mention",
         "url": "https://www.rockpapershotgun.com/after-almost-three-years-of-early-access-enshrouded-has-hit-10-with-a-complete-story-bigger-map-and-way-too-much-more-to-mention",
         "topic": "gaming",
-        "summary": "Survival crafting game Enshrouded has exited early access after nearly three years to release its complete 1.0 version."
+        "summary": "Survival crafting game Enshrouded has exited early access after nearly three years to release its complete 1.0 version.",
+        "label": "Enshrouded reaches 1.0"
       },
       {
         "title": "Sega and Creative Assembly remove Total War: Shogun 2 remaster from sale as it \"falls short of both your expectations and our own standards\"",
         "url": "https://www.gamesindustry.biz/sega-and-creative-assembly-remove-total-war-shogun-2-remaster-from-sale-as-it-falls-short-of-both-your-expectations-and-our-own-standards",
         "topic": "gaming",
-        "summary": "Sega and Creative Assembly pulled the Total War: Shogun 2 remaster from sale following community complaints regarding AI upscaling artifacts and performance flaws."
+        "summary": "Sega and Creative Assembly pulled the Total War: Shogun 2 remaster from sale following community complaints regarding AI upscaling artifacts and performance flaws.",
+        "label": "Shogun 2 remaster pulled"
       },
       {
         "title": "Here are the key things Fed Chairman Kevin Warsh said — and didn’t say — while Americans were sleeping Thursday night",
         "url": "https://www.marketwatch.com/story/here-are-the-key-things-fed-chairman-kevin-warsh-said-and-didnt-say-while-americans-were-sleeping-thursday-night-b82238a1?mod=mw_rss_topstories",
         "topic": "markets",
-        "summary": "Federal Reserve Chairman Kevin Warsh delivered a speech without signaling future interest rate moves ahead of the central bank's upcoming policy meeting."
+        "summary": "Federal Reserve Chairman Kevin Warsh delivered a speech without signaling future interest rate moves ahead of the central bank's upcoming policy meeting.",
+        "label": "Fed chair Warsh’s speech"
       },
       {
         "title": "PhD students who write dissertation with AI less likely to stay in academia",
         "url": "https://www.nature.com/articles/d41586-026-03253-2",
         "topic": "science",
-        "summary": "A Nature report found that PhD candidates who write their dissertations using generative AI are less likely to pursue careers in academia."
+        "summary": "A Nature report found that PhD candidates who write their dissertations using generative AI are less likely to pursue careers in academia.",
+        "label": "AI-written PhDs and academia"
       },
       {
         "title": "KDE turns 30 with Plasma 6.8, remote upgrades, and an X11 farewell",
         "url": "https://arstechnica.com/gadgets/2026/10/kde-turns-30-with-plasma-6-8-remote-upgrades-and-an-x11-farewell/",
         "topic": "ai_software",
-        "summary": "The KDE project celebrated its 30th anniversary by releasing Plasma 6.8 and phasing out support for the X11 windowing system."
+        "summary": "The KDE project celebrated its 30th anniversary by releasing Plasma 6.8 and phasing out support for the X11 windowing system.",
+        "label": "KDE turns 30"
       }
     ],
     "predictions": [
