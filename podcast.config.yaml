@@ -214,15 +214,33 @@ art:
   # Tried in order: Nano Banana 2.1 (Oct 2026), Nano Banana 2, the original Nano Banana.
   # There is no 3.8 image model yet; "Check feeds" lists what the key can use.
   models: [gemini-nano-banana-2.1, gemini-3.1-flash-image, gemini-2.5-flash-image]
-  # The house style. Code adds the fixed rules (subject on the right, no text, no real people's faces)
-  # and the episode's lead story after this.
+  # Everything the image model is told, in one place. The prompt is: style, then rules, then the
+  # lead story. Code always adds two more rules: 16:9, and no real, identifiable people (a photo-real
+  # picture of someone in the news would be a fake news photo).
+  # Tip: concrete photography words (place, light, lens, angle, moment) work better than "4K, award-winning".
   style: >-
-    Real-life editorial still-life photograph: a few real objects that stand
-    for the story, on a real surface (a table, desk, workbench or floor), shot
-    from above or at a low angle by a professional photographer. Natural window
-    light, true-to-life colours, real materials and textures, shallow depth of
-    field, a little film grain. It must look like an actual photograph, not a
-    render or an illustration. No people.
+    Photorealistic documentary photograph, as a press photographer would take it
+    on assignment for this story: a real place, available light, a moment that
+    feels observed rather than posed. Full-frame camera, 35mm or 50mm lens,
+    true-to-life colour, natural detail and sharp focus on the subject.
+    Pick the setting, time of day, weather and camera angle that fit this
+    particular story, so no two episodes look alike. Avoid stock-photo looks.
+  rules:
+    - >-
+      The main subject is in the right third of the frame. The left side is part
+      of the same photograph but quieter (open space, softer focus, less detail),
+      because the episode title is laid over it.
+    - >-
+      Show a real-life location connected to the story, as it could look on an
+      ordinary day; a staged real-life scene is fine. No glowing effects,
+      holograms, floating code, light beams or surreal mash-ups.
+    - People are welcome as ordinary, anonymous people going about their day.
+    - >-
+      Don't write the story's headline or title in the image. Text that belongs to
+      the place (street signs, billboards, screens) is fine.
+    - No gore or graphic violence.
+  # Render size (the model's default is 1K). 2K gives the 1600 px site image real detail.
+  image_size: 2K
   width: 1600
   # Card colour for episodes without an image.
   fallback_color: "#3F8F75"

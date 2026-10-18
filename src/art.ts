@@ -13,19 +13,20 @@ import { ai, describeError, ModelOutputError, withModelsNamed, withTimeout } fro
 export const ART_TIMEOUT_MS = 90_000;
 export const ART_DEADLINE_MS = 180_000;
 
-/** Fixed rules that keep the image usable as a card background and keep real people out of it. */
-export const ART_RULES = [
+/**
+ * The rules that don't change with taste, always sent after the configured ones: the crop the site needs,
+ * and no real people. A photo-real "documentary" picture of a named person next to real news would be a fake
+ * news photo, so this one is not in podcast.config.yaml.
+ */
+export const FIXED_RULES = [
   'Wide 16:9 image.',
-  'Place the main subject in the right third of the frame. Keep the left third calm and low in detail, because text is laid over it.',
-  'No text of any kind: no letters, numbers, captions, signs, logos, mascots or watermarks.',
-  'Do not depict any real, recognisable person. Show people only as anonymous silhouettes or small distant figures; tell the story through places, objects and symbols.',
-  'Show one ordinary, concrete scene from the story, as it could really look. No glowing effects, sparkles, particles, holograms, floating code, light beams or surreal mash-ups of several ideas.',
-  'No gore or graphic violence.',
+  'Never show a real, identifiable person: no public figure, nobody named in the story, and no likeness of them. Any people in the picture are anonymous strangers.',
 ];
 
-/** Only the lead story: the episode title mixes several stories, which invites a mash-up. */
+/** Style, then the configured rules, then the fixed rules, then the story. Only the lead story: a title that mixes several invites a mash-up. */
 export function artPrompt(config: Config, lead: Pick<StoryRecord, 'title' | 'summary'>): string {
-  return [config.art.style.trim(), ART_RULES.join(' '), `The story: ${lead.title}. ${lead.summary}`.trim()].join('\n\n');
+  const rules = [...config.art.rules, ...FIXED_RULES].map((r) => `- ${r.trim()}`).join('\n');
+  return [config.art.style.trim(), `Rules:\n${rules}`, `The story: ${lead.title}. ${lead.summary}`.trim()].join('\n\n');
 }
 
 /** The image part of a response, or a ModelOutputError (blocked, cut off, or text only). */
@@ -47,7 +48,11 @@ export async function generateArt(config: Config, prompt: string): Promise<{ ima
           ai().generateContent('art', {
             model: m,
             contents: prompt,
-            config: { responseModalities: ['TEXT', 'IMAGE'], imageConfig: { aspectRatio: '16:9' }, abortSignal },
+            config: {
+              responseModalities: ['TEXT', 'IMAGE'],
+              imageConfig: { aspectRatio: '16:9', ...(config.art.image_size ? { imageSize: config.art.image_size } : {}) },
+              abortSignal,
+            },
           }),
         ),
       ),
