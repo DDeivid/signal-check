@@ -19,6 +19,10 @@ on:
         description: Style to use instead of art.style (separate several with || in a preview)
         type: string
         default: ''
+      story:
+        description: Preview only. Which of the episode's stories to illustrate, e.g. 1,2,3 (empty = the lead story)
+        type: string
+        default: ''
 
 permissions: {}
 
@@ -58,6 +62,7 @@ jobs:
           DATE: ${{ inputs.date }}
           SC_ART_STYLE: ${{ inputs.style }}
           SC_ART_PREVIEW: ${{ inputs.preview && 'true' || 'false' }}
+          SC_ART_STORY: ${{ inputs.story }}
         run: npm run art -- "$(echo "$DATE" | tr -d '[:space:]')"
       - name: Keep the previews
         if: ${{ inputs.preview }}

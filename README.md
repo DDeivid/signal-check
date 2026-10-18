@@ -38,7 +38,7 @@ Every episode: opening → headlines → 2 main stories → the day's segment �
   - *Notes*: producer notes for today, e.g. "lead with the Estonian election".
 - **Voice test** (Actions → Voice test) voices a short sample with several voice pairs. Download `voice-samples`, pick a pair and set it under `hosts` in the config.
 - **Check feeds** (Actions → Check feeds, also every Sunday) reports dead or stale feeds and market symbols.
-- **Episode images**: `art` in the config sets the image models and the house style. Code adds the fixed rules: subject on the right, no text, no recognisable real people. Each image is stored as `data/art/<date>.webp`. The site picks a theme colour from it and colours that episode's card with it, in light and dark. Episodes without an image get drawn ridgelines in `art.fallback_color`. **Episode image** (Actions → Episode image) makes or remakes the image for a published episode, e.g. episode 1, and rebuilds the site.
+- **Episode images**: `art` in the config holds everything the image model is told: the models, the house `style` and the `rules`. Code always adds two more: 16:9, and no real, identifiable people. Episode image → *preview* tries styles or rules on any of an episode's stories without changing anything. Each image is stored as `data/art/<date>.webp`. The site picks a theme colour from it and colours that episode's card with it, in light and dark. Episodes without an image get drawn ridgelines in `art.fallback_color`. **Episode image** (Actions → Episode image) makes or remakes the image for a published episode, e.g. episode 1, and rebuilds the site.
 
 ## Setup
 

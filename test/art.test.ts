@@ -4,7 +4,8 @@ import { join } from 'node:path';
 import { GenerateContentResponse } from '@google/genai';
 import sharp from 'sharp';
 import { afterEach, describe, expect, it } from 'vitest';
-import { ART_RULES, artPrompt, imagePart, makeArt } from '../src/art';
+import { artPrompt, FIXED_RULES, imagePart, makeArt, pickLook, recentLooks } from '../src/art';
+import type { EpisodeRecord } from '../src/history';
 import { cardTheme, contrast, fromHex, MIN_CONTRAST, themeColor, toHsl } from '../src/color';
 import { loadConfig } from '../src/config';
 import { FAKE_ART_COLOR, fakeAiClient, textResponse } from '../src/fake-ai';
@@ -70,11 +71,63 @@ describe('theme colour', () => {
 });
 
 describe('episode image', () => {
-  it('sends the house style, the fixed rules and only the lead story', () => {
-    const prompt = artPrompt(config, lead);
-    expect(prompt).toContain(config.art.style.trim());
-    for (const rule of ART_RULES) expect(prompt).toContain(rule);
-    expect(prompt).toContain('The story: Refinery strikes resume. Strikes on refineries');
+  it('sends the style, the configured rules, the fixed safety rules and only the lead story, in that order', () => {
+    const custom = { ...config, art: { ...config.art, style: 'STYLE', rules: ['Rule A', 'Rule B'] } };
+    const prompt = artPrompt(custom, lead);
+    const at = (t: string) => prompt.indexOf(t);
+    expect(at('STYLE')).toBe(0);
+    expect(at('- Rule A')).toBeGreaterThan(0);
+    expect(at('- Rule B')).toBeGreaterThan(at('- Rule A'));
+    for (const rule of FIXED_RULES) expect(at(`- ${rule}`)).toBeGreaterThan(at('- Rule B'));
+    expect(at('The story: Refinery strikes resume. Strikes on refineries')).toBeGreaterThan(at(`- ${FIXED_RULES[1]}`));
+  });
+
+  it('keeps the no-real-people rule even with no configured rules', () => {
+    const prompt = artPrompt({ ...config, art: { ...config.art, rules: [] } }, lead);
+    expect(prompt).toMatch(/Never show a real, identifiable person/);
+  });
+
+  it('puts the look between the style and the rules', () => {
+    const prompt = artPrompt({ ...config, art: { ...config.art, style: 'STYLE' } }, lead, 'pastel morning');
+    expect(prompt.indexOf('The look for this photograph: pastel morning')).toBeGreaterThan(prompt.indexOf('STYLE'));
+    expect(prompt.indexOf('The look for this photograph')).toBeLessThan(prompt.indexOf('Rules:'));
+    expect(artPrompt(config, lead)).not.toContain('The look for this photograph');
+  });
+
+  it('draws a look at random from those not used recently', () => {
+    const looks = ['a', 'b', 'c', 'd'];
+    expect(pickLook(looks, ['a', 'c'], () => 0)).toBe('b');
+    expect(pickLook(looks, ['a', 'c'], (n) => n - 1)).toBe('d');
+    expect(pickLook(looks, looks, () => 2)).toBe('c'); // everything recent: draw from all
+    expect(pickLook([], [])).toBeUndefined();
+    const seen = new Set(Array.from({ length: 400 }, () => pickLook(looks, ['a'])));
+    expect([...seen].sort()).toEqual(['b', 'c', 'd']);
+  });
+
+  it('never repeats a look within no_repeat episodes over a long run', () => {
+    const cfg = { ...config, art: { ...config.art, no_repeat: 15 } };
+    const history: EpisodeRecord[] = [];
+    for (let i = 0; i < 200; i++) {
+      const look = pickLook(cfg.art.looks, recentLooks(cfg, history))!;
+      expect(recentLooks(cfg, history)).not.toContain(look);
+      history.push({ date: String(i), art: { file: 'x', color: '#000000', model: 'm', look } } as EpisodeRecord);
+    }
+  });
+
+  it('records the drawn look with the image', async () => {
+    setAiClient(fakeAiClient({}));
+    const file = join(mkdtempSync(join(tmpdir(), 'sc-art-')), 'art.webp');
+    const art = await makeArt({ ...config, art: { ...config.art, looks: ['only look'] } }, lead, file);
+    expect(art?.look).toBe('only look');
+  });
+
+  it('asks for the configured render size', async () => {
+    const seen: unknown[] = [];
+    const fake = fakeAiClient({});
+    setAiClient({ generateContent: (label, params) => (seen.push(params.config?.imageConfig), fake.generateContent(label, params)) });
+    const file = join(mkdtempSync(join(tmpdir(), 'sc-art-')), 'art.webp');
+    await makeArt({ ...config, art: { ...config.art, image_size: '2K' } }, lead, file);
+    expect(seen[0]).toEqual({ aspectRatio: '16:9', imageSize: '2K' });
   });
 
   it('treats a text-only or blocked answer as no image', () => {

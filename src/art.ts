@@ -3,9 +3,10 @@
  * "theme colour" picked from its pixels. The site derives each card's light and dark accents from that colour.
  */
 import type { GenerateContentResponse } from '@google/genai';
+import { randomInt } from 'node:crypto';
 import { writeFileSync } from 'node:fs';
 import type { Config } from './config';
-import type { StoryRecord } from './history';
+import type { EpisodeRecord, StoryRecord } from './history';
 import { themeColor } from './color';
 import { ai, describeError, ModelOutputError, withModelsNamed, withTimeout } from './llm';
 
@@ -13,19 +14,42 @@ import { ai, describeError, ModelOutputError, withModelsNamed, withTimeout } fro
 export const ART_TIMEOUT_MS = 90_000;
 export const ART_DEADLINE_MS = 180_000;
 
-/** Fixed rules that keep the image usable as a card background and keep real people out of it. */
-export const ART_RULES = [
+/**
+ * The rules that don't change with taste, always sent after the configured ones: the crop the site needs,
+ * and no real people. A photo-real "documentary" picture of a named person next to real news would be a fake
+ * news photo, so this one is not in podcast.config.yaml.
+ */
+export const FIXED_RULES = [
   'Wide 16:9 image.',
-  'Place the main subject in the right third of the frame. Keep the left third calm and low in detail, because text is laid over it.',
-  'No text of any kind: no letters, numbers, captions, signs, logos, mascots or watermarks.',
-  'Do not depict any real, recognisable person. Show people only as anonymous silhouettes or small distant figures; tell the story through places, objects and symbols.',
-  'Show one ordinary, concrete scene from the story, as it could really look. No glowing effects, sparkles, particles, holograms, floating code, light beams or surreal mash-ups of several ideas.',
-  'No gore or graphic violence.',
+  'Never show a real, identifiable person: no public figure, nobody named in the story, and no likeness of them. Any people in the picture are anonymous strangers; anyone who could be taken for a person in the story is seen from behind, at a distance or out of focus.',
 ];
 
-/** Only the lead story: the episode title mixes several stories, which invites a mash-up. */
-export function artPrompt(config: Config, lead: Pick<StoryRecord, 'title' | 'summary'>): string {
-  return [config.art.style.trim(), ART_RULES.join(' '), `The story: ${lead.title}. ${lead.summary}`.trim()].join('\n\n');
+/** Looks used by the last `art.no_repeat` episodes that have images, newest last. */
+export function recentLooks(config: Config, episodes: EpisodeRecord[]): string[] {
+  const n = config.art.no_repeat;
+  return n ? episodes.flatMap((e) => (e.art?.look ? [e.art.look] : [])).slice(-n) : [];
+}
+
+/**
+ * A look drawn at random (crypto-grade, no date pattern), leaving out recently used ones so nothing
+ * repeats within `no_repeat` episodes. Undefined when no looks are configured.
+ */
+export function pickLook(looks: string[], recent: string[], random: (n: number) => number = randomInt): string | undefined {
+  if (!looks.length) return undefined;
+  const fresh = looks.filter((l) => !recent.includes(l));
+  const pool = fresh.length ? fresh : looks;
+  return pool[random(pool.length)];
+}
+
+/** Style, the look, the configured rules, the fixed rules, then the story. Only the lead story: a title that mixes several invites a mash-up. */
+export function artPrompt(config: Config, lead: Pick<StoryRecord, 'title' | 'summary'>, look?: string): string {
+  const rules = [...config.art.rules, ...FIXED_RULES].map((r) => `- ${r.trim()}`).join('\n');
+  return [
+    config.art.style.trim(),
+    ...(look ? [`The look for this photograph: ${look.trim()}`] : []),
+    `Rules:\n${rules}`,
+    `The story: ${lead.title}. ${lead.summary}`.trim(),
+  ].join('\n\n');
 }
 
 /** The image part of a response, or a ModelOutputError (blocked, cut off, or text only). */
@@ -47,7 +71,11 @@ export async function generateArt(config: Config, prompt: string): Promise<{ ima
           ai().generateContent('art', {
             model: m,
             contents: prompt,
-            config: { responseModalities: ['TEXT', 'IMAGE'], imageConfig: { aspectRatio: '16:9' }, abortSignal },
+            config: {
+              responseModalities: ['TEXT', 'IMAGE'],
+              imageConfig: { aspectRatio: '16:9', ...(config.art.image_size ? { imageSize: config.art.image_size } : {}) },
+              abortSignal,
+            },
           }),
         ),
       ),
@@ -76,20 +104,23 @@ export async function makeArt(
   config: Config,
   lead: Pick<StoryRecord, 'title' | 'summary'> | undefined,
   path: string,
-): Promise<{ color: string; model: string } | undefined> {
+  recent: string[] = [],
+): Promise<{ color: string; model: string; look?: string } | undefined> {
   if (!config.art.enabled) return undefined;
   if (!lead) {
     console.warn('::warning::No lead story to illustrate; the episode has no image.');
     return undefined;
   }
+  const look = pickLook(config.art.looks, recent);
+  if (look) console.log(`[art] look: ${look}`);
   try {
     const { webp, color, model } = await withTimeout(ART_DEADLINE_MS, async () => {
-      const { image, model } = await generateArt(config, artPrompt(config, lead));
+      const { image, model } = await generateArt(config, artPrompt(config, lead, look));
       return { ...(await processArt(config, image)), model };
     });
     writeFileSync(path, webp);
     console.log(`[art] ${model}: ${Math.round(webp.length / 1024)} KB, theme colour ${color}`);
-    return { color, model };
+    return { color, model, ...(look ? { look } : {}) };
   } catch (err) {
     console.warn(`::warning::No episode image (${describeError(err)}); the site draws one instead.`);
     return undefined;

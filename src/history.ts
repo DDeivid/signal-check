@@ -33,6 +33,8 @@ export interface EpisodeArt {
   /** Theme colour picked from the image, #RRGGBB. */
   color: string;
   model: string;
+  /** The look drawn from art.looks, so it isn't drawn again soon. */
+  look?: string;
 }
 
 /** One published episode. Written to data/episodes.json by `npm run register`. */
