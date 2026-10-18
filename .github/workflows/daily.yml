@@ -2,6 +2,9 @@ name: Daily episode
 
 on:
   schedule:
+    # The main trigger is cron-job.org at 08:02 Tallinn (workflow_dispatch with scheduled=true):
+    # GitHub's own schedule is best effort and has been hours late or silent. These crons are the
+    # backup; the gate makes them no-ops once today's episode exists.
     # GitHub cron is UTC-only and can delay or drop runs, so there are six triggers and the
     # gate job decides. Only triggers that land 08:00–08:55 in Tallinn go ahead:
     # summer (UTC+3) uses the 05:xx ones, winter (UTC+2) the 06:xx ones. Three tries a day.
@@ -34,6 +37,10 @@ on:
         description: Allow resuming a script from another day
         type: boolean
         default: false
+      scheduled:
+        description: Treat as the daily scheduled run (time window and duplicate checks apply). Used by cron-job.org
+        type: boolean
+        default: false
 
 permissions: {}
 
@@ -63,6 +70,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           EVENT: ${{ github.event_name }}
+          SCHEDULED: ${{ github.event_name == 'schedule' || inputs.scheduled == true }}
         run: |
           DATE=$(TZ=$TZ_SHOW date +%F)
           NOW=$(TZ=$TZ_SHOW date +%H%M)
@@ -70,7 +78,8 @@ jobs:
           echo "date=$DATE" >> "$GITHUB_OUTPUT"
           decide() { echo "run=$1" >> "$GITHUB_OUTPUT"; echo "### Gate: $2" >> "$GITHUB_STEP_SUMMARY"; echo "$2"; exit 0; }
           echo "Trigger: $EVENT ${{ github.event.schedule }} · Tallinn $(TZ=$TZ_SHOW date '+%a %F %H:%M')" >> "$GITHUB_STEP_SUMMARY"
-          if [ "$EVENT" != schedule ]; then decide true "manual run, no time check"; fi
+          if [ "$SCHEDULED" != true ]; then decide true "manual run, no time check"; fi
+          [ "$EVENT" = schedule ] || echo "External daily trigger (scheduled=true)" >> "$GITHUB_STEP_SUMMARY"
           EXTRA=$(yq -r ".schedule.extra_days[\"$DATE\"] // \"\"" podcast.config.yaml)
           [ "$DAY" -le 5 ] || [ -n "$EXTRA" ] || decide false "weekend in Tallinn; skipping"
           [ -z "$EXTRA" ] || echo "Extra episode today, $EXTRA format" >> "$GITHUB_STEP_SUMMARY"
